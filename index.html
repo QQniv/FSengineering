@@ -180,7 +180,7 @@
     },{threshold:.2});
     reveals.forEach(el=>io.observe(el));
 
-    // === Реалистичная анимация силуэта на canvas (без картинок) ===
+    // === Реалистичная анимация силуэта на canvas: чередование направления + накопление мусора ===
     (function () {
       const cvs = document.getElementById("scene");
       if (!cvs) return;
@@ -203,6 +203,30 @@
       const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
       const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
+      // бутылка
+      const drawBottle = (x, y, rot = 0, scale=1) => {
+        ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(scale, scale);
+        // тень
+        ctx.fillStyle = "rgba(0,0,0,0.12)";
+        ctx.beginPath(); ctx.ellipse(0, 32, 18, 6, 0, 0, TAU); ctx.fill();
+        // тело
+        ctx.fillStyle = "#2b8cff"; ctx.strokeStyle = "#1a58cc"; ctx.lineWidth = 1.2;
+        const bw = 26, bh = 64, r = 10;
+        ctx.beginPath();
+        ctx.moveTo(-bw/2+r, -bh/2);
+        ctx.lineTo(bw/2-r, -bh/2);
+        ctx.quadraticCurveTo(bw/2, -bh/2, bw/2, -bh/2+r);
+        ctx.lineTo(bw/2, bh/2-r);
+        ctx.quadraticCurveTo(bw/2, bh/2, bw/2-r, bh/2);
+        ctx.lineTo(-bw/2+r, bh/2);
+        ctx.quadraticCurveTo(-bw/2, bh/2, -bw/2, bh/2-r);
+        ctx.lineTo(-bw/2, -bh/2+r);
+        ctx.quadraticCurveTo(-bw/2, -bh/2, -bw/2+r, -bh/2);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#1047a8"; ctx.fillRect(-8, -bh/2-8, 16, 10);
+        ctx.restore();
+      };
+
       // Actor (силуэт)
       class Actor {
         constructor() {
@@ -214,10 +238,13 @@
             head: 0, bodyTilt: 0
           };
         }
-        draw(ctx, x, yBase, scale = 1) {
+        draw(ctx, x, yBase, scale = 1, flip=false) {
           const H = this.h * scale, W = this.w * scale;
-          const yFoot = yBase, yAnkle = yFoot - H * 0.03, yKnee = yFoot - H * 0.28, yHip = yFoot - H * 0.55, yShoulder = yFoot - H * 0.78, yHead = yFoot - H * 0.94;
-          const cx = x + W * 0.55; // вертикаль корпуса
+          const yHip = yBase - H * 0.55, yShoulder = yBase - H * 0.78, yHead = yBase - H * 0.94;
+
+          ctx.save();
+          if(flip){ ctx.translate(x + W, 0); ctx.scale(-1,1); x = 0; } // зеркалим при движении справа-налево
+          const cx = x + W * 0.55;
 
           // тень пола
           ctx.fillStyle = "rgba(0,0,0,0.12)";
@@ -237,7 +264,6 @@
           ctx.beginPath(); ctx.ellipse(0, -H * 0.02, W * 0.10, W * 0.125, 0, 0, TAU); ctx.fill();
           ctx.restore();
 
-          // ноги
           const drawLeg = (side, hipA, kneeA) => {
             const dir = side === "L" ? -1 : 1;
             const hipX = cx + dir * W * 0.10;
@@ -245,24 +271,18 @@
             const kneeY = yHip + Math.cos(hipA) * H * 0.20;
             const ankleX = kneeX + Math.sin(kneeA) * W * 0.22;
             const ankleY = kneeY + Math.cos(kneeA) * H * 0.22;
-
-            // бедро
             ctx.beginPath();
             ctx.moveTo(hipX - dir * W * 0.035, yHip);
             ctx.lineTo(kneeX - dir * W * 0.02, kneeY);
             ctx.lineTo(kneeX + dir * W * 0.02, kneeY);
             ctx.lineTo(hipX + dir * W * 0.035, yHip);
             ctx.closePath(); ctx.fill();
-
-            // голень
             ctx.beginPath();
             ctx.moveTo(kneeX - dir * W * 0.02, kneeY);
             ctx.lineTo(ankleX - dir * W * 0.02, ankleY);
             ctx.lineTo(ankleX + dir * W * 0.02, ankleY);
             ctx.lineTo(kneeX + dir * W * 0.02, kneeY);
             ctx.closePath(); ctx.fill();
-
-            // стопа
             ctx.beginPath();
             ctx.moveTo(ankleX - W * 0.05, ankleY);
             ctx.lineTo(ankleX + W * 0.06, ankleY);
@@ -273,61 +293,57 @@
           drawLeg("L", this.angles.hipL, this.angles.kneeL);
           drawLeg("R", this.angles.hipR, this.angles.kneeR);
 
-          // руки
           const drawArm = (side, shoulderA, elbowA, hasBottle = false) => {
             const dir = side === "L" ? -1 : 1;
+            const yHip = yBase - H * 0.55, yShoulder = yBase - H * 0.78;
             const shX = cx + dir * W * 0.11, shY = yShoulder;
             const elbowX = shX + Math.sin(shoulderA) * W * 0.23;
             const elbowY = shY + Math.cos(shoulderA) * H * 0.20;
             const handX = elbowX + Math.sin(elbowA) * W * 0.22;
             const handY = elbowY + Math.cos(elbowA) * H * 0.22;
-
-            // плечо
             ctx.beginPath();
             ctx.moveTo(shX - dir * W * 0.02, shY);
             ctx.lineTo(elbowX - dir * W * 0.02, elbowY);
             ctx.lineTo(elbowX + dir * W * 0.02, elbowY);
             ctx.lineTo(shX + dir * W * 0.02, shY);
             ctx.closePath(); ctx.fill();
-
-            // предплечье
             ctx.beginPath();
             ctx.moveTo(elbowX - dir * W * 0.02, elbowY);
             ctx.lineTo(handX - dir * W * 0.02, handY);
             ctx.lineTo(handX + dir * W * 0.02, handY);
             ctx.lineTo(elbowX + dir * W * 0.02, elbowY);
             ctx.closePath(); ctx.fill();
-
             if (hasBottle) drawBottle(handX, handY, -0.15);
             return {handX, handY};
           };
           this.handR = drawArm("R", this.angles.armR, this.angles.elbowR, true);
           drawArm("L", this.angles.armL, this.angles.elbowL, false);
+
+          ctx.restore();
         }
       }
 
-      // бутылка
-      const drawBottle = (x, y, rot = 0) => {
-        ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
-        ctx.fillStyle = "#2b8cff"; ctx.strokeStyle = "#1a58cc"; ctx.lineWidth = 1.5;
-        const bw = 26, bh = 64, r = 10;
-        ctx.beginPath();
-        ctx.moveTo(-bw/2+r, -bh/2);
-        ctx.lineTo(bw/2-r, -bh/2);
-        ctx.quadraticCurveTo(bw/2, -bh/2, bw/2, -bh/2+r);
-        ctx.lineTo(bw/2, bh/2-r);
-        ctx.quadraticCurveTo(bw/2, bh/2, bw/2-r, bh/2);
-        ctx.lineTo(-bw/2+r, bh/2);
-        ctx.quadraticCurveTo(-bw/2, bh/2, -bw/2, bh/2-r);
-        ctx.lineTo(-bw/2, -bh/2+r);
-        ctx.quadraticCurveTo(-bw/2, -bh/2, -bw/2+r, -bh/2);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#1047a8"; ctx.fillRect(-8, -bh/2-8, 16, 10);
-        ctx.restore();
-      };
-
+      // ===== Состояние сцены
       const actor = new Actor();
       let playing = false, startT = 0;
+      let cycle = 0;                 // номер цикла
+      let dirLeftToRight = true;     // направление текущего цикла
+      let droppedThisCycle = false;  // уже добавили бутылку в мусор?
+
+      // «мусор» — массив бутылок, остающихся на полу
+      const trash = [];              // {x, y, r, s}
+      const TRASH_LIMIT = 120;
+
+      function addTrash(x, y, r, s){
+        trash.push({x, y, r, s});
+        if(trash.length > TRASH_LIMIT) trash.splice(0, trash.length - TRASH_LIMIT);
+      }
+
+      function drawTrash(yBase){
+        for(const t of trash){
+          drawBottle(t.x, t.y, t.r, t.s);
+        }
+      }
 
       function draw(now) {
         const w = cvs.clientWidth || cvs.width / dpr;
@@ -335,15 +351,31 @@
         const yBase = h * 0.95;
         ctx.clearRect(0, 0, w, h);
 
+        // фон: лёгкий градиент пола (еле заметный)
+        const g = ctx.createLinearGradient(0, yBase-80, 0, yBase+20);
+        g.addColorStop(0, "rgba(10,31,51,0.03)");
+        g.addColorStop(1, "rgba(10,31,51,0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, yBase-80, w, 100);
+
+        // уже накопившийся мусор
+        drawTrash(yBase);
+
         const T = 8;                                  // длительность
         const t = clamp((now - startT) / 1000, 0, T);
 
-        // движение по X
-        const xEnter = -0.2 * w, xExit = 1.2 * w;
+        // направление
+        const leftToRight = dirLeftToRight;
+
+        // движение по X (учитываем направление)
+        const xEnter = leftToRight ? -0.2 * w : 1.2 * w;
+        const xMid   = leftToRight ? mix(-0.2*w, 1.2*w, 0.35) : mix(1.2*w, -0.2*w, 0.35);
+        const xExit  = leftToRight ? 1.2 * w : -0.2 * w;
+
         let x;
-        if (t < 2) x = mix(xEnter, mix(xEnter, xExit, 0.35), easeOutCubic(t/2));
-        else if (t < 5) x = mix(xEnter, xExit, 0.35);
-        else x = mix(mix(xEnter, xExit, 0.35), xExit, (t - 5) / 3);
+        if (t < 2) x = mix(xEnter, xMid, easeOutCubic(t/2));
+        else if (t < 5) x = xMid;
+        else x = mix(xMid, xExit, (t - 5) / 3);
 
         // шаги/пружина
         const step = Math.sin(t * TAU * 0.75) * 6;
@@ -351,7 +383,8 @@
         const yMan = yBase - actor.h * scale + step;
 
         // походка
-        actor.angles.hipL = Math.sin(t * TAU * 0.75) * 0.30;
+        const walkPhase = (leftToRight ? 1 : -1) * Math.sin(t * TAU * 0.75);
+        actor.angles.hipL = walkPhase * 0.30;
         actor.angles.kneeL = actor.angles.hipL + 0.6;
         actor.angles.hipR = -actor.angles.hipL;
         actor.angles.kneeR = actor.angles.hipR + 0.6;
@@ -367,40 +400,71 @@
         else if (t < 5){ const k = easeOutCubic((t-4.2)/0.8); actor.angles.armR = mix(-1.0,0.2,k); actor.angles.elbowR = mix(1.7,0.8,k); actor.angles.head = mix(-0.2,0,k); }
         else { actor.angles.armR = 0.2; actor.angles.elbowR = 0.8; actor.angles.head = 0; }
 
-        // рисуем силуэт
-        actor.draw(ctx, x, yBase, scale);
+        // силуэт (flip, если идём справа-налево)
+        actor.draw(ctx, x, yBase, scale, !leftToRight);
 
-        // координата «у рта»
-        const mouthX = x + actor.w * scale * 0.45;
+        // точка «у рта»
+        const mouthX = x + actor.w * scale * (leftToRight ? 0.45 : 0.55);
         const mouthY = yMan + actor.h * scale * 0.35;
 
         // бутылка: в руке до 4.2с, дальше падение/перекат
+        let bx, by, brot;
         if (t <= 4.2) {
           const holdK = t < 2.2 ? 0 : (t < 3.4 ? easeInOut((t - 2.2)/1.2) : 1);
-          const bx0 = x + actor.w * scale * 0.55;
+          const bx0 = x + actor.w * scale * (leftToRight ? 0.55 : 0.45);
           const by0 = yMan + actor.h * scale * 0.7;
-          const bx = mix(bx0, mouthX, holdK);
-          const by = mix(by0, mouthY, holdK);
-          drawBottle(bx, by, -0.15);
+          bx = mix(bx0, mouthX, holdK);
+          by = mix(by0, mouthY, holdK);
+          brot = -0.15 * (leftToRight ? 1 : -1);
+          drawBottle(bx, by, brot);
         } else {
           const k = clamp((t - 4.2) / 2.0, 0, 1);
           const g = 1400, vy0 = -60;
           const fall = vy0 * k + 0.5 * g * k * k;
-          let by = mouthY + fall / 100;
-          let bx = mouthX + mix(0, 40 * scale, k);
-          if (by > yBase - 14) { by = yBase - 14; bx += (k - 1) * -30 * scale; }
-          drawBottle(bx, by, -0.3 + k * 0.8);
+          by = mouthY + fall / 100;
+          // горизонтальный дрейф от руки
+          bx = mouthX + mix(0, (leftToRight ? 40 : -40) * scale, k);
+          if (by > yBase - 14) {
+            by = yBase - 14;
+            // на земле — небольшой откат
+            bx += (k - 1) * (leftToRight ? -30 : 30) * scale;
+            // единожды добавляем бутылку в мусор
+            if (!droppedThisCycle) {
+              const rot = (Math.random()*0.6 - 0.3) + (leftToRight ? 0.2 : -0.2);
+              const s = 0.9 + Math.random()*0.2;
+              addTrash(bx, by, rot, s);
+              droppedThisCycle = true;
+            }
+          }
+          brot = -0.3 + k * 0.8 * (leftToRight ? 1 : -1);
+          drawBottle(bx, by, brot);
         }
 
         if (t < T && playing) requestAnimationFrame(draw);
       }
 
-      function start(){ if(playing) return; playing = true; startT = performance.now(); requestAnimationFrame(draw); }
+      function start(){
+        if(playing) return;
+        playing = true;
+        startT = performance.now();
+        droppedThisCycle = false;
+        requestAnimationFrame(draw);
+      }
       function stop(){ playing = false; }
 
       const sec = document.querySelector(".why");
       const ioScene = new IntersectionObserver((ents) => {
-        ents.forEach(e => e.isIntersecting ? start() : stop());
+        ents.forEach(e => {
+          if(e.isIntersecting){
+            // каждый новый вход в секцию запускает новый цикл
+            // и переключает направление
+            dirLeftToRight = (cycle % 2 === 0);
+            cycle++;
+            start();
+          } else {
+            stop();
+          }
+        });
       },{threshold:.35});
       ioScene.observe(sec);
     })();
