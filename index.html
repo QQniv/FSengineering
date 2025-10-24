@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FS • Счётчик пластиковых бутылок</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header id="topbar" class="topbar">
+    <div class="logo">FS</div>
+    <nav class="nav">
+      <a href="#about">О проекте</a>
+      <a href="#tech">Технологии</a>
+      <a href="#contact">Контакты</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home" aria-labelledby="counter-title">
+      <div class="capsule" role="group" aria-live="polite" aria-label="Счётчик выброшенных бутылок в тысячах">
+        <div id="odo" class="odo"></div>
+      </div>
+      <h1 id="counter-title" class="subtitle">
+        Именно столько тысяч пластиковых бутылок выбрасывается в России, пока вы здесь
+      </h1>
+    </section>
+
+    <section class="why" id="about">
+      <div class="scene" aria-hidden="true">
+        <canvas id="scene"></canvas>
+      </div>
+      <h2 class="reveal">Почему это важно</h2>
+      <p class="reveal">
+        Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут. 
+        FS создаёт системы, которые очищают воду и уменьшают количество отходов, 
+        возвращая природе то, что ей принадлежит. Мы верим, что будущее — это не борьба с природой, а забота о ней.
+      </p>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
