@@ -4,7 +4,88 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FS • Счётчик пластиковых бутылок</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    :root{
+      --bg:#2b8cff;
+      --capsule:#ffffff;
+      --ink:#222831;
+      --text:#0a1f33;
+      --shadow:rgba(0,0,0,.15);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg); color:var(--ink);
+    }
+
+    /* Header */
+    .topbar{
+      position:sticky; top:0; z-index:20; height:80px;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 8vw; color:#fff;
+      background:rgba(255,255,255,.05); backdrop-filter:blur(20px);
+      transition:background .3s ease;
+    }
+    .topbar.scrolled{ background:rgba(10,31,51,.25) }
+    .logo{
+      font-family:Impact, Haettenschweiler, 'Arial Black', sans-serif;
+      font-size:54px; letter-spacing:1px; color:#fff;
+    }
+    .nav a{
+      color:#fff; text-decoration:none; margin-left:40px;
+      font-weight:600; font-size:16px; opacity:.9;
+    }
+    .nav a:hover{ opacity:1 }
+
+    /* Hero / Counter */
+    .hero{
+      min-height:calc(100vh - 80px);
+      display:grid; place-items:center; gap:28px; padding:24px 0 40px;
+    }
+    .capsule{
+      background:var(--capsule); border-radius:999px;
+      width:min(1000px,85vw); height:min(55vh,420px);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 25px 80px var(--shadow), inset 0 0 10px rgba(255,255,255,.3);
+    }
+    .odo{ display:flex; gap:8px; align-items:center }
+    .digit{ position:relative; width:clamp(50px,7vw,90px); height:clamp(90px,15vw,160px); overflow:hidden; border-radius:12px }
+    .strip{ position:absolute; inset:0; display:flex; flex-direction:column; will-change:transform }
+    .cell{
+      height:100%; display:flex; align-items:center; justify-content:center;
+      font-family:Impact, Haettenschweiler, 'Arial Black', sans-serif;
+      font-weight:900; font-size:clamp(60px,13vw,150px); color:var(--ink);
+    }
+    .digit.anim .strip{ transition:transform .45s cubic-bezier(.25,.8,.25,1) }
+
+    .subtitle{
+      color:#fff; max-width:800px;
+      font-family:Impact, Haettenschweiler, 'Arial Black', sans-serif;
+      font-size:clamp(18px,2.4vw,26px); line-height:1.4; text-align:center; padding:0 16px;
+    }
+
+    /* Why section with canvas scene */
+    .why{
+      position:relative; background:#fff; color:var(--text);
+      padding:120px 8vw; display:flex; flex-direction:column; align-items:center; text-align:center; gap:40px; overflow:hidden;
+    }
+    .scene{ position:absolute; inset:0; z-index:0; opacity:.25; pointer-events:none }
+    #scene{ width:100%; height:100%; display:block }
+    .why h2{
+      position:relative; z-index:1;
+      font-family:Impact, Haettenschweiler, 'Arial Black', sans-serif;
+      font-size:clamp(36px,5vw,72px); line-height:1.1; letter-spacing:-.02em; max-width:900px;
+    }
+    .why p{
+      position:relative; z-index:1;
+      max-width:720px; font-size:clamp(18px,2vw,22px); line-height:1.6; color:#30455c; margin:0 auto 16px;
+    }
+
+    /* Reveal */
+    .reveal{ opacity:0; transform:translateY(40px); transition:opacity .8s ease, transform .8s ease }
+    .reveal.visible{ opacity:1; transform:translateY(0) }
+  </style>
 </head>
 <body>
   <header id="topbar" class="topbar">
@@ -39,6 +120,290 @@
     </section>
   </main>
 
-  <script src="./app.js"></script>
+  <!-- Scripts -->
+  <script>
+    // Sticky header
+    const header = document.getElementById('topbar');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    // Counter (thousands)
+    (function(){
+      const BPS = 6000;        // бутылок в секунду
+      const DIGITS = 6;        // 6 разрядов: считаем в тысячах
+      const odo = document.getElementById('odo');
+
+      function makeDigit(){
+        const d = document.createElement('div'); d.className='digit';
+        const s = document.createElement('div'); s.className='strip';
+        for(let k=0;k<10;k++){ const c=document.createElement('div'); c.className='cell'; c.textContent=k; s.appendChild(c); }
+        const e = document.createElement('div'); e.className='cell'; e.textContent='0'; s.appendChild(e);
+        d.appendChild(s); return d;
+      }
+      function build(){ odo.innerHTML=''; for(let i=0;i<DIGITS;i++) odo.appendChild(makeDigit()); }
+      build();
+
+      let cellH=0;
+      function measure(){ const s=odo.querySelector('.cell'); if(s){ cellH=Math.round(s.getBoundingClientRect().height);} }
+      measure(); addEventListener('resize', ()=>{ measure(); setNumber(count); });
+
+      let count=300000, prev=new Array(DIGITS).fill(0);
+      function setNumber(n){
+        const str = Math.max(0,Math.floor(n)).toString().padStart(DIGITS,'0');
+        const strips = odo.querySelectorAll('.digit .strip');
+        for(let i=0;i<DIGITS;i++){
+          const st=strips[i]; const cur=+str[i];
+          if(cur!==prev[i]){
+            st.parentElement.classList.add('anim');
+            st.style.transform='translate3d(0,'+(-cellH*cur)+'px,0)';
+          }
+        }
+        prev = str.split('').map(Number);
+      }
+
+      setNumber(count);
+      let acc=0,last=performance.now();
+      function loop(now){
+        const dt=(now-last)/1000; last=now;
+        acc += (BPS*dt)/1000;      // переводим в «тысячи»
+        while(acc>=0.1){ acc-=0.1; count+=0.1; setNumber(count); }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    })();
+
+    // Reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+    },{threshold:.2});
+    reveals.forEach(el=>io.observe(el));
+
+    // === Реалистичная анимация силуэта на canvas (без картинок) ===
+    (function () {
+      const cvs = document.getElementById("scene");
+      if (!cvs) return;
+      const ctx = cvs.getContext("2d");
+      let dpr = Math.max(1, window.devicePixelRatio || 1);
+
+      function resize() {
+        const r = cvs.getBoundingClientRect();
+        cvs.width = Math.max(2, Math.floor(r.width * dpr));
+        cvs.height = Math.max(2, Math.floor(r.height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resize();
+      addEventListener("resize", resize);
+
+      // utils
+      const TAU = Math.PI * 2;
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      const mix = (a, b, t) => a + (b - a) * t;
+      const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+      // Actor (силуэт)
+      class Actor {
+        constructor() {
+          this.h = 520;                // базовая высота
+          this.w = this.h * 0.35;
+          this.angles = {
+            hipL: 0, hipR: 0, kneeL: 0, kneeR: 0,
+            armL: 0, armR: 0, elbowL: 0, elbowR: 0,
+            head: 0, bodyTilt: 0
+          };
+        }
+        draw(ctx, x, yBase, scale = 1) {
+          const H = this.h * scale, W = this.w * scale;
+          const yFoot = yBase, yAnkle = yFoot - H * 0.03, yKnee = yFoot - H * 0.28, yHip = yFoot - H * 0.55, yShoulder = yFoot - H * 0.78, yHead = yFoot - H * 0.94;
+          const cx = x + W * 0.55; // вертикаль корпуса
+
+          // тень пола
+          ctx.fillStyle = "rgba(0,0,0,0.12)";
+          ctx.beginPath(); ctx.ellipse(cx, yBase - 6, 90 * scale, 12 * scale, 0, 0, TAU); ctx.fill();
+
+          // туловище
+          ctx.fillStyle = "#0b1e33";
+          ctx.beginPath();
+          ctx.moveTo(cx - W * 0.12, yHip);
+          ctx.quadraticCurveTo(cx - W * 0.14, yShoulder, cx - W * 0.06, yHead);
+          ctx.lineTo(cx + W * 0.06, yHead);
+          ctx.quadraticCurveTo(cx + W * 0.14, yShoulder, cx + W * 0.12, yHip);
+          ctx.closePath(); ctx.fill();
+
+          // голова
+          ctx.save(); ctx.translate(cx, yHead); ctx.rotate(this.angles.head);
+          ctx.beginPath(); ctx.ellipse(0, -H * 0.02, W * 0.10, W * 0.125, 0, 0, TAU); ctx.fill();
+          ctx.restore();
+
+          // ноги
+          const drawLeg = (side, hipA, kneeA) => {
+            const dir = side === "L" ? -1 : 1;
+            const hipX = cx + dir * W * 0.10;
+            const kneeX = hipX + Math.sin(hipA) * W * 0.20;
+            const kneeY = yHip + Math.cos(hipA) * H * 0.20;
+            const ankleX = kneeX + Math.sin(kneeA) * W * 0.22;
+            const ankleY = kneeY + Math.cos(kneeA) * H * 0.22;
+
+            // бедро
+            ctx.beginPath();
+            ctx.moveTo(hipX - dir * W * 0.035, yHip);
+            ctx.lineTo(kneeX - dir * W * 0.02, kneeY);
+            ctx.lineTo(kneeX + dir * W * 0.02, kneeY);
+            ctx.lineTo(hipX + dir * W * 0.035, yHip);
+            ctx.closePath(); ctx.fill();
+
+            // голень
+            ctx.beginPath();
+            ctx.moveTo(kneeX - dir * W * 0.02, kneeY);
+            ctx.lineTo(ankleX - dir * W * 0.02, ankleY);
+            ctx.lineTo(ankleX + dir * W * 0.02, ankleY);
+            ctx.lineTo(kneeX + dir * W * 0.02, kneeY);
+            ctx.closePath(); ctx.fill();
+
+            // стопа
+            ctx.beginPath();
+            ctx.moveTo(ankleX - W * 0.05, ankleY);
+            ctx.lineTo(ankleX + W * 0.06, ankleY);
+            ctx.lineTo(ankleX + W * 0.05, ankleY + H * 0.02);
+            ctx.lineTo(ankleX - W * 0.06, ankleY + H * 0.02);
+            ctx.closePath(); ctx.fill();
+          };
+          drawLeg("L", this.angles.hipL, this.angles.kneeL);
+          drawLeg("R", this.angles.hipR, this.angles.kneeR);
+
+          // руки
+          const drawArm = (side, shoulderA, elbowA, hasBottle = false) => {
+            const dir = side === "L" ? -1 : 1;
+            const shX = cx + dir * W * 0.11, shY = yShoulder;
+            const elbowX = shX + Math.sin(shoulderA) * W * 0.23;
+            const elbowY = shY + Math.cos(shoulderA) * H * 0.20;
+            const handX = elbowX + Math.sin(elbowA) * W * 0.22;
+            const handY = elbowY + Math.cos(elbowA) * H * 0.22;
+
+            // плечо
+            ctx.beginPath();
+            ctx.moveTo(shX - dir * W * 0.02, shY);
+            ctx.lineTo(elbowX - dir * W * 0.02, elbowY);
+            ctx.lineTo(elbowX + dir * W * 0.02, elbowY);
+            ctx.lineTo(shX + dir * W * 0.02, shY);
+            ctx.closePath(); ctx.fill();
+
+            // предплечье
+            ctx.beginPath();
+            ctx.moveTo(elbowX - dir * W * 0.02, elbowY);
+            ctx.lineTo(handX - dir * W * 0.02, handY);
+            ctx.lineTo(handX + dir * W * 0.02, handY);
+            ctx.lineTo(elbowX + dir * W * 0.02, elbowY);
+            ctx.closePath(); ctx.fill();
+
+            if (hasBottle) drawBottle(handX, handY, -0.15);
+            return {handX, handY};
+          };
+          this.handR = drawArm("R", this.angles.armR, this.angles.elbowR, true);
+          drawArm("L", this.angles.armL, this.angles.elbowL, false);
+        }
+      }
+
+      // бутылка
+      const drawBottle = (x, y, rot = 0) => {
+        ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+        ctx.fillStyle = "#2b8cff"; ctx.strokeStyle = "#1a58cc"; ctx.lineWidth = 1.5;
+        const bw = 26, bh = 64, r = 10;
+        ctx.beginPath();
+        ctx.moveTo(-bw/2+r, -bh/2);
+        ctx.lineTo(bw/2-r, -bh/2);
+        ctx.quadraticCurveTo(bw/2, -bh/2, bw/2, -bh/2+r);
+        ctx.lineTo(bw/2, bh/2-r);
+        ctx.quadraticCurveTo(bw/2, bh/2, bw/2-r, bh/2);
+        ctx.lineTo(-bw/2+r, bh/2);
+        ctx.quadraticCurveTo(-bw/2, bh/2, -bw/2, bh/2-r);
+        ctx.lineTo(-bw/2, -bh/2+r);
+        ctx.quadraticCurveTo(-bw/2, -bh/2, -bw/2+r, -bh/2);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#1047a8"; ctx.fillRect(-8, -bh/2-8, 16, 10);
+        ctx.restore();
+      };
+
+      const actor = new Actor();
+      let playing = false, startT = 0;
+
+      function draw(now) {
+        const w = cvs.clientWidth || cvs.width / dpr;
+        const h = cvs.clientHeight || cvs.height / dpr;
+        const yBase = h * 0.95;
+        ctx.clearRect(0, 0, w, h);
+
+        const T = 8;                                  // длительность
+        const t = clamp((now - startT) / 1000, 0, T);
+
+        // движение по X
+        const xEnter = -0.2 * w, xExit = 1.2 * w;
+        let x;
+        if (t < 2) x = mix(xEnter, mix(xEnter, xExit, 0.35), easeOutCubic(t/2));
+        else if (t < 5) x = mix(xEnter, xExit, 0.35);
+        else x = mix(mix(xEnter, xExit, 0.35), xExit, (t - 5) / 3);
+
+        // шаги/пружина
+        const step = Math.sin(t * TAU * 0.75) * 6;
+        const scale = clamp(h / actor.h * 0.9, 0.5, 1);
+        const yMan = yBase - actor.h * scale + step;
+
+        // походка
+        actor.angles.hipL = Math.sin(t * TAU * 0.75) * 0.30;
+        actor.angles.kneeL = actor.angles.hipL + 0.6;
+        actor.angles.hipR = -actor.angles.hipL;
+        actor.angles.kneeR = actor.angles.hipR + 0.6;
+
+        // левая рука — противофаза
+        actor.angles.armL = -actor.angles.hipL * 0.65;
+        actor.angles.elbowL = actor.angles.armL + 0.8;
+
+        // правая рука (пить)
+        if (t < 2.2){ actor.angles.armR = 0.1; actor.angles.elbowR = 0.9; actor.angles.head = 0; }
+        else if (t < 3.4){ const k = easeInOut((t-2.2)/1.2); actor.angles.armR = mix(0.1,-1.0,k); actor.angles.elbowR = mix(0.9,1.7,k); actor.angles.head = mix(0,-0.2,k); }
+        else if (t < 4.2){ const k=(t-3.4)/0.8; actor.angles.armR = -1.0 + Math.sin(k*TAU)*0.05; actor.angles.elbowR = 1.7 + Math.sin(k*TAU)*0.03; actor.angles.head = -0.2; }
+        else if (t < 5){ const k = easeOutCubic((t-4.2)/0.8); actor.angles.armR = mix(-1.0,0.2,k); actor.angles.elbowR = mix(1.7,0.8,k); actor.angles.head = mix(-0.2,0,k); }
+        else { actor.angles.armR = 0.2; actor.angles.elbowR = 0.8; actor.angles.head = 0; }
+
+        // рисуем силуэт
+        actor.draw(ctx, x, yBase, scale);
+
+        // координата «у рта»
+        const mouthX = x + actor.w * scale * 0.45;
+        const mouthY = yMan + actor.h * scale * 0.35;
+
+        // бутылка: в руке до 4.2с, дальше падение/перекат
+        if (t <= 4.2) {
+          const holdK = t < 2.2 ? 0 : (t < 3.4 ? easeInOut((t - 2.2)/1.2) : 1);
+          const bx0 = x + actor.w * scale * 0.55;
+          const by0 = yMan + actor.h * scale * 0.7;
+          const bx = mix(bx0, mouthX, holdK);
+          const by = mix(by0, mouthY, holdK);
+          drawBottle(bx, by, -0.15);
+        } else {
+          const k = clamp((t - 4.2) / 2.0, 0, 1);
+          const g = 1400, vy0 = -60;
+          const fall = vy0 * k + 0.5 * g * k * k;
+          let by = mouthY + fall / 100;
+          let bx = mouthX + mix(0, 40 * scale, k);
+          if (by > yBase - 14) { by = yBase - 14; bx += (k - 1) * -30 * scale; }
+          drawBottle(bx, by, -0.3 + k * 0.8);
+        }
+
+        if (t < T && playing) requestAnimationFrame(draw);
+      }
+
+      function start(){ if(playing) return; playing = true; startT = performance.now(); requestAnimationFrame(draw); }
+      function stop(){ playing = false; }
+
+      const sec = document.querySelector(".why");
+      const ioScene = new IntersectionObserver((ents) => {
+        ents.forEach(e => e.isIntersecting ? start() : stop());
+      },{threshold:.35});
+      ioScene.observe(sec);
+    })();
+  </script>
 </body>
 </html>
