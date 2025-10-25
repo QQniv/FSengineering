@@ -18,12 +18,12 @@
   </header>
 
   <main>
-    <!-- ===== HERO со счётчиком ===== -->
+    <!-- ===== HERO со счётчиком (синий фон) ===== -->
     <section class="hero">
-      <div class="capsule">
+      <div class="capsule reveal">
         <div id="odo" class="odo" aria-live="polite"></div>
       </div>
-      <h1 class="subtitle">
+      <h1 class="subtitle reveal">
         Именно столько тысяч пластиковых бутылок выбрасывается в России, пока вы здесь
       </h1>
     </section>
@@ -31,8 +31,8 @@
     <!-- ===== ПОЧЕМУ ЭТО ВАЖНО (падающие бутылки) ===== -->
     <section class="why" id="about" aria-labelledby="why-title">
       <canvas id="bottleCanvas" aria-hidden="true"></canvas>
-      <h2 id="why-title">Почему это важно</h2>
-      <p>
+      <h2 id="why-title" class="reveal">Почему это важно</h2>
+      <p class="reveal">
         Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут.
         FS создаёт системы, которые очищают воду и уменьшают количество отходов,
         возвращая природе то, что ей принадлежит. Мы верим, что будущее —
@@ -42,14 +42,14 @@
 
     <!-- ===== КАК МЫ ОЧИЩАЕМ ВОДУ ===== -->
     <section class="tech" id="tech" aria-labelledby="tech-title">
-      <h2 id="tech-title">Как мы очищаем воду</h2>
-      <p class="lead">
+      <h2 id="tech-title" class="reveal">Как мы очищаем воду</h2>
+      <p class="lead reveal">
         Поток проходит через три ступени: грубая механическая фильтрация,
         угольный сорбционный модуль и тонкая мембрана. На выходе — чистая вода.
       </p>
 
       <div class="pipeline">
-        <svg class="pipe-svg" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMid meet">
+        <svg class="pipe-svg reveal" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMid meet">
           <defs>
             <linearGradient id="tubeGrad" x1="0" x2="1" y1="0" y2="0">
               <stop offset="0" stop-color="#eaf1ff"/>
@@ -83,29 +83,19 @@
                 fill="none" stroke="url(#waterGrad)" stroke-width="16"
                 stroke-linecap="round" stroke-linejoin="round"
                 stroke-dasharray="80 420" />
-
-          <g class="tick" transform="translate(360,110)">
-            <circle r="8" fill="#1047a8"/>
-          </g>
-          <g class="tick" transform="translate(600,40)">
-            <circle r="8" fill="#1047a8"/>
-          </g>
-          <g class="tick" transform="translate(860,180)">
-            <circle r="8" fill="#1047a8"/>
-          </g>
         </svg>
 
         <ul class="stages" aria-label="Этапы очистки">
-          <li class="stage">
-            <h3>Грубая</h3>
+          <li class="stage reveal">
+            <h3>ГРУБАЯ</h3>
             <p>Сетчатый фильтр задерживает песок, ржавчину и крупные частицы.</p>
           </li>
-          <li class="stage">
-            <h3>Сорбция</h3>
+          <li class="stage reveal">
+            <h3>СОРБЦИЯ</h3>
             <p>Активированный уголь удаляет хлор, запахи и органические примеси.</p>
           </li>
-          <li class="stage">
-            <h3>Мембрана</h3>
+          <li class="stage reveal">
+            <h3>МЕМБРАНА</h3>
             <p>Тонкая мембрана удерживает микро-загрязнения и бактерии.</p>
           </li>
         </ul>
@@ -237,17 +227,27 @@
   })();
   </script>
 
-  <!-- ===== Анимация потока воды и карточек ===== -->
+  <!-- ===== Анимация потока воды и карточек + REVEAL ===== -->
   <script>
   (function(){
-    const sec=document.getElementById('tech');
-    const io=new IntersectionObserver(entries=>{
+    // Включаем анимацию трубы, когда блок виден
+    const tech=document.getElementById('tech');
+    const ioTech=new IntersectionObserver(entries=>{
       entries.forEach(e=>{
-        if(e.isIntersecting) sec.classList.add('play');
-        else sec.classList.remove('play');
+        if(e.isIntersecting) tech.classList.add('play');
+        else tech.classList.remove('play');
       });
     },{threshold:.35});
-    io.observe(sec);
+    ioTech.observe(tech);
+
+    // Универсальный reveal для элементов с .reveal
+    const revEls=[...document.querySelectorAll('.reveal')];
+    const ioRev=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('show'); ioRev.unobserve(e.target); }
+      });
+    },{threshold:.25});
+    revEls.forEach(el=>ioRev.observe(el));
   })();
   </script>
 </body>
