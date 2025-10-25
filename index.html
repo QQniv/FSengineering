@@ -27,7 +27,7 @@
   <section class="why" id="about" aria-labelledby="why-title">
     <div class="three-bg">
       <canvas id="scene3d" aria-hidden="true"></canvas>
-      <div id="fallback" class="fallback" hidden>3D временно отключена — текст и счётчик работают.</div>
+      <div id="fallback" class="fallback" hidden>3D загружается…</div>
     </div>
     <h2 id="why-title">Почему это важно</h2>
     <p>
@@ -57,31 +57,32 @@
   })();
   </script>
 
-  <!-- ===== THREE + GLTFLoader (через CDN). Если не загрузится — покажем бейдж и не сломаем страницу. ===== -->
+  <!-- ===== THREE + GLTFLoader + DRACOLoader (на случай сжатого glb) ===== -->
   <script src="https://unpkg.com/three@0.161.0/build/three.min.js"
-          onerror="document.getElementById('fallback').hidden=false"></script>
+          onerror="(function(){const el=document.getElementById('fallback'); el.textContent='3D не загрузилась (three.js)'; el.hidden=false;})()"></script>
   <script src="https://unpkg.com/three@0.161.0/examples/js/loaders/GLTFLoader.js"
-          onerror="document.getElementById('fallback').hidden=false"></script>
-  <script>
-    // авто-скрытие уведомления
-    (function(){
-      const fb=document.getElementById('fallback');
-      if(!fb) return;
-      const show=()=>{fb.hidden=false; setTimeout(()=>fb.hidden=true,4000)};
-      if(!window.THREE || !THREE.GLTFLoader){ show() }
-      window.addEventListener('three-ready',()=> fb.hidden=true);
-    })();
-  </script>
+          onerror="(function(){const el=document.getElementById('fallback'); el.textContent='3D не загрузилась (GLTFLoader)'; el.hidden=false;})()"></script>
+  <script src="https://unpkg.com/three@0.161.0/examples/js/libs/draco/draco_decoder.js"
+          onerror="(function(){const el=document.getElementById('fallback'); el.textContent='3D не загрузилась (Draco decoder)'; el.hidden=false;})()"></script>
 
   <!-- ===== 3D: glTF (.glb). Процедурная анимация «идёт → пьёт → бросает» ===== -->
   <script>
   (function(){
-    if(!(window.THREE && THREE.GLTFLoader)) return;
+    const fb = document.getElementById('fallback');
+    const setHint = (msg, autoHide=true)=>{ fb.textContent = msg; fb.hidden=false; if(autoHide) setTimeout(()=>fb.hidden=true, 4000); };
 
-    const GLB_URL = "./model.glb";                 // положите рядом с index.html
+    if(!(window.THREE && THREE.GLTFLoader)){
+      setHint('3D временно отключена — текст и счётчик работают.', false);
+      return;
+    }
+
+    const GLB_URL = "./model.glb";   // файл должен лежать рядом с index.html (регистр важен!)
     const TRASH_LIMIT = 120;
     const T_IN=2.0, T_DRINK=2.0, T_HOLD=0.8, T_DROP=0.2, T_OUT=3.0;
     const T_TOTAL=T_IN+T_DRINK+T_HOLD+T_DROP+T_OUT;
+
+    // быстрый пинг: увидим сразу, что начали загрузку
+    setHint('Загружаем модель…');
 
     const canvas=document.getElementById('scene3d');
     const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
@@ -112,7 +113,7 @@
     const easeOut=(k)=>1-Math.pow(1-k,3);
     const clock=new THREE.Clock();
 
-    // мусор на полу
+    // мусор
     const trashGroup=new THREE.Group(); scene.add(trashGroup);
     function addTrash(m){
       if(!m) return;
@@ -166,8 +167,16 @@
     let model=null, mixer=null, rightHand=null, bottleMesh=null;
     let handBottle=null, holding=true, playing=false, startT=0, goRight=true, xMid=0;
 
+    // GLTFLoader + Draco (на всякий случай)
     const loader=new THREE.GLTFLoader();
+    if(THREE.DRACOLoader){
+      const draco = new THREE.DRACOLoader();
+      draco.setDecoderPath('https://unpkg.com/three@0.161.0/examples/js/libs/draco/');
+      loader.setDRACOLoader(draco);
+    }
+
     loader.load(GLB_URL,(gltf)=>{
+      setHint('Модель загружена', true);
       model=gltf.scene;
       model.traverse(o=>{ if(o.isMesh){o.castShadow=true;o.receiveShadow=true;} });
 
@@ -179,7 +188,7 @@
 
       if(gltf.animations && gltf.animations.length){
         mixer=new THREE.AnimationMixer(model);
-        mixer.clipAction(gltf.animations[0]).play(); // если вдруг есть клип
+        mixer.clipAction(gltf.animations[0]).play();
       }
 
       rightHand = findBone(model, [/right.*hand/i,/mixamorig.*righthand/i,/hand_r\b/i,/\br_hand\b/i,/прав.*кисть/i]);
@@ -187,6 +196,12 @@
 
       startCycle();
       window.dispatchEvent(new Event('three-ready'));
+    }, (xhr)=>{
+      // прогресс — можно удалить
+      // console.log(`loading glb: ${ (xhr.loaded/xhr.total*100||0).toFixed(0) }%`);
+    }, (err)=>{
+      console.error('GLB load error:', err);
+      setHint('Не удалось загрузить model.glb (проверь имя/путь/регистр).', false);
     });
 
     function attachBottle(){
@@ -219,7 +234,7 @@
     function startCycle(){
       if(!model) return;
       goRight=!goRight;
-      xMid = rand(-1.2,1.2);
+      xMid = THREE.MathUtils.randFloat(-1.2,1.2);
       model.position.x = goRight? -6 : 6;
       model.rotation.y  = goRight? 0  : Math.PI;
       holding=true; attachBottle();
@@ -238,7 +253,7 @@
 
       const qFrom=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0));
       const qTo  =new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.2,0.25,0.6));
-      rightHand.quaternion.slerpQuaternions(qFrom,qTo, clamp(k,0,1));
+      rightHand.quaternion.slerpQuaternions(qFrom,qTo, THREE.MathUtils.clamp(k,0,1));
 
       if(handBottle){
         if(t>=inEnd && t<=holdEnd) handBottle.position.set(0.065,-0.015,0.015);
@@ -256,7 +271,7 @@
         const start=goRight? -6:6, stop=xMid, end=goRight? 6:-6;
         if(t<=T_IN)                       model.position.x = lerp(start, stop, easeOut(t/T_IN));
         else if(t<=T_IN+T_DRINK+T_HOLD)   model.position.x = stop;
-        else                              model.position.x = lerp(stop, end, clamp((t-(T_IN+T_DRINK+T_HOLD))/T_OUT,0,1));
+        else                              model.position.x = lerp(stop, end, THREE.MathUtils.clamp((t-(T_IN+T_DRINK+T_HOLD))/T_OUT,0,1));
 
         animateHand(t);
 
