@@ -88,3 +88,99 @@ body{
 }
 @media(max-width:560px){
   .logo{font
+/* ===== 4. Решения для застройщиков ===== */
+.solutions{
+  position:relative;
+  padding:120px var(--page-x) 140px;
+  background:#fff;
+}
+.solutions-head{max-width:980px;margin-bottom:28px}
+.solutions h2{
+  font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;
+  font-size:clamp(40px,5.2vw,76px);
+  margin-bottom:12px;
+  color:var(--ink);
+}
+.solutions .lead{
+  color:var(--ink-soft);
+  font-size:clamp(18px,2vw,22px);
+  line-height:1.65;
+}
+
+.solutions-grid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap:22px;
+  margin-top:18px;
+}
+.sol-card{
+  background:#fff;
+  border:1px solid var(--hair);
+  border-radius:var(--r);
+  padding:22px 22px 18px;
+  box-shadow:var(--shadow);
+  transition:transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease;
+  transform: translateY(12px);
+  opacity:0;
+}
+.sol-card.reveal.show{transform:none;opacity:1}
+.sol-card:hover{ transform: translateY(-4px); box-shadow:0 14px 34px rgba(16,71,168,.15); }
+
+.sol-icon{width:48px;height:48px;margin-bottom:10px}
+.sol-icon svg{width:100%;height:100%}
+
+.sol-card h3{
+  font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;
+  color:var(--blue-dark);
+  font-size:clamp(16px,2vw,18px);
+  letter-spacing:.3px;
+  margin-bottom:8px;
+}
+.sol-card p{ color:#33465a; line-height:1.6; margin-bottom:12px; }
+.sol-list{ list-style:none; padding:0; margin:0; }
+.sol-list li{
+  position:relative;
+  padding-left:18px;
+  margin:6px 0;
+  color:#2b3e53;
+  font-size:clamp(14px,1.6vw,16px);
+}
+.sol-list li:before{
+  content:"";
+  position:absolute; left:0; top:.6em;
+  width:7px; height:7px; border-radius:50%;
+  background:#2b8cff;
+}
+
+.solutions-cta{
+  display:flex; align-items:center; gap:18px;
+  margin-top:28px;
+  flex-wrap:wrap;
+}
+.btn-primary{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:12px 18px; border-radius:12px;
+  background:#2b8cff; color:#fff; text-decoration:none; font-weight:700;
+  box-shadow:0 10px 22px rgba(43,140,255,.25);
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+.btn-primary:hover{ transform: translateY(-2px); box-shadow:0 14px 30px rgba(43,140,255,.32); }
+.hint{ color:#5b6f86; font-size:14px }
+
+/* ===== Мобильная оптимизация (общая и для секции 4) ===== */
+@media (max-width: 980px){
+  .solutions-grid{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px){
+  .topbar{ padding: 14px calc(var(--page-x) - 3vw); }
+  .solutions{ padding: 90px var(--page-x) 110px; }
+  .solutions-grid{ grid-template-columns: 1fr; gap:16px; }
+  .btn-primary{ width:100%; justify-content:center; }
+  .hint{ width:100%; }
+}
+/* очень узкие экраны */
+@media (max-width: 420px){
+  .digit{ width:46px; height:96px; }
+  .cell{ font-size:64px; }
+  .capsule{ width:88vw; height:46vh; }
+}
