@@ -57,7 +57,7 @@
   })();
   </script>
 
-  <!-- ===== THREE + GLTFLoader + DRACOLoader (на случай сжатого glb) ===== -->
+  <!-- ===== THREE + GLTFLoader + DRACOLoader ===== -->
   <script src="https://unpkg.com/three@0.161.0/build/three.min.js"
           onerror="(function(){const el=document.getElementById('fallback'); el.textContent='3D не загрузилась (three.js)'; el.hidden=false;})()"></script>
   <script src="https://unpkg.com/three@0.161.0/examples/js/loaders/GLTFLoader.js"
@@ -76,12 +76,13 @@
       return;
     }
 
-    const GLB_URL = "./model.glb";   // файл должен лежать рядом с index.html (регистр важен!)
+    // ПРЯМАЯ RAW-ССЫЛКА НА ФАЙЛ В РЕПО (исключаем проблемы с путями GitHub Pages)
+    const GLB_URL = "https://raw.githubusercontent.com/QQniv/FSengineering/main/model.glb";
+
     const TRASH_LIMIT = 120;
     const T_IN=2.0, T_DRINK=2.0, T_HOLD=0.8, T_DROP=0.2, T_OUT=3.0;
     const T_TOTAL=T_IN+T_DRINK+T_HOLD+T_DROP+T_OUT;
 
-    // быстрый пинг: увидим сразу, что начали загрузку
     setHint('Загружаем модель…');
 
     const canvas=document.getElementById('scene3d');
@@ -167,7 +168,6 @@
     let model=null, mixer=null, rightHand=null, bottleMesh=null;
     let handBottle=null, holding=true, playing=false, startT=0, goRight=true, xMid=0;
 
-    // GLTFLoader + Draco (на всякий случай)
     const loader=new THREE.GLTFLoader();
     if(THREE.DRACOLoader){
       const draco = new THREE.DRACOLoader();
@@ -196,10 +196,7 @@
 
       startCycle();
       window.dispatchEvent(new Event('three-ready'));
-    }, (xhr)=>{
-      // прогресс — можно удалить
-      // console.log(`loading glb: ${ (xhr.loaded/xhr.total*100||0).toFixed(0) }%`);
-    }, (err)=>{
+    }, undefined, (err)=>{
       console.error('GLB load error:', err);
       setHint('Не удалось загрузить model.glb (проверь имя/путь/регистр).', false);
     });
