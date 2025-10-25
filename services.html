@@ -24,10 +24,11 @@
     nav a{text-decoration:none;color:var(--ink);margin-left:28px;font-weight:600;transition:opacity .2s}
     nav a:hover{opacity:.75}
 
-    /* hero */
-    .hero{padding:80px var(--page-x) 40px;background:linear-gradient(180deg,#f1f6ff 0%,#ffffff 65%);text-align:center}
-    .hero h1{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,6vw,90px);line-height:1.05}
-    .hero p{max-width:900px;margin:14px auto 0;color:var(--text);font-size:clamp(18px,2vw,22px)}
+    /* hero с пузырьками */
+    .hero{position:relative; overflow:hidden; padding:92px var(--page-x) 56px; background:linear-gradient(180deg,#f1f6ff 0%,#ffffff 65%); text-align:center}
+    #bubbles{position:absolute; inset:0; z-index:0; pointer-events:none}
+    .hero h1{position:relative; z-index:1; font-family:Impact,Haettenschweiler,'Arial Black',sans-serif; font-size:clamp(40px,6vw,90px); line-height:1.05}
+    .hero p{position:relative; z-index:1; max-width:900px; margin:14px auto 0; color:var(--text); font-size:clamp(18px,2vw,22px)}
 
     /* секции услуг */
     section.service{scroll-margin-top:90px; padding:120px var(--page-x); display:grid; grid-template-columns:1.05fr .95fr; gap:60px; align-items:center}
@@ -74,7 +75,9 @@
   </header>
 
   <main>
+    <!-- HERO -->
     <section class="hero">
+      <canvas id="bubbles" aria-hidden="true"></canvas>
       <h1 class="reveal" data-parallax=".02">Услуги и решения FS</h1>
       <p class="reveal" data-parallax=".03">Подберём систему водоочистки под ваш объект — от квартиры и частного дома до жилого комплекса. Ниже — ключевые сценарии и состав решения.</p>
     </section>
@@ -82,8 +85,7 @@
     <!-- Частные дома -->
     <section id="houses" class="service">
       <div class="photo reveal" data-parallax=".03">
-        <img src="img/houses.jpg"
-             alt="Фильтрационные системы для частных домов — современный загородный дом"/>
+        <img src="img/houses.jpg" alt="Фильтрационные системы для частных домов — современный загородный дом"/>
       </div>
       <div class="text reveal" data-parallax=".02">
         <h2>Фильтрационные системы для частных домов</h2>
@@ -96,7 +98,7 @@
       </div>
     </section>
 
-    <!-- Многоквартирные дома / девелоперы -->
+    <!-- Девелоперы / МКД -->
     <section id="developers" class="service">
       <div class="text reveal" data-parallax=".02">
         <h2>Системы водоочистки для девелоперов</h2>
@@ -108,16 +110,14 @@
         </ul>
       </div>
       <div class="photo reveal" data-parallax=".03">
-        <img src="img/developers.jpg"
-             alt="Системы водоочистки для девелоперов — современный жилой комплекс"/>
+        <img src="img/developers.jpg" alt="Системы водоочистки для девелоперов — современный жилой комплекс"/>
       </div>
     </section>
 
     <!-- Квартиры -->
     <section id="apartments" class="service">
       <div class="photo reveal" data-parallax=".03">
-        <img src="img/apartments.jpg"
-             alt="Решения для квартир — современный интерьер с кухней"/>
+        <img src="img/apartments.jpg" alt="Решения для квартир — современный интерьер с кухней"/>
       </div>
       <div class="text reveal" data-parallax=".02">
         <h2>Индивидуальные решения для квартир</h2>
@@ -167,7 +167,7 @@
     },{threshold:.22});
     rEls.forEach(el=>io.observe(el));
 
-    /* очень нежный параллакс (в рамках секции на экране) */
+    /* очень нежный параллакс */
     const pEls=[...document.querySelectorAll('[data-parallax]')];
     const getK=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--parallax-strength'))||0;
     const upd=()=>{
@@ -175,15 +175,84 @@
       for(const el of pEls){
         const sp=parseFloat(el.dataset.parallax||'0'); if(!sp||!k){ el.style.setProperty('--pY','0px'); continue; }
         const r=el.getBoundingClientRect();
-        const max=12;              /* мягкая амплитуда */
+        const max=12;
         const raw=(r.top - vh*0.5) * sp * k;
         const y=Math.max(-max, Math.min(max, raw));
-        el.style.transform=`translateY(${y}px)`;     /* отдельный параллакс внутри секции */
+        el.style.transform=`translateY(${y}px)`;
       }
     };
     let ticking=false;
     const onScroll=()=>{ if(!ticking){ ticking=true; requestAnimationFrame(()=>{ ticking=false; upd(); }); } };
     upd(); addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',onScroll,{passive:true});
+  </script>
+
+  <script>
+    /* пузырьки за героем — лёгкая канвас-анимация, старт/стоп по видимости */
+    (function(){
+      const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) return; // уважаем системную настройку
+
+      const hero = document.querySelector('.hero'); if (!hero) return;
+      const cvs  = document.getElementById('bubbles'); const ctx = cvs.getContext('2d', { alpha:true });
+      let W=0,H=0,dpr=1, running=false;
+      const bubbles=[];
+
+      function resize(){
+        const r=hero.getBoundingClientRect();
+        dpr = Math.min(window.devicePixelRatio||1,2);
+        W = Math.max(320, Math.floor(r.width));
+        H = Math.max(240, Math.floor(r.height));
+        cvs.width = W*dpr; cvs.height = H*dpr;
+        cvs.style.width = W+'px'; cvs.style.height = H+'px';
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+      }
+      resize(); addEventListener('resize',resize,{passive:true});
+
+      class Bubble{
+        constructor(){
+          this.r  = 6 + Math.random()*16;
+          this.x  = Math.random()*W;
+          this.y  = H + this.r + Math.random()*40;
+          this.vy = 0.4 + Math.random()*0.9;
+          this.vx = (Math.random()-.5)*0.25;
+          this.alpha = 0.08 + Math.random()*0.14;
+          this.twirl = Math.random()*Math.PI*2;
+          this.twirlAmp = 4 + Math.random()*10;
+          this.twirlSpd = 0.01 + Math.random()*0.02;
+        }
+        step(){
+          this.twirl += this.twirlSpd;
+          this.x += this.vx + Math.cos(this.twirl)*0.08;
+          this.y -= this.vy;
+          if (this.y < -this.r-10) this.reset();
+        }
+        reset(){ this.x=Math.random()*W; this.y=H+this.r+Math.random()*60; }
+        draw(){
+          const g = ctx.createRadialGradient(this.x- this.r*0.35, this.y- this.r*0.35, this.r*0.1, this.x, this.y, this.r);
+          g.addColorStop(0, `rgba(255,255,255, ${this.alpha+0.05})`);
+          g.addColorStop(1, `rgba(255,255,255, 0)`);
+          ctx.fillStyle=g;
+          ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
+        }
+      }
+
+      function targetCount(){ return Math.round((W*H)/18000) + 18; }
+      function tick(){
+        ctx.clearRect(0,0,W,H);
+        const n = targetCount();
+        while (bubbles.length < n) bubbles.push(new Bubble());
+        for (let i=0;i<bubbles.length;i++){ const b=bubbles[i]; b.step(); b.draw(); }
+        if (running) requestAnimationFrame(tick);
+      }
+
+      const obs = new IntersectionObserver(es=>{
+        es.forEach(e=>{
+          if (e.isIntersecting){ running=true; tick(); }
+          else { running=false; }
+        });
+      },{threshold:.2});
+      obs.observe(hero);
+    })();
   </script>
 </body>
 </html>
