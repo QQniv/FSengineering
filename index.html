@@ -1,439 +1,244 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>FS • Счётчик + 3D анимация FBX</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FS • Счётчик + 3D фон</title>
 <style>
-  :root{
-    --bg:#2b8cff; --capsule:#ffffff; --ink:#222831; --text:#0a1f33; --shadow:rgba(0,0,0,.15);
-  }
+  :root{ --bg:#2b8cff; --capsule:#fff; --ink:#222831; --text:#0a1f33; --shadow:rgba(0,0,0,.15); }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-
-  /* Header */
-  .topbar{position:sticky;top:0;z-index:20;height:80px;display:flex;align-items:center;justify-content:space-between;padding:0 8vw;color:#fff;background:rgba(255,255,255,.05);backdrop-filter:blur(20px);transition:background .3s ease;}
-  .topbar.scrolled{background:rgba(10,31,51,.25)}
-  .logo{font-family:Impact, Haettenschweiler, 'Arial Black', sans-serif;font-size:54px;letter-spacing:1px;color:#fff;}
-  .nav a{color:#fff;text-decoration:none;margin-left:40px;font-weight:600;font-size:16px;opacity:.9;}
-  .nav a:hover{opacity:1}
-
-  /* Hero counter */
-  .hero{min-height:calc(100vh - 80px);display:grid;place-items:center;gap:28px;padding:24px 0 40px;}
-  .capsule{background:var(--capsule);border-radius:999px;width:min(1000px,85vw);height:min(55vh,420px);display:flex;align-items:center;justify-content:center;box-shadow:0 25px 80px var(--shadow), inset 0 0 10px rgba(255,255,255,.3);}
-  .odo{display:flex;gap:8px;align-items:center}
+  /* шапка */
+  header{position:sticky;top:0;z-index:10;height:80px;display:flex;align-items:center;justify-content:space-between;padding:0 8vw;color:#fff;background:rgba(255,255,255,.05);backdrop-filter:blur(16px)}
+  .logo{font-family:Impact, Haettenschweiler,'Arial Black',sans-serif;font-size:54px;color:#fff}
+  nav a{color:#fff;text-decoration:none;margin-left:32px;font-weight:600}
+  /* счётчик */
+  .hero{min-height:calc(100vh - 80px);display:grid;place-items:center;gap:24px;padding:28px 0 40px}
+  .capsule{background:var(--capsule);border-radius:999px;width:min(1000px,85vw);height:min(55vh,420px);display:flex;align-items:center;justify-content:center;box-shadow:0 25px 80px var(--shadow), inset 0 0 10px rgba(255,255,255,.25)}
+  .odo{display:flex;gap:8px}
   .digit{position:relative;width:clamp(50px,7vw,90px);height:clamp(90px,15vw,160px);overflow:hidden;border-radius:12px}
-  .strip{position:absolute;inset:0;display:flex;flex-direction:column;will-change:transform}
+  .strip{position:absolute;inset:0;display:flex;flex-direction:column}
   .cell{height:100%;display:flex;align-items:center;justify-content:center;font-family:Impact, Haettenschweiler, 'Arial Black', sans-serif;font-weight:900;font-size:clamp(60px,13vw,150px);color:var(--ink)}
   .digit.anim .strip{transition:transform .45s cubic-bezier(.25,.8,.25,1)}
-  .subtitle{color:#fff;max-width:800px;font-family:Impact, Haettenschweiler, 'Arial Black', sans-serif;font-size:clamp(18px,2.4vw,26px);line-height:1.4;text-align:center;padding:0 16px;}
-
-  /* 3D section */
-  .three-section{position:relative;background:#fff;color:#0a1f33;padding:0;min-height:80vh;display:flex;flex-direction:column;}
-  .three-wrap{position:relative;width:100%;aspect-ratio:16/9;min-height:60vh;background:linear-gradient(180deg,#e9f3ff 0%, #ffffff 60%);}
-  canvas.webgl{display:block;width:100%;height:100%}
-  .three-caption{padding:28px 8vw 80px; text-align:center;}
-  .three-caption h2{font-family:Impact, Haettenschweiler, 'Arial Black', sans-serif;font-size:clamp(36px,5vw,72px);line-height:1.1;letter-spacing:-.02em;margin-bottom:12px;}
-  .three-caption p{max-width:800px;margin:0 auto;color:#30455c;font-size:clamp(18px,2vw,22px);line-height:1.6;}
+  .subtitle{color:#fff;max-width:820px;text-align:center;font-family:Impact, Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(18px,2.4vw,26px);line-height:1.35;padding:0 16px}
+  /* секция с белым фоном + 3D канвас сзади */
+  .why{position:relative;background:#fff;color:var(--text);padding:120px 8vw;overflow:hidden}
+  .why h2{position:relative;z-index:1;font-family:Impact, Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(36px,5vw,72px);letter-spacing:-.02em;line-height:1.05}
+  .why p{position:relative;z-index:1;margin-top:16px;max-width:760px;font-size:clamp(18px,2vw,22px);line-height:1.6;color:#30455c}
+  .three-bg{position:absolute;inset:0;z-index:0;background:#fff}
+  canvas#scene3d{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .fallback{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;background:rgba(10,31,51,.06);padding:10px 14px;border-radius:10px;font-size:14px;color:#0a1f33}
 </style>
 </head>
 <body>
-<header id="topbar" class="topbar">
+<header>
   <div class="logo">FS</div>
-  <nav class="nav">
+  <nav>
     <a href="#about">О проекте</a>
-    <a href="#scene">Сцена</a>
     <a href="#contact">Контакты</a>
   </nav>
 </header>
 
-<main>
-  <!-- COUNTER -->
-  <section class="hero" aria-labelledby="counter-title">
-    <div class="capsule" role="group" aria-live="polite" aria-label="Счётчик выброшенных бутылок в тысячах">
-      <div id="odo" class="odo"></div>
-    </div>
-    <h1 id="counter-title" class="subtitle">
-      Именно столько тысяч пластиковых бутылок выбрасывается в России, пока вы здесь
-    </h1>
-  </section>
+<section class="hero" aria-labelledby="counter-title">
+  <div class="capsule" role="group" aria-live="polite" aria-label="Счётчик выброшенных бутылок в тысячах">
+    <div id="odo" class="odo"></div>
+  </div>
+  <h1 id="counter-title" class="subtitle">Именно столько тысяч пластиковых бутылок выбрасывается в России, пока вы здесь</h1>
+</section>
 
-  <!-- THREE.JS -->
-  <section id="scene" class="three-section">
-    <div class="three-wrap">
-      <canvas id="webgl" class="webgl"></canvas>
-    </div>
-    <div class="three-caption">
-      <h2>Реалистичная анимация: пьёт и бросает</h2>
-      <p>Модель из FBX входит в кадр, останавливается в случайной точке, поднимает бутылку к губам, «пьёт», бросает — бутылка падает на пол. В следующий цикл всё повторяется с другой стороны и в другом месте, мусор постепенно растворяется.</p>
-    </div>
-  </section>
-</main>
+<section class="why" id="about" aria-labelledby="why-title">
+  <div class="three-bg">
+    <canvas id="scene3d" aria-hidden="true"></canvas>
+    <div id="fallback" class="fallback" hidden>3D временно отключена — текст и счётчик работают.</div>
+  </div>
+  <h2 id="why-title">Почему это важно</h2>
+  <p>Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут. FS создаёт системы, которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит. Мы верим, что будущее — это не борьба с природой, а забота о ней.</p>
+</section>
 
-<!-- Three.js via CDN -->
-<script type="module">
-  // ====== Imports (CDN) ======
-  import * as THREE from "https://unpkg.com/three@0.161.0/build/three.module.js";
-  import { OrbitControls } from "https://unpkg.com/three@0.161.0/examples/jsm/controls/OrbitControls.js";
-  import { FBXLoader } from "https://unpkg.com/three@0.161.0/examples/jsm/loaders/FBXLoader.js";
+<!-- ========== СЧЁТЧИК (как раньше, лёгкий) ========== -->
+<script>
+(function(){
+  const BPS=6000, DIGITS=6, odo=document.getElementById('odo');
+  function makeDigit(){const d=document.createElement('div');d.className='digit';const s=document.createElement('div');s.className='strip';
+    for(let k=0;k<10;k++){const c=document.createElement('div');c.className='cell';c.textContent=k;s.appendChild(c);}const e=document.createElement('div');e.className='cell';e.textContent='0';s.appendChild(e);d.appendChild(s);return d;}
+  function build(){odo.innerHTML='';for(let i=0;i<DIGITS;i++) odo.appendChild(makeDigit());}
+  build();
+  let cellH=0; function measure(){const s=odo.querySelector('.cell'); if(s) cellH=Math.round(s.getBoundingClientRect().height);}
+  measure(); addEventListener('resize', ()=>{measure(); setNumber(cur);});
+  let prev=new Array(DIGITS).fill(0), start=performance.now(), cur=0;
+  function setNumber(n){const str=Math.max(0,Math.floor(n)).toString().padStart(DIGITS,'0'); const strips=odo.querySelectorAll('.digit .strip');
+    for(let i=0;i<DIGITS;i++){const st=strips[i]; const c=+str[i]; if(c!==prev[i]){st.parentElement.classList.add('anim'); st.style.transform='translate3d(0,'+(-cellH*c)+'px,0)';}}
+    prev=str.split('').map(Number);
+  }
+  function frame(now){const t=(now-start)/1000; cur=(BPS*t)/1000; const stepped=Math.floor(cur*10)/10; setNumber(stepped); requestAnimationFrame(frame);}
+  requestAnimationFrame(frame);
+})();
+</script>
 
-  // ====== Header behavior ======
-  const header = document.getElementById('topbar');
-  window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 30));
+<!-- ========== 3D: ЛЁГКО, БЕЗ МОДУЛЕЙ. если CDN недоступен — тихий фолбэк ========== -->
+<script src="https://unpkg.com/three@0.161.0/build/three.min.js" onerror="document.getElementById('fallback').hidden=false"></script>
+<script src="https://unpkg.com/three@0.161.0/examples/js/loaders/FBXLoader.js" onerror="document.getElementById('fallback').hidden=false"></script>
+<script>
+(function(){
+  if(!(window.THREE && window.FBXLoader)) { return; } // CDN не загрузился — не ломаем страницу
 
-  // ====== Counter (тысячи), сбрасывается при перезагрузке ======
-  (function(){
-    const BPS = 6000, DIGITS = 6, odo = document.getElementById('odo');
-    function makeDigit(){ const d=document.createElement('div'); d.className='digit'; const s=document.createElement('div'); s.className='strip';
-      for(let k=0;k<10;k++){ const c=document.createElement('div'); c.className='cell'; c.textContent=k; s.appendChild(c);}
-      const e=document.createElement('div'); e.className='cell'; e.textContent='0'; s.appendChild(e);
-      d.appendChild(s); return d;
-    }
-    function build(){ odo.innerHTML=''; for(let i=0;i<DIGITS;i++) odo.appendChild(makeDigit()); }
-    build();
-    let cellH=0; function measure(){ const s=odo.querySelector('.cell'); if(s) cellH=Math.round(s.getBoundingClientRect().height); }
-    measure(); addEventListener('resize', ()=>{ measure(); setNumber(currentThousands); });
-    let prev = new Array(DIGITS).fill(0), start = performance.now(), currentThousands = 0;
-    function setNumber(n){ const str=Math.max(0,Math.floor(n)).toString().padStart(DIGITS,'0'); const strips=odo.querySelectorAll('.digit .strip');
-      for(let i=0;i<DIGITS;i++){ const st=strips[i]; const cur=+str[i]; if(cur!==prev[i]){ st.parentElement.classList.add('anim'); st.style.transform='translate3d(0,'+(-cellH*cur)+'px,0)'; } }
-      prev=str.split('').map(Number);
-    }
-    function frame(now){ const t=(now-start)/1000; currentThousands=(BPS*t)/1000; const stepped=Math.floor(currentThousands*10)/10; setNumber(stepped); requestAnimationFrame(frame); }
-    requestAnimationFrame(frame);
-  })();
+  const FBX_URL = "./model.fbx"; // <-- ваш файл рядом со страницей
 
-  // ====== THREE SETUP ======
-  const canvas = document.getElementById('webgl');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
+  const canvas = document.getElementById('scene3d');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
   const scene = new THREE.Scene();
-  scene.background = null;
+  const camera = new THREE.PerspectiveCamera(35, 16/9, 0.1, 200);
+  camera.position.set(0,1.7,6);
 
-  const camera = new THREE.PerspectiveCamera(35, canvas.clientWidth / canvas.clientHeight, 0.1, 200);
-  camera.position.set(0, 1.7, 6);
+  function resize(){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.setSize(w,h,false);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  resize(); addEventListener('resize', resize, {passive:true});
 
-  const controls = new OrbitControls(camera, canvas);
-  controls.enableDamping = true;
-  controls.enablePan = false;
-  controls.minDistance = 4; controls.maxDistance = 10;
-  controls.minPolarAngle = Math.PI * 0.2; controls.maxPolarAngle = Math.PI * 0.49;
-
-  // Lights
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x9db3c7, 0.85); scene.add(hemi);
-  const dir = new THREE.DirectionalLight(0xffffff, 0.9); dir.position.set(5, 10, 5); dir.castShadow = true;
-  dir.shadow.mapSize.set(2048,2048); dir.shadow.camera.near=0.5; dir.shadow.camera.far=40; scene.add(dir);
-
-  // Ground
-  const groundGeo = new THREE.PlaneGeometry(30, 30);
-  const groundMat = new THREE.ShadowMaterial({ opacity: 0.22 });
-  const ground = new THREE.Mesh(groundGeo, groundMat);
+  // белый фон секции уже есть, здесь — свет и тени
+  const hemi = new THREE.HemisphereLight(0xffffff, 0xdde6f2, 0.9); scene.add(hemi);
+  const dir  = new THREE.DirectionalLight(0xffffff, 0.9); dir.position.set(5,10,5); dir.castShadow=true; scene.add(dir);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(30,30), new THREE.ShadowMaterial({opacity:0.22}));
   ground.rotation.x = -Math.PI/2; ground.position.y = 0; ground.receiveShadow = true; scene.add(ground);
+  renderer.shadowMap.enabled = true;
 
-  // Bottle trash group
-  const trashGroup = new THREE.Group(); scene.add(trashGroup);
-  const TRASH_LIMIT = 120;
-
-  // ====== Load FBX ======
-  const FBX_URL = "./model.fbx"; // <-- Переименуйте ваш файл сюда
+  // загрузка FBX
   const loader = new FBXLoader();
-  let model, mixer = null, bottleMesh = null, rightHandBone = null;
-
-  function findBoneByRegex(root, regexes){
-    let found = null;
-    root.traverse(obj=>{
-      if(found) return;
-      if(obj.isBone || obj.type === 'Bone'){
-        const name = (obj.name||"").toLowerCase();
-        if(regexes.some(rx=>rx.test(name))) found = obj;
-      }
-    });
-    return found;
-  }
-
-  function findBottleMesh(root){
-    let cand = null;
-    root.traverse(o=>{
-      if(cand) return;
-      if(o.isMesh){
-        const n = (o.name||"").toLowerCase();
-        if(n.includes('bottle') || n.includes('бутыл')) cand = o;
-      }
-    });
-    return cand;
-  }
-
-  function cloneBottleMesh(){
-    if(!bottleMesh) return null;
-    const m = bottleMesh.clone();
-    m.material = m.material.clone();
-    // немного синего акцента
-    if(m.material.color) m.material.color.offsetHSL(0.55, 0.1, 0.0);
-    m.castShadow = true; m.receiveShadow = true;
-    return m;
-  }
-
+  let model=null, mixer=null, bottleMesh=null, rightHand=null;
   loader.load(FBX_URL, (fbx)=>{
-    model = fbx;
-    model.traverse(o=>{
-      if(o.isMesh){ o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; }
-    });
+    model=fbx;
+    model.traverse(o=>{ if(o.isMesh){o.castShadow=true;o.receiveShadow=true} });
+    // масштаб под рост ~1.75м и старт слева
+    const box=new THREE.Box3().setFromObject(model), size=new THREE.Vector3(); box.getSize(size);
+    const scale=1.75/Math.max(size.y||1,1e-6); model.scale.setScalar(scale);
+    model.position.set(-6,0,0); model.rotation.y=0;
     scene.add(model);
 
-    // Скелет/кости
-    rightHandBone = findBoneByRegex(model, [
-      /right.*hand/, /mixamorig.*righthand/, /hand_r\b/, /\br_hand\b/, /прав.*кисть/
-    ]) || null;
-
-    // Найдём бутылку внутри модели (если есть)
-    bottleMesh = findBottleMesh(model);
-
-    // Нормируем масштаб и ставим по центру
-    const box = new THREE.Box3().setFromObject(model);
-    const size = new THREE.Vector3(); box.getSize(size);
-    const center = new THREE.Vector3(); box.getCenter(center);
-    const targetHeight = 1.75;
-    const scale = targetHeight / Math.max(size.y, 0.0001);
-    model.scale.setScalar(scale);
-    model.position.y = 0; model.position.x = -6; // старт вне кадра
-    model.position.z = 0;
-
-    // центрируем по модели после масштаба (по оси X не трогаем — старт с края)
-    model.traverse(o => { if(o.isMesh){ o.geometry.computeBoundingBox?.(); }});
-
-    // Анимации из FBX, если есть
+    // анимации из файла, если есть — просто включим первый клип (не мешает нашей логике)
     if(fbx.animations && fbx.animations.length){
-      mixer = new THREE.AnimationMixer(model);
-      const clip = fbx.animations[0];
-      const action = mixer.clipAction(clip);
-      action.play();
+      mixer=new THREE.AnimationMixer(model);
+      mixer.clipAction(fbx.animations[0]).play();
     }
 
-    startCycle(); // стартим поведение
+    // найдём правую кисть и бутылку по имени (если есть)
+    rightHand=findBone(model,[/right.*hand/i,/mixamorig.*righthand/i,/hand_r\b/i,/\bR_Hand\b/i,/прав.*кисть/i]);
+    bottleMesh=findBottle(model);
+
+    // старт поведения
+    startCycle();
   });
 
-  // ====== Behaviour / cycle ======
-  let clock = new THREE.Clock();
-  let goRight = true;
-  let playing = false, startT = 0;
-  let xMid = 0;       // случайная остановка
-  let dropVel = new THREE.Vector3(); // скорость броска
-  let holdingBottle = true; // одна бутылка в руке
-  let handBottle = null; // объект бутылки, прикреплённый к руке
-
-  const T_IN = 2.0, T_DRINK = 2.0, T_HOLD = 0.8, T_DROP = 0.2, T_OUT = 3.0; // фазы
-  const T_TOTAL = T_IN + T_DRINK + T_HOLD + T_DROP + T_OUT;
-
-  function attachBottleToHand(){
-    if(!bottleMesh || !rightHandBone) return;
-    if(handBottle) { handBottle.parent?.remove(handBottle); handBottle = null; }
-    handBottle = cloneBottleMesh();
-    if(!handBottle) return;
-    // позиция бутылки в локале кисти (чуть «под углом»)
-    rightHandBone.add(handBottle);
-    handBottle.position.set(0.06, -0.02, 0.02);
-    handBottle.rotation.set(THREE.MathUtils.degToRad(-10), THREE.MathUtils.degToRad(20), THREE.MathUtils.degToRad(90));
-    handBottle.scale.setScalar(0.7);
+  function findBone(root, regs){
+    let res=null; root.traverse(o=>{
+      if(res) return;
+      if(o.isBone||o.type==='Bone'){ const n=(o.name||'').toLowerCase(); if(regs.some(r=>r.test(n))) res=o; }
+    }); return res;
+  }
+  function findBottle(root){
+    let m=null; root.traverse(o=>{
+      if(m) return;
+      if(o.isMesh){ const n=(o.name||'').toLowerCase(); if(n.includes('bottle')||n.includes('бутыл')) m=o; }
+    }); return m;
   }
 
+  // ——— Процедурная анимация ———
+  const clock = new THREE.Clock();
+  let playing=false, startT=0, goRight=true, xMid=0;
+  let handBottle=null, holding=true;
+  const TRASH_LIMIT=120, trashGroup=new THREE.Group(); scene.add(trashGroup);
+
+  const T_IN=2.0, T_DRINK=2.0, T_HOLD=0.8, T_DROP=0.2, T_OUT=3.0, T_TOTAL=T_IN+T_DRINK+T_HOLD+T_DROP+T_OUT;
+
+  function attachBottle(){
+    if(!bottleMesh){ return; }
+    if(handBottle){ handBottle.parent?.remove(handBottle); handBottle=null; }
+    handBottle=bottleMesh.clone();
+    handBottle.material=handBottle.material.clone();
+    if(rightHand){ rightHand.add(handBottle); handBottle.position.set(0.06,-0.02,0.02); handBottle.rotation.set(-0.15,0.35,1.55); handBottle.scale.setScalar(0.7); }
+    else { model.add(handBottle); handBottle.position.set(0.25,1.45,0.15); handBottle.scale.setScalar(0.7); } // без костей — примерно у правой руки
+  }
   function detachBottleToWorld(){
     if(!handBottle) return null;
-    // получить мировую позу
-    const m = new THREE.Matrix4();
-    handBottle.updateWorldMatrix(true, false);
-    m.copy(handBottle.matrixWorld);
-
-    const worldBottle = handBottle.clone();
-    worldBottle.material = handBottle.material.clone();
-    worldBottle.applyMatrix4(m);
-    scene.add(worldBottle);
-    // убрать из руки
-    handBottle.parent?.remove(handBottle);
-    handBottle = null;
-    return worldBottle;
+    handBottle.updateWorldMatrix(true,false);
+    const m=handBottle.clone(); m.material=m.material.clone();
+    m.applyMatrix4(handBottle.matrixWorld); scene.add(m);
+    handBottle.parent?.remove(handBottle); handBottle=null; return m;
   }
-
-  function addTrashBottle(worldBottle){
-    if(!worldBottle) return;
-    if(trashGroup.children.length > TRASH_LIMIT){
-      const first = trashGroup.children[0];
-      trashGroup.remove(first);
-    }
-    worldBottle.userData = { vy: 2.0, alpha: 1.0, rotY: (Math.random()*0.6-0.3) };
-    trashGroup.add(worldBottle);
+  function addTrash(m){
+    if(!m) return;
+    if(trashGroup.children.length>TRASH_LIMIT) trashGroup.remove(trashGroup.children[0]);
+    m.userData={vy:2.0, rot: (Math.random()*0.6-0.3), alpha:1};
+    m.traverse(o=>{ if(o.material){o.material=o.material.clone(); o.material.transparent=true; }});
+    trashGroup.add(m);
   }
-
   function updateTrash(dt){
-    const groundY = 0.01;
+    const gy=0.01;
     for(let i=0;i<trashGroup.children.length;i++){
-      const m = trashGroup.children[i];
-      const ud = m.userData||{};
-      // простая «гравитация»
-      if(m.position.y > groundY){
-        ud.vy -= 9.8 * dt * 2.0;
-        m.position.y += ud.vy * dt;
-        m.rotation.y += ud.rotY * dt;
-      } else {
-        m.position.y = groundY;
-        ud.vy = 0;
-        // медленное растворение
-        ud.alpha = (ud.alpha ?? 1) - dt*0.02;
-        const mat = m.material;
-        if(mat && 'transparent' in mat){
-          mat.transparent = true;
-          mat.opacity = Math.max(0, ud.alpha);
-        }
-        if(ud.alpha <= 0){
-          trashGroup.remove(m); i--; continue;
-        }
-      }
-      m.userData = ud;
+      const m=trashGroup.children[i], u=m.userData||{};
+      if(m.position.y>gy){ u.vy-=9.8*dt*2; m.position.y+=u.vy*dt; m.rotation.y+=u.rot*dt; }
+      else { m.position.y=gy; u.alpha-=dt*0.03; m.traverse(o=>{ if(o.material) o.material.opacity=Math.max(0,u.alpha||0); }); if(u.alpha<=0){ trashGroup.remove(m); i--; continue; } }
+      m.userData=u;
     }
   }
 
   function startCycle(){
-    goRight = !goRight;
-    xMid = THREE.MathUtils.randFloat(-1.2, 1.2); // случайная точка остановки
-    playing = true; startT = performance.now()/1000;
-    holdingBottle = true;
-
-    // стартовая позиция с краю
-    if(model){
-      model.position.x = goRight ? -6 : 6;
-      model.rotation.y = goRight ? 0 : Math.PI;
-    }
-
-    // подготовить бутылку в руке
-    if(bottleMesh && rightHandBone) attachBottleToHand();
-  }
-
-  function animateProcedural(tNorm){
     if(!model) return;
-
-    // движение по X: вход (easeOut) -> стоим (пьём) -> выход
-    const t = tNorm;
-    const inEnd = T_IN, drinkEnd = T_IN + T_DRINK + T_HOLD, dropEnd = T_IN + T_DRINK + T_HOLD + T_DROP;
-    let x = model.position.x;
-
-    const targetMidX = xMid;
-    if(t <= inEnd){
-      const k = THREE.MathUtils.clamp(t / T_IN, 0, 1);
-      const ease = 1 - Math.pow(1-k, 3);
-      const start = goRight ? -6 : 6;
-      x = THREE.MathUtils.lerp(start, targetMidX, ease);
-    } else if (t <= drinkEnd){
-      x = targetMidX;
-    } else if (t <= T_TOTAL){
-      const k = THREE.MathUtils.clamp((t - drinkEnd) / T_OUT, 0, 1);
-      const start = targetMidX;
-      const end = goRight ? 6 : -6;
-      x = THREE.MathUtils.lerp(start, end, k);
-    }
-    model.position.x = x;
-
-    // простая походка ног: синусы, не зависят от направления (поворот решает ориентацию)
-    // (оставлю упрощённо, т.к. FBX-скелет/клипы могут отличаться — зато без «перелома суставов»)
+    goRight=!goRight;
+    xMid = THREE.MathUtils.randFloat(-1.2,1.2);
+    model.position.x = goRight? -6 : 6;
+    model.rotation.y = goRight? 0 : Math.PI;
+    holding=true; attachBottle();
+    startT=performance.now()/1000; playing=true;
   }
 
-  // правая рука: подъём к рту и опускание (если нет собственного клипа в FBX)
-  function animateDrinkFallback(tNorm){
-    if(!rightHandBone) return;
-
-    const t = tNorm;
-    const inEnd = T_IN, drinkEnd = T_IN + T_DRINK, holdEnd = T_IN + T_DRINK + T_HOLD, dropEnd = T_IN + T_DRINK + T_HOLD + T_DROP;
-
-    // Базовая поза руки (локальный поворот кости кисти)
-    const baseRot = new THREE.Euler(0, 0, 0, 'XYZ');
-    const drinkRot = new THREE.Euler(-1.2, 0.25, 0.6, 'XYZ'); // к лицу
-
-    let k = 0;
-    if(t < inEnd){ k = 0; }
-    else if(t < drinkEnd){ k = (t - inEnd)/T_DRINK; }         // поднимаем
-    else if(t < holdEnd){ k = 1; }                            // держим у рта
-    else if(t < dropEnd){ k = 1 - (t - holdEnd)/T_DROP; }     // начинаем убирать
-    else { k = 0; }
-
-    const qFrom = new THREE.Quaternion().setFromEuler(baseRot);
-    const qTo   = new THREE.Quaternion().setFromEuler(drinkRot);
-    const qMix  = new THREE.Quaternion().slerpQuaternions(qFrom, qTo, THREE.MathUtils.clamp(k,0,1));
-    rightHandBone.quaternion.copy(qMix);
-
-    // bottle in hand: чуть ближе к губам в фазе пьём
+  function animateRig(t){ // поднимаем правую руку к рту (если есть кисть)
+    if(!rightHand) return;
+    const inEnd=T_IN, drinkEnd=T_IN+T_DRINK, holdEnd=T_IN+T_DRINK+T_HOLD, dropEnd=holdEnd+T_DROP;
+    let k=0;
+    if(t<inEnd) k=0;
+    else if(t<drinkEnd) k=(t-inEnd)/T_DRINK;
+    else if(t<holdEnd) k=1;
+    else if(t<dropEnd) k=1-(t-holdEnd)/T_DROP;
+    else k=0;
+    const qFrom=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0));
+    const qTo  =new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.2,0.25,0.6)); // к губам
+    rightHand.quaternion.slerpQuaternions(qFrom,qTo,THREE.MathUtils.clamp(k,0,1));
     if(handBottle){
-      if(t >= inEnd && t <= holdEnd){
-        handBottle.position.set(0.065, -0.015, 0.015);
-      } else {
-        handBottle.position.set(0.06, -0.02, 0.02);
-      }
-    }
-  }
-
-  function dropBottle(){
-    const worldBottle = detachBottleToWorld();
-    if(!worldBottle) return;
-    // скорость броска: вперёд, немного вверх, в сторону движения
-    const vx = (goRight ? 1 : -1) * THREE.MathUtils.randFloat(1.2, 2.2);
-    const vy = THREE.MathUtils.randFloat(1.5, 2.3);
-    worldBottle.userData = { vy: vy, alpha: 1.0, rotY: THREE.MathUtils.randFloat(-0.6,0.6) };
-    // задать начальную позицию уже выставили (detach)
-    trashGroup.add(worldBottle);
-  }
-
-  // ====== Render loop ======
-  function resizeRenderer(){
-    const { clientWidth, clientHeight } = canvas;
-    const needResize = canvas.width !== clientWidth || canvas.height !== clientHeight;
-    if(needResize){
-      renderer.setSize(clientWidth, clientHeight, false);
-      camera.aspect = clientWidth / clientHeight;
-      camera.updateProjectionMatrix();
+      if(t>=inEnd && t<=holdEnd) handBottle.position.set(0.065,-0.015,0.015); else handBottle.position.set(0.06,-0.02,0.02);
     }
   }
 
   function loop(){
     requestAnimationFrame(loop);
-    const dt = clock.getDelta();
-
-    resizeRenderer();
-
-    // update mixer if any
-    if(mixer) mixer.update(dt);
-
-    // behaviour timeline
-    if(model){
-      const now = performance.now()/1000;
-      const t = now - startT;
-
-      if(playing){
-        animateProcedural(t);
-        if(!mixer){ // если нет клипа — руками поднимаем бутылку
-          animateDrinkFallback(t);
-        }
-
-        // событие «бросить бутылку»
-        const dropMoment = T_IN + T_DRINK + T_HOLD + 0.05;
-        if(holdingBottle && t >= dropMoment){
-          holdingBottle = false;
-          dropBottle();
-        }
-
-        // конец цикла — готовим новый
-        if(t >= T_TOTAL){
-          playing = false;
-          setTimeout(startCycle, 350); // микропаузa
-        }
+    const dt=clock.getDelta();
+    if(model && playing){
+      const now=performance.now()/1000, t=now-startT;
+      // движение по X
+      const start=goRight? -6:6, stop=xMid, end=goRight? 6:-6;
+      if(t<=T_IN){ const k=1-Math.pow(1-(t/T_IN),3); model.position.x=THREE.MathUtils.lerp(start,stop,k); }
+      else if(t<=T_IN+T_DRINK+T_HOLD){ model.position.x=stop; }
+      else { const k=(t-(T_IN+T_DRINK+T_HOLD))/T_OUT; model.position.x=THREE.MathUtils.lerp(stop,end,THREE.MathUtils.clamp(k,0,1)); }
+      // рука/бутылка
+      animateRig(t);
+      // момент броска
+      const dropMoment=T_IN+T_DRINK+T_HOLD+0.05;
+      if(holding && t>=dropMoment){
+        holding=false;
+        const wb=detachBottleToWorld();
+        if(wb){ wb.userData={vy:2.0, rot:(Math.random()*0.6-0.3), alpha:1}; addTrash(wb); }
       }
+      if(t>=T_TOTAL){ playing=false; setTimeout(startCycle,300); }
     }
-
     updateTrash(dt);
-    controls.update();
-    renderer.render(scene, camera);
+    mixer && mixer.update(dt);
+    renderer.render(scene,camera);
   }
   loop();
+})();
 </script>
 </body>
 </html>
