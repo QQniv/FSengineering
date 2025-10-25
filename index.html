@@ -8,8 +8,7 @@
 :root{
   --ink:#0a1f33; --text:#32475c; --blue:#2b8cff; --blue-dark:#1047a8; --panel:#ffffff;
   --shadow-big:0 25px 80px rgba(0,0,0,.12); --page-x:8vw;
-
-  /* нежный параллакс (0 — выкл, 1 — сильно): */
+  /* нежный параллакс (0 — выкл, 1 — сильно) */
   --parallax-strength: 0.18;
 }
 @media (max-width:900px){ :root{ --parallax-strength: 0.12; } }
@@ -58,7 +57,13 @@ section{scroll-margin-top:84px}
 .why h2{position:relative;z-index:2;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:14px}
 .why p{position:relative;z-index:2;color:var(--text);max-width:980px;margin:0 auto;line-height:1.65;font-size:clamp(18px,2vw,22px)}
 #bottleCanvas{position:absolute;inset:0;z-index:0;pointer-events:none}
-.motion-btn{position:absolute;right:16px;bottom:16px;z-index:3;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,.08);color:#0b1f33;border-radius:999px;padding:8px 14px;font-weight:600;font-size:12px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.motion-btn{
+  position:absolute;right:16px;bottom:16px;z-index:3;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+  border:1px solid rgba(0,0,0,.08);color:#0b1f33;border-radius:999px;
+  padding:10px 16px;font-weight:700;font-size:12px;cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
 .motion-btn:hover{background:#fff}
 
 /* products */
@@ -126,7 +131,8 @@ section{scroll-margin-top:84px}
       Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут.
       FS создаёт системы, которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит.
     </p>
-    <button class="motion-btn" id="motionBtn" hidden>🎚️ Движение от наклона</button>
+    <!-- всегда видимая кнопка -->
+    <button class="motion-btn" id="motionBtn">📱 Включить движение от наклона</button>
   </section>
 
   <!-- PRODUCTS -->
@@ -171,7 +177,6 @@ section{scroll-margin-top:84px}
           <linearGradient id="tubeGrad" x1="0" x2="1" y1="0" y2="0">
             <stop offset="0" stop-color="#eaf1ff"/><stop offset="1" stop-color="#dbe7ff"/>
           </linearGradient>
-          <!-- вода слева темнее → справа светлее (чистая) -->
           <linearGradient id="waterGrad" x1="0" x2="1" y1="0" y2="0">
             <stop offset="0" stop-color="#1047a8"/><stop offset="1" stop-color="#2b8cff"/>
           </linearGradient>
@@ -184,7 +189,7 @@ section{scroll-margin-top:84px}
               stroke-dasharray="90 430" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
 
-      <!-- точки сдвинуты левее на ~4% -->
+      <!-- точки сдвинуты левее -->
       <button class="stage-dot" style="--x:24%;--y:50%;" data-title="Грубая очистка" data-text="Удаляет песок и ржавчину."></button>
       <button class="stage-dot" style="--x:46%;--y:20%;" data-title="Сорбция" data-text="Уголь устраняет запах и хлор."></button>
       <button class="stage-dot" style="--x:63%;--y:83%;" data-title="Мембрана" data-text="Удаляет соли и бактерии."></button>
@@ -220,7 +225,7 @@ section{scroll-margin-top:84px}
   let acc=0,last=performance.now();function loop(now){const dt=(now-last)/1000;last=now;acc+=(BOTTLES_PER_SEC*dt)/1000;while(acc>=STEP){acc-=STEP;cnt+=STEP;setNumber(cnt)}requestAnimationFrame(loop)}requestAnimationFrame(loop);
 })();
 
-/* параллакс — очень нежный, с глобальным регулятором и ограничением */
+/* параллакс — нежный, с глобальным регулятором и ограничением */
 (function(){
   const els=[...document.querySelectorAll('[data-parallax]')];
   const getK=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--parallax-strength'))||0;
@@ -241,12 +246,16 @@ section{scroll-margin-top:84px}
   update(); addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',onScroll,{passive:true});
 })();
 
-/* бутылки + «физика наклона» (iOS требует разрешение; иначе курсор/тач-эмуляция) */
+/* бутылки + кнопка «включить/выключить наклон» */
 (function(){
   const section=document.getElementById('about'); if(!section) return;
   const canvas=document.getElementById('bottleCanvas'); const ctx=canvas.getContext('2d');
+  const btn=document.getElementById('motionBtn');
   let W=0,H=0,dpr=1,running=false; const pool=[];
   let tiltX=0; // -1..1
+  let motionEnabled=false;
+  let oriHandler=null;
+
   function resize(){const r=section.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);W=Math.max(320,Math.floor(r.width));H=Math.max(280,Math.floor(r.height));canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);canvas.style.zIndex='0';section.style.position='relative'}
   function clearAll(){pool.length=0;ctx.clearRect(0,0,W,H)}
   resize(); addEventListener('resize',resize,{passive:true});
@@ -263,7 +272,13 @@ section{scroll-margin-top:84px}
   }
   class Bottle{
     constructor(){const base=18+Math.random()*10;this.w=base;this.h=base*2.25;this.x=Math.random()*W;this.y=-this.h-20;this.vy=0.9+Math.random()*1.1;this.vx=0;this.ang=Math.random()*Math.PI;this.va=(Math.random()*0.6-0.3)*0.02;this.alpha=0;this.settled=false;}
-    update(){this.vx += tiltX*0.12; this.vx *= 0.985; this.x += this.vx; if(!this.settled){this.y += this.vy; this.ang += this.va; this.alpha = Math.min(1,this.alpha+0.05);} if(this.y>=H-this.h*0.5){this.y=H-this.h*0.5; this.vy=0; this.va*=0.2; this.settled=true;} if(this.x < this.w*0.55){this.x=this.w*0.55; this.vx*=-0.3} if(this.x > W-this.w*0.55){this.x=W-this.w*0.55; this.vx*=-0.3} }
+    update(){
+      this.vx += tiltX*0.12; this.vx *= 0.985; this.x += this.vx;
+      if(!this.settled){this.y += this.vy; this.ang += this.va; this.alpha = Math.min(1,this.alpha+0.05);}
+      if(this.y>=H-this.h*0.5){this.y=H-this.h*0.5; this.vy=0; this.va*=0.2; this.settled=true;}
+      if(this.x < this.w*0.55){this.x=this.w*0.55; this.vx*=-0.3}
+      if(this.x > W-this.w*0.55){this.x=W-this.w*0.55; this.vx*=-0.3}
+    }
     draw(){drawBottle(this.x,this.y,this.w,this.h,this.ang,this.alpha)}
   }
   function isFilled(){const target=Math.max(14,Math.floor((W*H)/(90*220)));let s=0;for(const b of pool) if(b.settled) s++;return s>=target}
@@ -271,22 +286,45 @@ section{scroll-margin-top:84px}
 
   const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){clearAll(); if(!running){running=true; tick();}} else {running=false; clearAll();}})},{threshold:.25}); io.observe(section);
 
-  const btn=document.getElementById('motionBtn');
-  function enableMotion(){
-    function onOri(ev){const g=ev.gamma||0; tiltX=Math.max(-1,Math.min(1,g/30));}
-    if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
-      btn.hidden=false;
-      btn.addEventListener('click', async()=>{ try{ const p=await DeviceOrientationEvent.requestPermission(); if(p==='granted'){ addEventListener('deviceorientation',onOri); btn.hidden=true; } }catch(e){} });
-    }else if('DeviceOrientationEvent' in window){
-      addEventListener('deviceorientation',onOri);
-    }
-    // эмуляция наклона для desktop и на мобилке — по положению пальца
-    section.addEventListener('mousemove',(e)=>{const rect=section.getBoundingClientRect(); const x=(e.clientX-rect.left)/rect.width-0.5; tiltX=Math.max(-1,Math.min(1,x*1.2));});
-    section.addEventListener('mouseleave',()=>{tiltX=0;});
-    section.addEventListener('touchmove',(e)=>{if(!e.touches||!e.touches[0])return; const rect=section.getBoundingClientRect(); const x=(e.touches[0].clientX-rect.left)/rect.width-0.5; tiltX=Math.max(-1,Math.min(1,x*1.2));},{passive:true});
-    section.addEventListener('touchend',()=>{tiltX=0;},{passive:true});
+  // курсор/тач — эмуляция наклона (работает всегда, чтобы был эффект без разрешений)
+  section.addEventListener('mousemove',(e)=>{const rect=section.getBoundingClientRect(); const x=(e.clientX-rect.left)/rect.width-0.5; if(!motionEnabled){ tiltX=Math.max(-1,Math.min(1,x*1.2)); }});
+  section.addEventListener('mouseleave',()=>{if(!motionEnabled) tiltX=0;});
+  section.addEventListener('touchmove',(e)=>{if(!e.touches||!e.touches[0])return; const rect=section.getBoundingClientRect(); const x=(e.touches[0].clientX-rect.left)/rect.width-0.5; if(!motionEnabled){ tiltX=Math.max(-1,Math.min(1,x*1.2)); }},{passive:true});
+  section.addEventListener('touchend',()=>{if(!motionEnabled) tiltX=0;},{passive:true});
+
+  // кнопка — включить/выключить реальный наклон
+  function attachOrientation(){
+    if(oriHandler) return;
+    oriHandler=(ev)=>{const g=ev.gamma||0; tiltX=Math.max(-1,Math.min(1,g/30));};
+    addEventListener('deviceorientation',oriHandler);
   }
-  enableMotion();
+  function detachOrientation(){
+    if(!oriHandler) return;
+    removeEventListener('deviceorientation',oriHandler);
+    oriHandler=null; tiltX=0;
+  }
+
+  btn.addEventListener('click', async ()=>{
+    if(!motionEnabled){
+      // включаем
+      try{
+        if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+          const p=await DeviceOrientationEvent.requestPermission();
+          if(p!=='granted'){ /* отказ — просто остаёмся на эмуляции */ return; }
+        }
+        attachOrientation();
+        motionEnabled=true;
+        btn.textContent='🔒 Отключить движение';
+      }catch(e){
+        // если что-то пошло не так — остаёмся на эмуляции
+      }
+    }else{
+      // выключаем
+      detachOrientation();
+      motionEnabled=false;
+      btn.textContent='📱 Включить движение от наклона';
+    }
+  });
 })();
 
 /* точки на трубе — попап */
