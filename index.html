@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FS • Чистая вода будущего</title>
-
   <style>
     :root{
       --ink:#0a1f33;
@@ -16,7 +15,10 @@
       --page-x:8vw;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff;overflow-x:hidden}
+    body{
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--ink);background:#fff;overflow-x:hidden;
+    }
 
     /* HEADER */
     .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:18px var(--page-x);background:#fff;border-bottom:1px solid rgba(0,0,0,.06)}
@@ -28,9 +30,10 @@
     .hero{background:var(--blue);color:#fff;min-height:72vh;display:grid;place-items:center;gap:28px;padding:72px 0 96px}
     .capsule{background:var(--panel);border-radius:999px;width:min(1000px,85vw);height:min(460px,58vh);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-big)}
     .odo{display:flex;gap:8px}
-    .digit{overflow:hidden;border-radius:12px;width:clamp(56px,7vw,96px);height:clamp(98px,15vw,170px)}
-    .strip{position:absolute;inset:0;display:flex;flex-direction:column}
+    .digit{position:relative;overflow:hidden;border-radius:12px;width:clamp(56px,7vw,96px);height:clamp(98px,15vw,170px)}
+    .strip{position:absolute;inset:0;display:flex;flex-direction:column;will-change:transform}
     .cell{height:100%;display:flex;align-items:center;justify-content:center;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(68px,13vw,160px);color:var(--ink)}
+    .digit.anim .strip{transition:transform .45s cubic-bezier(.25,.8,.25,1)}
     .subtitle{max-width:980px;text-align:center;color:#fff;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(20px,2.4vw,30px);line-height:1.35}
 
     /* WHY */
@@ -39,29 +42,14 @@
     .why p{position:relative;z-index:2;color:var(--text);max-width:980px;line-height:1.65;font-size:clamp(18px,2vw,22px)}
     #bottleCanvas{position:absolute;inset:0;z-index:0;pointer-events:none}
 
-    /* PRODUCTS */
-    .products{padding:120px var(--page-x);text-align:center;background:#fff}
-    .products h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(36px,5vw,72px)}
-    .subtitle-small{color:var(--text);font-size:clamp(18px,2vw,22px);margin:8px 0 60px}
-    .cards-wrapper{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:40px;max-width:1000px;margin:0 auto}
-    .card{background:linear-gradient(180deg,#f8fbff 0%,#e8f1ff 100%);border-radius:28px;padding:40px 32px;box-shadow:0 10px 30px rgba(0,0,0,.05);transition:transform .3s ease, box-shadow .3s ease;text-align:left}
-    .card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(43,140,255,.18)}
-    .card-icon{font-size:38px;margin-bottom:18px}
-    .card h3{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:22px;color:var(--ink);margin-bottom:10px}
-    .card p{font-size:17px;color:var(--text);line-height:1.5}
-    @media (max-width: 768px){
-      .cards-wrapper{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:24px;padding-bottom:10px;-webkit-overflow-scrolling:touch}
-      .card{flex:0 0 85%;scroll-snap-align:center;text-align:center;padding:32px}
-    }
-
     /* TECH */
     .tech{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#fff}
     .tech h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:12px}
     .lead{color:var(--text);max-width:900px;line-height:1.65;font-size:clamp(18px,2vw,22px);margin-bottom:24px}
     .pipe-wrap{position:relative}
     .pipe-svg{width:100%;filter:drop-shadow(0 12px 28px rgba(16,71,168,.12))}
-    @keyframes flowMove{to{stroke-dashoffset:490}}
-    #flow{animation:flowMove 4s linear infinite;animation-timing-function:linear}
+    @keyframes flowLeftToRight { from{stroke-dashoffset:520} to{stroke-dashoffset:0} }
+    #flow{animation:flowLeftToRight 4.5s linear infinite}
 
     .stage-dot{
       position:absolute; left:var(--x); top:var(--y); transform:translate(-50%,-50%);
@@ -74,7 +62,7 @@
     .stage-dot.active{background:#0f56cf}
     @keyframes pulse{
       0%,100%{box-shadow:0 0 10px rgba(43,140,255,.6), 0 0 0 0 rgba(43,140,255,.35)}
-      50%{box-shadow:0 0 18px rgba(43,140,255,.9), 0 0 0 10px rgba(43,140,255,.0)}
+      50%{box-shadow:0 0 18px rgba(43,140,255,.9), 0 0 0 10px rgba(43,140,255,0)}
     }
 
     .stage-info{
@@ -92,54 +80,45 @@
     <div class="logo">FS</div>
     <nav>
       <a href="#about">Почему это важно</a>
-      <a href="#products">Что делает FS</a>
       <a href="#tech">Как очищаем воду</a>
     </nav>
   </header>
 
   <main>
+    <!-- HERO -->
     <section class="hero">
       <div class="capsule"><div id="odo" class="odo"></div></div>
       <h1 class="subtitle">Именно столько тысяч пластиковых бутылок выбрасывается в России, пока вы здесь</h1>
     </section>
 
+    <!-- ПОЧЕМУ ЭТО ВАЖНО -->
     <section class="why" id="about">
       <canvas id="bottleCanvas"></canvas>
       <h2>Почему это важно</h2>
       <p>Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут. FS создаёт системы, которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит.</p>
     </section>
 
-    <section class="products" id="products">
-      <h2>Что делает FS</h2>
-      <p class="subtitle-small">Системы, которые очищают воду — и заботятся о будущем.</p>
-      <div class="cards-wrapper">
-        <div class="card"><div class="card-icon">🏠</div><h3>Фильтрационные системы<br>для частных домов</h3><p>Современные решения для автономных домов и коттеджей.</p></div>
-        <div class="card"><div class="card-icon">🏗️</div><h3>Системы водоочистки<br>для девелоперов</h3><p>Технологии под проекты любого масштаба — от жилых кварталов до бизнес-центров.</p></div>
-        <div class="card"><div class="card-icon">🏢</div><h3>Индивидуальные решения<br>для квартир</h3><p>Фильтры с адаптацией под тип водоснабжения, обеспечивающие персональное качество воды.</p></div>
-        <div class="card"><div class="card-icon">🔧</div><h3>Сервис и обслуживание</h3><p>Постоянный контроль и автоматическая замена фильтров.</p></div>
-      </div>
-    </section>
-
+    <!-- КАК ОЧИЩАЕМ ВОДУ -->
     <section class="tech" id="tech">
       <h2>Как мы очищаем воду</h2>
-      <p class="lead">Поток проходит четыре стадии: <b>грубая</b> → <b>сорбция</b> → <b>мембрана</b> → <b>УФ</b>.</p>
+      <p class="lead">Поток проходит четыре стадии: <b>грубая</b> → <b>сорбция</b> → <b>мембрана</b> → <b>УФ</b>. Нажмите на пульсирующие точки.</p>
 
       <div class="pipe-wrap">
-        <svg class="pipe-svg" viewBox="0 0 1200 220">
+        <svg class="pipe-svg" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMid meet">
           <defs>
             <linearGradient id="tubeGrad" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0" stop-color="#eaf1ff"/>
-              <stop offset="1" stop-color="#dbe7ff"/>
+              <stop offset="0" stop-color="#eaf1ff"/><stop offset="1" stop-color="#dbe7ff"/>
             </linearGradient>
             <linearGradient id="waterGrad" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0" stop-color="#2b8cff"/>
-              <stop offset="1" stop-color="#1047a8"/>
+              <stop offset="0" stop-color="#2b8cff"/><stop offset="1" stop-color="#1047a8"/>
             </linearGradient>
           </defs>
           <path d="M 40 110 H 360 C 410 110, 410 40, 460 40 H 600 C 650 40, 650 180, 700 180 H 860 C 910 180, 910 110, 960 110 H 1160"
-                fill="none" stroke="url(#tubeGrad)" stroke-width="36" stroke-linecap="round"/>
-          <path id="flow" d="M 40 110 H 360 C 410 110, 410 40, 460 40 H 600 C 650 40, 650 180, 700 180 H 860 C 910 180, 910 110, 960 110 H 1160"
-                fill="none" stroke="url(#waterGrad)" stroke-width="16" stroke-dasharray="90 430" stroke-linecap="round"/>
+                fill="none" stroke="url(#tubeGrad)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+          <path id="flow"
+                d="M 40 110 H 360 C 410 110, 410 40, 460 40 H 600 C 650 40, 650 180, 700 180 H 860 C 910 180, 910 110, 960 110 H 1160"
+                fill="none" stroke="url(#waterGrad)" stroke-width="16"
+                stroke-dasharray="90 430" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
 
         <button class="stage-dot" style="--x:28%;--y:50%;" data-title="Грубая очистка" data-text="Удаляет песок и ржавчину."></button>
@@ -156,24 +135,26 @@
   </main>
 
   <script>
-  // -------- поток воды (фикс направления и скорости) ----------
+  // СЧЁТЧИК
   (function(){
-    const flow=document.getElementById('flow');
-    if(!flow)return;
-    let offset=0;
-    function animate(){
-      offset+=1.2; // движется вправо
-      if(offset>520) offset=0; // зациклен плавно
-      flow.style.strokeDashoffset=offset;
-      requestAnimationFrame(animate);
-    }
-    animate();
+    const BPS=6000,DIGITS=6,odo=document.getElementById('odo');
+    function makeDigit(){const d=document.createElement('div');d.className='digit';
+      const s=document.createElement('div');s.className='strip';
+      for(let k=0;k<10;k++){const c=document.createElement('div');c.className='cell';c.textContent=k;s.appendChild(c)}
+      const e=document.createElement('div');e.className='cell';e.textContent='0';s.appendChild(e);d.appendChild(s);return d}
+    odo.innerHTML='';for(let i=0;i<DIGITS;i++) odo.appendChild(makeDigit());
+    let cellH=0;function measure(){const s=odo.querySelector('.cell');if(s) cellH=Math.round(s.getBoundingClientRect().height)}
+    measure();addEventListener('resize',()=>{measure();setNumber(cur)});
+    let prev=new Array(DIGITS).fill(0),cur=0,last=performance.now();
+    function setNumber(n){const str=Math.floor(n).toString().padStart(DIGITS,'0');const strips=odo.querySelectorAll('.digit .strip');
+      for(let i=0;i<DIGITS;i++){const st=strips[i];const c=+str[i];if(c!==prev[i]){st.style.transform='translate3d(0,'+(-cellH*c)+'px,0)';}}prev=str.split('').map(Number);}
+    function loop(now){const dt=(now-last)/1000;last=now;cur+=BPS*dt/1000;setNumber(cur);requestAnimationFrame(loop);}
+    requestAnimationFrame(loop);
   })();
 
-  // точки
+  // ТОЧКИ
   (function(){
-    const wrap=document.querySelector('.pipe-wrap');
-    if(!wrap)return;
+    const wrap=document.querySelector('.pipe-wrap'); if(!wrap)return;
     const info=document.getElementById('stageInfo');
     const title=document.getElementById('stageTitle');
     const text=document.getElementById('stageText');
@@ -185,7 +166,7 @@
       info.hidden=false;
       const x=dot.style.getPropertyValue('--x');
       const y=dot.style.getPropertyValue('--y');
-      info.style.left=x;info.style.top=y;
+      info.style.left=x; info.style.top=y;
       wrap.querySelectorAll('.stage-dot').forEach(d=>d.classList.remove('active'));
       dot.classList.add('active');
     });
