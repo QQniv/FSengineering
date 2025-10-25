@@ -26,15 +26,23 @@
     @keyframes shine{to{transform:translateX(100%)}}
 
     .odo{display:flex;gap:8px}
-    .digit{position:relative;overflow:hidden;border-radius:12px;width:clamp(56px,7vw,96px);height:clamp(98px,15vw,170px);background:transparent}
+    .digit{
+      position:relative;overflow:hidden;border-radius:12px;
+      width:clamp(56px,7vw,96px);height:clamp(98px,15vw,170px);
+      background:transparent;
+      /* трюк: инвертируем направление движения, чтобы визуально было сверху-вниз */
+      transform:scaleY(-1);
+    }
     .strip{position:absolute;inset:0;display:flex;flex-direction:column;will-change:transform}
     .cell{
       height:100%;display:flex;align-items:center;justify-content:center;
       font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;
       font-size:clamp(68px,13vw,160px);color:var(--ink);
+      /* возвращаем текст в нормальную ориентацию */
+      transform:scaleY(-1);
     }
     /* плавная прокрутка с каскадом */
-    .digit.anim .strip{transition:transform .5s cubic-bezier(.22,.8,.18,1)}
+    .digit.anim .strip{transition:transform .55s cubic-bezier(.22,.8,.18,1)}
     .digit[data-i="0"].anim .strip{transition-delay:.00s}
     .digit[data-i="1"].anim .strip{transition-delay:.02s}
     .digit[data-i="2"].anim .strip{transition-delay:.04s}
@@ -54,7 +62,7 @@
     .why p{position:relative;z-index:2;color:var(--text);max-width:980px;line-height:1.65;font-size:clamp(18px,2vw,22px)}
     #bottleCanvas{position:absolute;inset:0;z-index:0;pointer-events:none}
 
-    /* PRODUCTS (как было) */
+    /* PRODUCTS */
     .products{padding:120px var(--page-x);text-align:center;background:#fff}
     .products h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(36px,5vw,72px)}
     .subtitle-small{color:var(--text);font-size:clamp(18px,2vw,22px);margin:8px 0 60px}
@@ -139,7 +147,6 @@
             <linearGradient id="tubeGrad" x1="0" x2="1" y1="0" y2="0">
               <stop offset="0" stop-color="#eaf1ff"/><stop offset="1" stop-color="#dbe7ff"/>
             </linearGradient>
-            <!-- тёмный слева → светлый справа (ощущение «очищения») -->
             <linearGradient id="waterGrad" x1="0" x2="1" y1="0" y2="0">
               <stop offset="0" stop-color="#1047a8"/><stop offset="1" stop-color="#2b8cff"/>
             </linearGradient>
@@ -166,21 +173,24 @@
   </main>
 
   <script>
-  // Всегда стартуем со счётчика (если нет хэша)
-  (function(){ if('scrollRestoration' in history) history.scrollRestoration='manual'; if(!location.hash) window.scrollTo(0,0); })();
-
-  /* ====== СЧЁТЧИК: плавное перелистывание ВНИЗ, 6000 бут/с => +6 тыс/с ====== */
+  /* Старт всегда со счётчика */
   (function(){
-    const BOTTLES_PER_SEC=6000;   // реальные данные
-    const DIGITS=6;               // 6 разрядов, показываем тысячи
-    const STEP_THOUSANDS=0.1;     // шаг для плавности
+    const forceTop=()=>{ window.scrollTo(0,0); document.documentElement.scrollTop=0; document.body.scrollTop=0; };
+    if('scrollRestoration' in history){ history.scrollRestoration='manual'; }
+    if(!location.hash){ forceTop(); }
+    window.addEventListener('load',forceTop);
+    window.addEventListener('pageshow',forceTop);
+  })();
+
+  /* СЧЁТЧИК: 6000 бут/сек => +6 тыс/сек, визуально сверху-вниз (через зеркалирование) */
+  (function(){
+    const BOTTLES_PER_SEC=6000, DIGITS=6, STEP_THOUSANDS=0.1;
     const odo=document.getElementById('odo');
 
-    // Лента 0..9 + повтор 0 (для бесшовности). Движение ВНИЗ: translateY(+h * d).
     function makeDigit(i){
       const d=document.createElement('div'); d.className='digit'; d.dataset.i=i;
       const s=document.createElement('div'); s.className='strip';
-      for(let k=0;k<10;k++){const c=document.createElement('div'); c.className='cell'; c.textContent=k; s.appendChild(c);}
+      for(let k=0;k<10;k++){ const c=document.createElement('div'); c.className='cell'; c.textContent=k; s.appendChild(c); }
       const ex=document.createElement('div'); ex.className='cell'; ex.textContent='0'; s.appendChild(ex);
       d.appendChild(s); return d;
     }
@@ -191,9 +201,7 @@
     function measure(){ const s=odo.querySelector('.cell'); if(s) cellH=Math.round(s.getBoundingClientRect().height); }
     measure(); addEventListener('resize',()=>{measure(); setNumber(countThousands);});
 
-    let prev=Array(DIGITS).fill(0);
-    let countThousands=0;
-
+    let prev=Array(DIGITS).fill(0), countThousands=0;
     function setNumber(nThousands){
       const nInt=Math.max(0,Math.floor(nThousands));
       const str=nInt.toString().padStart(DIGITS,'0');
@@ -201,7 +209,7 @@
       for(let i=0;i<DIGITS;i++){
         const d=+str[i];
         if(d!==prev[i]){
-          const y=cellH*d; // вниз
+          const y=-cellH*d; // внутренняя лента едет ВВЕРХ, а из-за scaleY(-1) это выглядит как движение ВНИЗ
           const st=strips[i]; st.parentElement.classList.add('anim'); st.style.transform=`translate3d(0,${y}px,0)`;
         }
       }
@@ -218,7 +226,7 @@
     requestAnimationFrame(loop);
   })();
 
-  /* ====== ПАДАЮЩИЕ БУТЫЛКИ: заполняют фон, стоп; при повторном входе — заново ====== */
+  /* ПАДАЮЩИЕ БУТЫЛКИ: при входе — заново; за текстом */
   (function(){
     const section=document.getElementById('about'); if(!section) return;
     const canvas=document.getElementById('bottleCanvas'); const ctx=canvas.getContext('2d');
@@ -232,10 +240,7 @@
       ctx.setTransform(dpr,0,0,dpr,0,0);
       canvas.style.zIndex='0'; section.style.position='relative';
     }
-    function clearAll(){
-      pool.length=0;
-      ctx.clearRect(0,0,W,H);
-    }
+    function clearAll(){ pool.length=0; ctx.clearRect(0,0,W,H); }
     resize(); addEventListener('resize', resize, {passive:true});
 
     function drawBottle(x,y,w,h,ang,alpha){
@@ -270,39 +275,27 @@
     }
 
     function isFilled(){
-      const target=Math.max(14, Math.floor((W*H)/(90*220))); // плотность
-      let settled=0; for(const b of pool) if(b.settled) settled++;
-      return settled>=target;
+      const target=Math.max(14, Math.floor((W*H)/(90*220)));
+      let settled=0; for(const b of pool) if(b.settled) settled++; return settled>=target;
     }
 
     function tick(){
       ctx.clearRect(0,0,W,H);
-      const maxCount=120, spawn=Math.random()<0.5;
-      if(!isFilled() && pool.length<maxCount && spawn) pool.push(new Bottle());
-
-      let moving=false;
-      for(const b of pool){ if(!b.settled) moving=true; b.update(); b.draw(); }
-
-      // стоп, когда всё улеглось и фон «заполнен»
-      if(running && (moving || !isFilled())) { rafId=requestAnimationFrame(tick); }
-      else { rafId=0; }
+      if(!isFilled() && pool.length<120 && Math.random()<0.5) pool.push(new Bottle());
+      let moving=false; for(const b of pool){ if(!b.settled) moving=true; b.update(); b.draw(); }
+      if(running && (moving || !isFilled())) rafId=requestAnimationFrame(tick); else rafId=0;
     }
 
     const io=new IntersectionObserver(entries=>{
       entries.forEach(e=>{
-        if(e.isIntersecting){
-          // при каждом входе — с чистого листа
-          clearAll();
-          if(!running){ running=true; tick(); }
-        }else{
-          running=false; cancelAnimationFrame(rafId); clearAll();
-        }
+        if(e.isIntersecting){ clearAll(); if(!running){ running=true; tick(); } }
+        else { running=false; cancelAnimationFrame(rafId); clearAll(); }
       });
     },{threshold:0.25});
     io.observe(section);
   })();
 
-  // Точки на трубе — попап
+  /* Попап по точкам */
   (function(){
     const wrap=document.querySelector('.pipe-wrap'); if(!wrap)return;
     const info=document.getElementById('stageInfo');
@@ -318,7 +311,7 @@
     });
   })();
 
-  // Reveal
+  /* Reveal */
   (function(){
     const els=document.querySelectorAll('.reveal');
     const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}})},{threshold:.25});
