@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FS • Счётчик + 3D фон</title>
+  <title>FS • Счётчик + 3D фон (glTF)</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -42,42 +42,43 @@
   (function(){
     const BPS=6000, DIGITS=6, odo=document.getElementById('odo');
     function makeDigit(){const d=document.createElement('div');d.className='digit';const s=document.createElement('div');s.className='strip';
-      for(let k=0;k<10;k++){const c=document.createElement('div');c.className='cell';c.textContent=k;s.appendChild(c);}const e=document.createElement('div');e.className='cell';e.textContent='0';s.appendChild(e);d.appendChild(s);return d;}
-    function build(){odo.innerHTML='';for(let i=0;i<DIGITS;i++) odo.appendChild(makeDigit());}
+      for(let k=0;k<10;k++){const c=document.createElement('div');c.className='cell';c.textContent=k;s.appendChild(c)}const e=document.createElement('div');e.className='cell';e.textContent='0';s.appendChild(e);d.appendChild(s);return d}
+    function build(){odo.innerHTML='';for(let i=0;i<DIGITS;i++) odo.appendChild(makeDigit())}
     build();
-    let cellH=0; function measure(){const s=odo.querySelector('.cell'); if(s) cellH=Math.round(s.getBoundingClientRect().height);}
-    measure(); addEventListener('resize', ()=>{measure(); setNumber(cur);});
+    let cellH=0; function measure(){const s=odo.querySelector('.cell'); if(s) cellH=Math.round(s.getBoundingClientRect().height)}
+    measure(); addEventListener('resize',()=>{measure(); setNumber(cur)});
     let prev=new Array(DIGITS).fill(0), start=performance.now(), cur=0;
     function setNumber(n){const str=Math.max(0,Math.floor(n)).toString().padStart(DIGITS,'0'); const strips=odo.querySelectorAll('.digit .strip');
-      for(let i=0;i<DIGITS;i++){const st=strips[i]; const c=+str[i]; if(c!==prev[i]){st.parentElement.classList.add('anim'); st.style.transform='translate3d(0,'+(-cellH*c)+'px,0)';}}
-      prev=str.split('').map(Number);
+      for(let i=0;i<DIGITS;i++){const st=strips[i]; const c=+str[i]; if(c!==prev[i]){st.parentElement.classList.add('anim'); st.style.transform='translate3d(0,'+(-cellH*c)+'px,0)'}}
+      prev=str.split('').map(Number)
     }
-    function frame(now){const t=(now-start)/1000; cur=(BPS*t)/1000; const stepped=Math.floor(cur*10)/10; setNumber(stepped); requestAnimationFrame(frame);}
+    function frame(now){const t=(now-start)/1000; cur=(BPS*t)/1000; const stepped=Math.floor(cur*10)/10; setNumber(stepped); requestAnimationFrame(frame)}
     requestAnimationFrame(frame);
   })();
   </script>
 
-  <!-- ===== 3D ПОДКЛЮЧЕНИЕ (CDN). Если не загрузится — покажем бейдж и не ломаем страницу. ===== -->
+  <!-- ===== THREE + GLTFLoader (через CDN). Если не загрузится — покажем бейдж и не сломаем страницу. ===== -->
   <script src="https://unpkg.com/three@0.161.0/build/three.min.js"
           onerror="document.getElementById('fallback').hidden=false"></script>
-  <script src="https://unpkg.com/three@0.161.0/examples/js/loaders/FBXLoader.js"
+  <script src="https://unpkg.com/three@0.161.0/examples/js/loaders/GLTFLoader.js"
           onerror="document.getElementById('fallback').hidden=false"></script>
   <script>
-    (function(){ // авто-скрытие бейджа
+    // авто-скрытие уведомления
+    (function(){
       const fb=document.getElementById('fallback');
       if(!fb) return;
-      const show=()=>{fb.hidden=false; setTimeout(()=>fb.hidden=true, 4000);};
-      if(!window.THREE || !window.FBXLoader){ show(); }
-      window.addEventListener('three-ready', ()=> fb.hidden=true);
+      const show=()=>{fb.hidden=false; setTimeout(()=>fb.hidden=true,4000)};
+      if(!window.THREE || !THREE.GLTFLoader){ show() }
+      window.addEventListener('three-ready',()=> fb.hidden=true);
     })();
   </script>
 
-  <!-- ===== 3D: процедурная анимация «идёт → пьёт → бросает» для model.fbx ===== -->
+  <!-- ===== 3D: glTF (.glb). Процедурная анимация «идёт → пьёт → бросает» ===== -->
   <script>
   (function(){
-    if(!(window.THREE && window.FBXLoader)) return;
+    if(!(window.THREE && THREE.GLTFLoader)) return;
 
-    const FBX_URL = "./model.fbx";                 // положи рядом с index.html (или поменяй путь)
+    const GLB_URL = "./model.glb";                 // положите рядом с index.html
     const TRASH_LIMIT = 120;
     const T_IN=2.0, T_DRINK=2.0, T_HOLD=0.8, T_DROP=0.2, T_OUT=3.0;
     const T_TOTAL=T_IN+T_DRINK+T_HOLD+T_DROP+T_OUT;
@@ -104,12 +105,14 @@
     scene.add(hemi,dir,ground);
     renderer.shadowMap.enabled=true;
 
+    // утилиты
     const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
     const lerp=THREE.MathUtils.lerp;
     const rand=THREE.MathUtils.randFloat;
     const easeOut=(k)=>1-Math.pow(1-k,3);
     const clock=new THREE.Clock();
 
+    // мусор на полу
     const trashGroup=new THREE.Group(); scene.add(trashGroup);
     function addTrash(m){
       if(!m) return;
@@ -131,6 +134,7 @@
       }
     }
 
+    // поиск костей/бутылки
     function findBone(root, regs){
       let res=null; root.traverse(o=>{
         if(res) return;
@@ -162,21 +166,24 @@
     let model=null, mixer=null, rightHand=null, bottleMesh=null;
     let handBottle=null, holding=true, playing=false, startT=0, goRight=true, xMid=0;
 
-    const loader=new FBXLoader();
-    loader.load(FBX_URL,(fbx)=>{
-      model=fbx;
+    const loader=new THREE.GLTFLoader();
+    loader.load(GLB_URL,(gltf)=>{
+      model=gltf.scene;
       model.traverse(o=>{ if(o.isMesh){o.castShadow=true;o.receiveShadow=true;} });
-      const box=new THREE.Box3().setFromObject(fbx), size=new THREE.Vector3(); box.getSize(size);
-      const scale=1.75/Math.max(size.y||1,1e-6); fbx.scale.setScalar(scale);
-      fbx.position.set(-6,0,0); scene.add(fbx);
 
-      if(fbx.animations && fbx.animations.length){
-        mixer=new THREE.AnimationMixer(fbx);
-        mixer.clipAction(fbx.animations[0]).play();
+      // нормализация роста ~1.75м
+      const box=new THREE.Box3().setFromObject(model), size=new THREE.Vector3(); box.getSize(size);
+      const scale=1.75/Math.max(size.y||1,1e-6); model.scale.setScalar(scale);
+      model.position.set(-6,0,0);
+      scene.add(model);
+
+      if(gltf.animations && gltf.animations.length){
+        mixer=new THREE.AnimationMixer(model);
+        mixer.clipAction(gltf.animations[0]).play(); // если вдруг есть клип
       }
 
-      rightHand = findBone(fbx, [/right.*hand/i,/mixamorig.*righthand/i,/hand_r\b/i,/\br_hand\b/i,/прав.*кисть/i]);
-      bottleMesh = findBottle(fbx) || makeSimpleBottle();
+      rightHand = findBone(model, [/right.*hand/i,/mixamorig.*righthand/i,/hand_r\b/i,/\br_hand\b/i,/прав.*кисть/i]);
+      bottleMesh = findBottle(model) || makeSimpleBottle();
 
       startCycle();
       window.dispatchEvent(new Event('three-ready'));
