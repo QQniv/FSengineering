@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FS • Чистая вода будущего</title>
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=11" />
 </head>
 <body>
   <!-- ШАПКА -->
@@ -31,9 +31,9 @@
     </section>
 
     <!-- ПОЧЕМУ ЭТО ВАЖНО -->
-    <section class="why" id="about">
+    <section class="why" id="about" aria-labelledby="why-title">
       <canvas id="bottleCanvas" aria-hidden="true"></canvas>
-      <h2 class="reveal">Почему это важно</h2>
+      <h2 id="why-title" class="reveal">Почему это важно</h2>
       <p class="reveal">
         Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут.
         FS создаёт системы, которые очищают воду и уменьшают количество отходов,
@@ -72,49 +72,71 @@
     </section>
 
     <!-- КАК ОЧИЩАЕМ ВОДУ -->
-    <section class="tech" id="tech">
-      <h2 class="reveal">Как мы очищаем воду</h2>
+    <section class="tech" id="tech" aria-labelledby="tech-title">
+      <h2 id="tech-title" class="reveal">Как мы очищаем воду</h2>
       <p class="lead reveal">
-        Процесс фильтрации разбит на четыре ключевые стадии — от механической очистки до ультрафиолетового обеззараживания.
+        Непрерывный поток проходит четыре этапа: <b>грубая</b> → <b>сорбция</b> → <b>мембрана</b> → <b>УФ</b>.
+        Нажмите на пульсирующие точки на трубе, чтобы увидеть описание.
       </p>
 
       <div class="pipeline">
-        <svg class="pipe-svg reveal" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <linearGradient id="tubeGrad" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0" stop-color="#eaf1ff"/>
-              <stop offset="1" stop-color="#dbe7ff"/>
-            </linearGradient>
-            <linearGradient id="waterGrad" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0" stop-color="#2b8cff"/>
-              <stop offset="1" stop-color="#1047a8"/>
-            </linearGradient>
-          </defs>
+        <div class="pipe-wrap">
+          <svg class="pipe-svg reveal" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="tubeGrad" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#eaf1ff"/>
+                <stop offset="1" stop-color="#dbe7ff"/>
+              </linearGradient>
+              <linearGradient id="waterGrad" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#2b8cff"/>
+                <stop offset="1" stop-color="#1047a8"/>
+              </linearGradient>
+            </defs>
 
-          <path id="tube"
-                d="M 40 110 H 1160"
-                fill="none" stroke="url(#tubeGrad)" stroke-width="36"
-                stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- ИЗОГНУТАЯ ТРУБА (как раньше) -->
+            <path id="tube"
+                  d="M 40 110 H 360
+                     C 410 110, 410 40, 460 40
+                     H 600
+                     C 650 40, 650 180, 700 180
+                     H 860
+                     C 910 180, 910 110, 960 110
+                     H 1160"
+                  fill="none" stroke="url(#tubeGrad)" stroke-width="36"
+                  stroke-linecap="round" stroke-linejoin="round" />
 
-          <path id="flow"
-                d="M 40 110 H 1160"
-                fill="none" stroke="url(#waterGrad)" stroke-width="14"
-                stroke-linecap="round" stroke-linejoin="round"
-                stroke-dasharray="120 480" />
-        </svg>
+            <!-- ПОТОК -->
+            <path id="flow"
+                  d="M 40 110 H 360
+                     C 410 110, 410 40, 460 40
+                     H 600
+                     C 650 40, 650 180, 700 180
+                     H 860
+                     C 910 180, 910 110, 960 110
+                     H 1160"
+                  fill="none" stroke="url(#waterGrad)" stroke-width="16"
+                  stroke-linecap="round" stroke-linejoin="round"
+                  stroke-dasharray="90 430" />
+          </svg>
 
-        <!-- Точки этапов -->
-        <div class="stages-interactive">
-          <button class="stage-dot" data-title="Грубая очистка" data-text="Удаляет крупные частицы: песок, ржавчину, ил."></button>
-          <button class="stage-dot" data-title="Сорбция" data-text="Активированный уголь устраняет запах, хлор и органику."></button>
-          <button class="stage-dot" data-title="Мембрана" data-text="Тонкая фильтрация удаляет бактерии и соли тяжёлых металлов."></button>
-          <button class="stage-dot" data-title="УФ-обеззараживание" data-text="Финальная стадия: уничтожение микроорганизмов и вирусов."></button>
-        </div>
+          <!-- ПУЛЬСИРУЮЩИЕ ТОЧКИ (позиции подобраны по пути) -->
+          <button class="stage-dot" style="--x:28%;--y:50%;" data-title="Грубая очистка"
+                  data-text="Механический барьер: сетки/картриджи задерживают песок, ржавчину, крупные частицы."></button>
 
-        <!-- Инфо-блок -->
-        <div class="stage-info" id="stageInfo" hidden>
-          <h3 id="stageTitle"></h3>
-          <p id="stageText"></p>
+          <button class="stage-dot" style="--x:50%;--y:20%;" data-title="Сорбция"
+                  data-text="Активированный уголь поглощает хлор, запахи и органические соединения."></button>
+
+          <button class="stage-dot" style="--x:67%;--y:83%;" data-title="Мембрана"
+                  data-text="Тонкая мембрана удаляет микрочастицы, бактерии и соли тяжёлых металлов."></button>
+
+          <button class="stage-dot" style="--x:88%;--y:51%;" data-title="УФ-обеззараживание"
+                  data-text="Финальная стадия: ультрафиолет инактивирует микроорганизмы и вирусы."></button>
+
+          <!-- ВСПЛЫВАЮЩЕЕ ОКНО -->
+          <div class="stage-info" id="stageInfo" hidden>
+            <h3 id="stageTitle"></h3>
+            <p id="stageText"></p>
+          </div>
         </div>
       </div>
     </section>
@@ -126,8 +148,9 @@
     </section>
   </main>
 
+  <!-- JS -->
   <script>
-  // ----------- СЧЁТЧИК -----------
+  // -------- СЧЁТЧИК --------
   (function(){
     const BPS=6000, DIGITS=6, odo=document.getElementById('odo');
     function makeDigit(){const d=document.createElement('div');d.className='digit';
@@ -145,48 +168,138 @@
     requestAnimationFrame(frame);
   })();
 
-  // ----------- БУТЫЛКИ -----------
+  // -------- ФОН: ПАДАЮЩИЕ БУТЫЛКИ (за текстом) --------
   (function(){
-    const canvas=document.getElementById('bottleCanvas');if(!canvas)return;
-    const ctx=canvas.getContext('2d');let W=0,H=0,dpr=1,bottles=[],running=false,rafId=0;
-    function resize(){const r=canvas.parentElement.getBoundingClientRect();dpr=window.devicePixelRatio||1;
-      W=Math.round(r.width);H=Math.round(r.height);
-      canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}
-    resize();addEventListener('resize',resize);
-    function drawBottle(x,y,w,h,a,alpha){ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);ctx.rotate(a);
-      ctx.fillStyle='#3a7cff';ctx.beginPath();ctx.roundRect(-w/2,-h/2,w,h,w*0.15);ctx.fill();ctx.restore();}
-    class Bottle{constructor(){this.x=Math.random()*W;this.y=-40;this.w=20+Math.random()*15;this.h=this.w*2;this.vy=1+Math.random()*1;this.a=0;this.va=Math.random()*.02;this.alpha=0;}
-      update(){this.y+=this.vy;this.a+=this.va;this.alpha=Math.min(1,this.alpha+.04);if(this.y>H)this.y=-50;}
-      draw(){drawBottle(this.x,this.y,this.w,this.h,this.a,this.alpha);}}
-    function loop(){ctx.clearRect(0,0,W,H);for(const b of bottles){b.update();b.draw();}
-      if(bottles.length<40&&Math.random()<.3)bottles.push(new Bottle());
-      if(running)rafId=requestAnimationFrame(loop);}
-    const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){running=true;loop();}else{running=false;cancelAnimationFrame(rafId);}})},{threshold:.2});
-    io.observe(canvas.parentElement);
+    const section=document.getElementById('about'); if(!section) return;
+    const canvas=document.getElementById('bottleCanvas'); const ctx=canvas.getContext('2d');
+    let W=0,H=0,dpr=1,running=false,rafId=0; const pool=[];
+    function resize(){
+      const r=section.getBoundingClientRect();
+      dpr=Math.min(window.devicePixelRatio||1,2);
+      W=Math.max(320, Math.floor(r.width)); H=Math.max(280, Math.floor(r.height));
+      canvas.width=W*dpr; canvas.height=H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      canvas.style.zIndex='0'; // ниже текста
+      section.style.position='relative';
+    }
+    resize(); addEventListener('resize', resize, {passive:true});
+
+    function drawBottleFancy(x,y,w,h,ang,alpha){
+      ctx.save(); ctx.globalAlpha=alpha; ctx.translate(x,y); ctx.rotate(ang);
+
+      // ТЕНЬ
+      ctx.fillStyle='rgba(0,0,0,0.06)'; ctx.beginPath();
+      ctx.ellipse(0,h*0.52,w*0.45,w*0.18,0,0,Math.PI*2); ctx.fill();
+
+      // КОРПУС (двухтон)
+      const r=w*0.22;
+      ctx.fillStyle='#3a86ff';
+      ctx.beginPath(); ctx.roundRect(-w/2,-h/2,w,h,r); ctx.fill();
+
+      ctx.fillStyle='#1e56c5';
+      ctx.beginPath(); ctx.roundRect(-w*0.18,-h*0.48,w*0.36,h*0.14,r*0.5); ctx.fill(); // горлышко-переход
+
+      // КРЫШКА
+      ctx.fillStyle='#0e3e9b';
+      ctx.fillRect(-w*0.18,-h*0.62,w*0.36,h*0.08);
+      ctx.fillStyle='#1655cf';
+      ctx.fillRect(-w*0.16,-h*0.62,w*0.32,h*0.04);
+
+      // БЛИК
+      ctx.strokeStyle='rgba(255,255,255,0.5)';
+      ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(-w*0.25,-h*0.25);
+      ctx.quadraticCurveTo(-w*0.42,-h*0.05,-w*0.22,h*0.15);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    class Bottle{
+      constructor(){
+        const base=18+Math.random()*10;
+        this.w=base; this.h=base*2.25;
+        this.x=Math.random()*W; this.y=-this.h-20;
+        this.vy=0.8+Math.random()*1.2;
+        this.ax=(Math.random()*0.5-0.25)*0.15;
+        this.ang=Math.random()*Math.PI; this.va=(Math.random()*0.6-0.3)*0.02;
+        this.alpha=0; this.settled=false;
+      }
+      update(){
+        if(this.settled) return;
+        this.y += this.vy;
+        this.x += this.ax;
+        this.ang += this.va;
+        this.alpha = Math.min(1, this.alpha + 0.05);
+        if(this.y >= H - this.h*0.5){
+          this.y = H - this.h*0.5;
+          this.vy = 0; this.va *= 0.2; this.ax = 0; this.settled = true;
+        }
+      }
+      draw(){ drawBottleFancy(this.x,this.y,this.w,this.h,this.ang,this.alpha); }
+    }
+
+    function isFilled(){
+      // целимся примерно закрыть фон «слоем»
+      const target = Math.max(14, Math.floor((W*H) / (90*220)));
+      let settled=0; for(const b of pool) if(b.settled) settled++;
+      return settled >= target;
+    }
+
+    function tick(){
+      ctx.clearRect(0,0,W,H);
+      if(!isFilled() && pool.length<120 && Math.random()<0.5) pool.push(new Bottle());
+      for(const b of pool){ b.update(); b.draw(); }
+      if(running) rafId=requestAnimationFrame(tick);
+    }
+
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ if(!running){ running=true; tick(); } }
+        else { running=false; cancelAnimationFrame(rafId); }
+      });
+    },{threshold:0.25});
+    io.observe(section);
   })();
 
-  // ----------- ЭФФЕКТ ПОТОКА ---------
+  // -------- АНИМАЦИЯ ПОТОКА В ТРУБЕ --------
   (function(){
-    const flow=document.getElementById('flow');
-    function anim(){let offset=0;function f(){offset-=3;flow.style.strokeDashoffset=offset;requestAnimationFrame(f);}f();}
-    anim();
+    const flow=document.getElementById('flow'); if(!flow) return;
+    let offset=0; function f(){ offset-=2.2; flow.style.strokeDashoffset=offset; requestAnimationFrame(f); }
+    f();
   })();
 
-  // ----------- ИНТЕРАКТИВНЫЕ ТОЧКИ ---------
+  // -------- ПУЛЬСИРУЮЩИЕ ТОЧКИ + ВСПЛЫВАЮЩЕЕ ОПИСАНИЕ --------
   (function(){
-    const dots=document.querySelectorAll('.stage-dot');
+    const wrap=document.querySelector('.pipe-wrap'); if(!wrap) return;
     const info=document.getElementById('stageInfo');
     const title=document.getElementById('stageTitle');
     const text=document.getElementById('stageText');
-    dots.forEach(dot=>{
-      dot.addEventListener('click',()=>{
-        title.textContent=dot.dataset.title;
-        text.textContent=dot.dataset.text;
-        info.hidden=false;
-        dots.forEach(d=>d.classList.remove('active'));
-        dot.classList.add('active');
-      });
+
+    wrap.addEventListener('click',(e)=>{
+      const dot=e.target.closest('.stage-dot');
+      if(!dot){ info.hidden=true; return; }
+      title.textContent = dot.dataset.title || '';
+      text.textContent  = dot.dataset.text  || '';
+      info.hidden=false;
+
+      // позиционируем карточку рядом с точкой
+      const x = dot.style.getPropertyValue('--x');
+      const y = dot.style.getPropertyValue('--y');
+      info.style.left = x; info.style.top = y;
+      wrap.querySelectorAll('.stage-dot').forEach(d=>d.classList.remove('active'));
+      dot.classList.add('active');
     });
+  })();
+
+  // -------- REVEAL --------
+  (function(){
+    const rev=document.querySelectorAll('.reveal');
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+    },{threshold:.2});
+    rev.forEach(el=>io.observe(el));
   })();
   </script>
 </body>
