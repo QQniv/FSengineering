@@ -1,151 +1,180 @@
-// Sticky header
-const header = document.getElementById('topbar');
-window.addEventListener('scroll', () => {
-  header.classList.toggle('scrolled', window.scrollY > 30);
-});
+// ---------- UTIL
+const qs = s => document.querySelector(s);
+const qsa = s => [...document.querySelectorAll(s)];
 
-// Counter
-(function(){
-  const BPS = 6000;
-  const DIGITS = 6;
-  const odo = document.getElementById('odo');
+// ---------- COUNTER (single row, top-to-bottom)
+(() => {
+  const container = qs('#odo');
+  if (!container) return;
 
-  function makeDigit(){
-    const d = document.createElement('div'); d.className='digit';
-    const s = document.createElement('div'); s.className='strip';
-    for(let k=0;k<10;k++){
-      const c = document.createElement('div'); c.className='cell';
-      c.textContent=k; s.appendChild(c);
+  const DIGITS = 6;           // считаем в тысячах
+  const BPS = 6000;           // 6 тыс/сек
+  let count = 300000;         // старт в тысячах
+  const perTick = 0.1;        // шаг 0.1 тыс = 100 бутылок
+  let cellH = 0;
+  let prev = Array(DIGITS).fill(0);
+
+  const makeDigit = () => {
+    const d = document.createElement('div');
+    d.className = 'digit';
+    const s = document.createElement('div');
+    s.className = 'strip';
+    for (let i=0;i<10;i++){
+      const c = document.createElement('div');
+      c.className='cell'; c.textContent=i;
+      s.appendChild(c);
     }
-    const e = document.createElement('div'); e.className='cell'; e.textContent='0';
-    s.appendChild(e); d.appendChild(s); return d;
-  }
+    // дополнительный «0» для ровной прокрутки — остается скрытым благодаря overflow
+    const extra = document.createElement('div');
+    extra.className='cell'; extra.textContent='0';
+    s.appendChild(extra);
+    d.appendChild(s);
+    return d;
+  };
 
-  function build(){ odo.innerHTML=''; for(let i=0;i<DIGITS;i++) odo.appendChild(makeDigit()); }
-  build();
+  const build = () => {
+    container.innerHTML = '';
+    for (let i=0;i<DIGITS;i++) container.appendChild(makeDigit());
+  };
 
-  let cellH=0;
-  function measure(){ const s=odo.querySelector('.cell'); if(s){ cellH=Math.round(s.getBoundingClientRect().height);} }
-  measure(); addEventListener('resize',()=>{ measure(); setNumber(count); });
+  const measure = () => {
+    const probe = container.querySelector('.cell');
+    if (!probe) return;
+    cellH = Math.round(probe.getBoundingClientRect().height);
+  };
 
-  let count=300000, prev=new Array(DIGITS).fill(0);
-  function setNumber(n){
-    const str = Math.max(0,Math.floor(n)).toString().padStart(DIGITS,'0');
-    const strips = odo.querySelectorAll('.digit .strip');
-    for(let i=0;i<DIGITS;i++){
-      const st=strips[i]; const cur=+str[i];
-      if(cur!==prev[i]){
-        st.parentElement.classList.add('anim');
-        st.style.transform='translate3d(0,'+(-cellH*cur)+'px,0)';
+  const setNumber = (n) => {
+    const str = Math.max(0, Math.floor(n)).toString().padStart(DIGITS,'0');
+    const strips = container.querySelectorAll('.strip');
+    for (let i=0;i<DIGITS;i++){
+      const cur = +str[i];
+      if (cur !== prev[i]){
+        const s = strips[i];
+        s.parentElement.classList.add('anim');
+        // прокрутка СВЕРХУ ВНИЗ
+        const y = -cellH * cur;
+        s.style.transform = `translate3d(0, ${y}px, 0)`;
       }
     }
-    prev=str.split('').map(Number);
-  }
+    prev = str.split('').map(x=>+x);
+  };
 
-  setNumber(count);
-  let acc=0,last=performance.now();
-  function loop(now){
-    const dt=(now-last)/1000; last=now;
-    acc+=(BPS*dt)/1000;
-    while(acc>=0.1){ acc-=0.1; count+=0.1; setNumber(count); }
+  build();
+  // обновляем размеры после загрузки шрифтов
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(()=>{ measure(); setNumber(count); });
+  } else { setTimeout(()=>{ measure(); setNumber(count); }, 50); }
+  window.addEventListener('resize', ()=>{ measure(); setNumber(count); });
+
+  // рендер
+  let last = performance.now(), acc = 0;
+  const loop = now => {
+    const dt = (now - last)/1000; last = now;
+    acc += (BPS/1000) * dt; // BPS (бут/сек) => тысяч/сек
+    while (acc >= perTick){ acc -= perTick; count += perTick; setNumber(count); }
     requestAnimationFrame(loop);
-  }
+  };
   requestAnimationFrame(loop);
 })();
 
-// Reveal animation
-const reveals=document.querySelectorAll('.reveal');
-const io=new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
-},{threshold:.2});
-reveals.forEach(el=>io.observe(el));
+// ---------- REVEAL
+(() => {
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); });
+  }, {threshold: .2});
+  qsa('.reveal').forEach(el=>io.observe(el));
+})();
 
-// Canvas scene
-(function(){
-  const cvs=document.getElementById('scene');
-  if(!cvs) return;
-  const ctx=cvs.getContext('2d');
-  let dpr=Math.max(1,window.devicePixelRatio||1);
+// ---------- BOTTLES BG (behind text)
+(() => {
+  const canvas = qs('#bottlesCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W,H, bottles=[];
+  const COLORS = ['#dfeaff','#e7f0ff','#eaf2ff'];
 
-  function resize(){
-    const r=cvs.getBoundingClientRect();
-    cvs.width=Math.max(2,Math.floor(r.width*dpr));
-    cvs.height=Math.max(2,Math.floor(r.height*dpr));
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
+  const resize = () => { W = canvas.width = canvas.clientWidth; H = canvas.height = canvas.clientHeight; };
+  const rand = (a,b)=>a+Math.random()*(b-a);
+
+  const spawn = (x) => {
+    bottles.push({
+      x: x ?? rand(0,W),
+      y: -40,
+      w: rand(60,110),
+      h: rand(16,26),
+      a: rand(-.5,.5),
+      s: rand(40,80),        // скорость падения
+      r: rand(-.5,.5),       // скорость вращения
+      c: COLORS[(Math.random()*COLORS.length)|0],
+      life: 1
+    });
+  };
+
+  const step = (dt) => {
+    ctx.clearRect(0,0,W,H);
+    // ограничение количества, пока фон «заполнится»
+    if (bottles.length < 40) spawn();
+    bottles.forEach(b=>{
+      b.y += b.s*dt;
+      b.a += b.r*dt;
+      if (b.y > H+60) b.life = 0;
+      ctx.save();
+      ctx.translate(b.x,b.y); ctx.rotate(b.a);
+      ctx.fillStyle = b.c;
+      ctx.globalAlpha = .55;
+      ctx.fillRect(-b.w/2,-b.h/2,b.w,b.h);
+      ctx.restore();
+    });
+    bottles = bottles.filter(b=>b.life>0);
+  };
+
+  const loop = t=>{
+    const now = performance.now();
+    if(!loop.p) loop.p=now;
+    const dt = (now-loop.p)/1000; loop.p=now;
+    step(dt);
+    requestAnimationFrame(loop);
+  };
+
+  const io = new IntersectionObserver((e)=>{
+    if(e[0].isIntersecting){ resize(); requestAnimationFrame(loop); }
+  },{threshold:.1});
+  io.observe(canvas);
+  window.addEventListener('resize',resize);
   resize();
-  addEventListener('resize',resize);
+})();
 
-  const man=new Image();
-  man.src='./assets/silhouette.jpg'; // заменишь своим
+// ---------- PIPE stages switching
+(() => {
+  qsa('.how .stage').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      qsa('.stage-card').forEach(c=>c.classList.remove('show'));
+      const id = btn.getAttribute('data-target');
+      const card = qs(id);
+      if (card) card.classList.add('show');
+    });
+  });
+})();
 
-  let playing=false,startT=0;
-  function draw(t){
-    const w=cvs.clientWidth||cvs.width/dpr;
-    const h=cvs.clientHeight||cvs.height/dpr;
-    ctx.clearRect(0,0,w,h);
-    const T=8;
-    const tt=Math.min((t-startT)/1000,T);
-    const xEnter=-0.2*w,xExit=1.2*w;
-    let x;
-    if(tt<2){x=xEnter+(xExit-xEnter)*0.35*(tt/2);}
-    else if(tt<5){x=xEnter+(xExit-xEnter)*0.35;}
-    else{x=xEnter+(xExit-xEnter)*(0.35+0.65*((tt-5)/3));}
-    const manH=Math.min(h*0.7,520);
-    const manW=manH*0.35;
-    const yBase=h*0.95;
-    const yMan=yBase-manH;
-
-    // бутылка
-    let bx=x+manW*0.55,by;
-    if(tt<2.2){by=yMan+manH*0.7;}
-    else if(tt<3.4){const k=(tt-2.2)/1.2;by=yMan+manH*(0.7-0.35*k);bx=x+manW*(0.55-0.1*k);}
-    else if(tt<4.2){by=yMan+manH*0.35;bx=x+manW*0.45;}
-    else if(tt<5){const k=(tt-4.2)/0.8;const g=1400;const vy0=-60;const fall=vy0*k+0.5*g*k*k;by=yMan+manH*0.35+fall/100;bx=x+manW*(0.45+0.05*k);if(by>yBase-14)by=yBase-14;}
-    else{by=yBase-14;}
-
-    // пол
-    const grd=ctx.createRadialGradient(x+manW*0.5,yBase-6,4,x+manW*0.5,yBase-6,120);
-    grd.addColorStop(0,'rgba(0,0,0,.16)');
-    grd.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=grd;
-    ctx.beginPath();
-    ctx.ellipse(x+manW*0.5,yBase-6,90,12,0,0,Math.PI*2);
-    ctx.fill();
-
-    if(man.complete&&man.naturalWidth){ctx.drawImage(man,x,yMan,manW,manH);}
-    else{ctx.fillStyle='#0a1f33';ctx.fillRect(x,yMan,manW,manH);}
-
-    // бутылка
-    ctx.save();
-    ctx.translate(bx,by);
-    ctx.rotate(-0.15);
-    ctx.fillStyle='#2b8cff';
-    ctx.strokeStyle='#1a58cc';
-    ctx.lineWidth=1.5;
-    const bw=26,bh=64;
-    ctx.beginPath();
-    ctx.moveTo(-bw/2+10,-bh/2);
-    ctx.lineTo(bw/2-10,-bh/2);
-    ctx.quadraticCurveTo(bw/2,-bh/2,bw/2,-bh/2+10);
-    ctx.lineTo(bw/2,bh/2-10);
-    ctx.quadraticCurveTo(bw/2,bh/2,bw/2-10,bh/2);
-    ctx.lineTo(-bw/2+10,bh/2);
-    ctx.quadraticCurveTo(-bw/2,bh/2,-bw/2,bh/2-10);
-    ctx.lineTo(-bw/2,-bh/2+10);
-    ctx.quadraticCurveTo(-bw/2,-bh/2,-bw/2+10,-bh/2);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle='#1047a8';
-    ctx.fillRect(-8,-bh/2-8,16,10);
-    ctx.restore();
-
-    if(tt<T&&playing)requestAnimationFrame(draw);
-  }
-  function start(){if(playing)return;playing=true;startT=performance.now();requestAnimationFrame(draw);}
-  function stop(){playing=false;}
-  const sec=document.querySelector('.why');
-  const io2=new IntersectionObserver((ents)=>{ents.forEach(e=>{e.isIntersecting?start():stop();})},{threshold:.35});
-  io2.observe(sec);
+// ---------- BUBBLES on Services
+(() => {
+  const canvas = qs('#bubblesCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W,H, arr=[];
+  const resize = ()=>{ W=canvas.width=canvas.clientWidth; H=canvas.height=canvas.clientHeight; };
+  const spawn = ()=>arr.push({x:Math.random()*W,y:H+20,r:4+Math.random()*10,s:.6+Math.random()*1.4,a:Math.random()*Math.PI});
+  for(let i=0;i<40;i++) spawn();
+  const loop=()=>{
+    ctx.clearRect(0,0,W,H);
+    arr.forEach(b=>{
+      b.y -= b.s; b.x += Math.sin(b.a+=.02)*.3;
+      ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(100,160,255,.20)'; ctx.fill();
+      if(b.y < -20){ b.y=H+20; b.x=Math.random()*W; }
+    });
+    requestAnimationFrame(loop);
+  };
+  resize(); loop();
+  window.addEventListener('resize',resize);
 })();
