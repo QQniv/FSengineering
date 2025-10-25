@@ -4,23 +4,23 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FS • Чистая вода будущего</title>
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
 </head>
 <body>
-  <!-- Шапка -->
+  <!-- ШАПКА -->
   <header class="topbar">
     <div class="logo">FS</div>
     <nav>
-      <a href="#">О проекте</a>
       <a href="#about">Почему это важно</a>
       <a href="#products">Что делает FS</a>
-      <a href="#tech">Как мы очищаем воду</a>
+      <a href="#tech">Как очищаем воду</a>
       <a href="#dev">Решения</a>
+      <a href="#contact">Контакты</a>
     </nav>
   </header>
 
   <main>
-    <!-- HERO со счётчиком -->
+    <!-- HERO -->
     <section class="hero reveal">
       <div class="capsule">
         <div id="odo" class="odo" aria-live="polite"></div>
@@ -31,9 +31,9 @@
     </section>
 
     <!-- ПОЧЕМУ ЭТО ВАЖНО -->
-    <section class="why" id="about" aria-labelledby="why-title">
+    <section class="why" id="about">
       <canvas id="bottleCanvas" aria-hidden="true"></canvas>
-      <h2 id="why-title" class="reveal">Почему это важно</h2>
+      <h2 class="reveal">Почему это важно</h2>
       <p class="reveal">
         Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут.
         FS создаёт системы, которые очищают воду и уменьшают количество отходов,
@@ -42,41 +42,40 @@
       </p>
     </section>
 
-    <!-- ЧТО ДЕЛАЕТ FS (сеткой на десктопе, свайп на мобилке) -->
+    <!-- ЧТО ДЕЛАЕТ FS -->
     <section class="products" id="products">
       <h2 class="reveal">Что делает FS</h2>
       <p class="reveal subtitle-small">Системы, которые очищают воду — и заботятся о будущем.</p>
 
       <div class="cards-wrapper">
         <div class="card">
-          <div class="card-icon">🏢</div>
-          <h3>Фильтрационные комплексы<br>для жилых домов</h3>
-          <p>Централизованные системы, обеспечивающие чистую воду на уровне целого ЖК.</p>
+          <div class="card-icon">🏠</div>
+          <h3>Фильтрационные системы<br>для частных домов</h3>
+          <p>Современные решения для автономных домов и коттеджей, создающие комфорт и чистоту воды в каждом кране.</p>
         </div>
         <div class="card">
           <div class="card-icon">🏗️</div>
           <h3>Системы водоочистки<br>для девелоперов</h3>
-          <p>Технологии под проекты любого масштаба — от коттеджных посёлков до бизнес-центров.</p>
+          <p>Технологии под проекты любого масштаба — от жилых кварталов до бизнес-центров.</p>
         </div>
         <div class="card">
-          <div class="card-icon">🏠</div>
+          <div class="card-icon">🏢</div>
           <h3>Индивидуальные решения<br>для квартир</h3>
-          <p>Персональные фильтры с повышенной минерализацией, под любой запрос.</p>
+          <p>Фильтры с адаптацией под тип водоснабжения, обеспечивающие персональное качество воды.</p>
         </div>
         <div class="card">
           <div class="card-icon">🔧</div>
           <h3>Сервис и обслуживание</h3>
-          <p>Регулярная проверка, замена и мониторинг систем без участия пользователя.</p>
+          <p>Постоянный контроль, диагностика и автоматическая замена фильтров — без участия пользователя.</p>
         </div>
       </div>
     </section>
 
-    <!-- КАК МЫ ОЧИЩАЕМ ВОДУ -->
-    <section class="tech" id="tech" aria-labelledby="tech-title">
-      <h2 id="tech-title" class="reveal">Как мы очищаем воду</h2>
+    <!-- КАК ОЧИЩАЕМ ВОДУ -->
+    <section class="tech" id="tech">
+      <h2 class="reveal">Как мы очищаем воду</h2>
       <p class="lead reveal">
-        Поток проходит через три ступени: грубая механическая фильтрация,
-        угольный сорбционный модуль и тонкая мембрана. На выходе — чистая вода.
+        Процесс фильтрации разбит на четыре ключевые стадии — от механической очистки до ультрафиолетового обеззараживания.
       </p>
 
       <div class="pipeline">
@@ -93,166 +92,101 @@
           </defs>
 
           <path id="tube"
-                d="M 40 110 H 360
-                   C 410 110, 410 40, 460 40
-                   H 600
-                   C 650 40, 650 180, 700 180
-                   H 860
-                   C 910 180, 910 110, 960 110
-                   H 1160"
+                d="M 40 110 H 1160"
                 fill="none" stroke="url(#tubeGrad)" stroke-width="36"
-                stroke-linecap="round" stroke-linejoin="round" />
+                stroke-linecap="round" stroke-linejoin="round"/>
 
           <path id="flow"
-                d="M 40 110 H 360
-                   C 410 110, 410 40, 460 40
-                   H 600
-                   C 650 40, 650 180, 700 180
-                   H 860
-                   C 910 180, 910 110, 960 110
-                   H 1160"
-                fill="none" stroke="url(#waterGrad)" stroke-width="16"
+                d="M 40 110 H 1160"
+                fill="none" stroke="url(#waterGrad)" stroke-width="14"
                 stroke-linecap="round" stroke-linejoin="round"
-                stroke-dasharray="80 420" />
+                stroke-dasharray="120 480" />
         </svg>
 
-        <ul class="stages" aria-label="Этапы очистки">
-          <li class="stage reveal">
-            <h3>ГРУБАЯ</h3>
-            <p>Сетчатый фильтр задерживает песок, ржавчину и крупные частицы.</p>
-          </li>
-          <li class="stage reveal">
-            <h3>СОРБЦИЯ</h3>
-            <p>Активированный уголь удаляет хлор, запахи и органические примеси.</p>
-          </li>
-          <li class="stage reveal">
-            <h3>МЕМБРАНА</h3>
-            <p>Тонкая мембрана удерживает микро-загрязнения и бактерии.</p>
-          </li>
-        </ul>
+        <!-- Точки этапов -->
+        <div class="stages-interactive">
+          <button class="stage-dot" data-title="Грубая очистка" data-text="Удаляет крупные частицы: песок, ржавчину, ил."></button>
+          <button class="stage-dot" data-title="Сорбция" data-text="Активированный уголь устраняет запах, хлор и органику."></button>
+          <button class="stage-dot" data-title="Мембрана" data-text="Тонкая фильтрация удаляет бактерии и соли тяжёлых металлов."></button>
+          <button class="stage-dot" data-title="УФ-обеззараживание" data-text="Финальная стадия: уничтожение микроорганизмов и вирусов."></button>
+        </div>
+
+        <!-- Инфо-блок -->
+        <div class="stage-info" id="stageInfo" hidden>
+          <h3 id="stageTitle"></h3>
+          <p id="stageText"></p>
+        </div>
       </div>
     </section>
 
-    <!-- РЕШЕНИЯ ДЛЯ ЗАСТРОЙЩИКОВ -->
-    <section class="solutions" id="dev" aria-labelledby="solutions-title">
-      <div class="solutions-head">
-        <h2 id="solutions-title" class="reveal">Решения для застройщиков</h2>
-        <p class="lead reveal">
-          Централизованные системы очистки воды для жилых комплексов и коммерческих объектов.
-          Гибкая модульность, удалённый мониторинг, экономия на сервисе.
-        </p>
-      </div>
-
-      <div class="solutions-grid">
-        <article class="sol-card reveal">
-          <div class="sol-icon" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><path d="M6 30 32 10 58 30" fill="none" stroke="#1047a8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 56V32h36v24" fill="none" stroke="#2b8cff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <h3>Центральная станция ЖК</h3>
-          <p>Одна общедомовая станция на вводе. Чистая вода во всех квартирах и помещениях комплекса.</p>
-          <ul class="sol-list">
-            <li>Производительность от 10 до 200 м³/ч</li>
-            <li>Резервирование модулей</li>
-            <li>Диспетчеризация 24/7</li>
-          </ul>
-        </article>
-
-        <article class="sol-card reveal">
-          <div class="sol-icon" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="40" rx="8" fill="none" stroke="#1047a8" stroke-width="4"/><path d="M20 22h24M20 32h24M20 42h24" stroke="#2b8cff" stroke-width="4" stroke-linecap="round"/></svg>
-          </div>
-          <h3>Модульные блоки</h3>
-          <p>Собираем систему под дебит и качество воды. Удобный монтаж в ТП, подвале или тех.этаже.</p>
-          <ul class="sol-list">
-            <li>Сорбция, мембрана, УФ</li>
-            <li>Быстрая замена кассет</li>
-            <li>Шум &lt; 45 дБ</li>
-          </ul>
-        </article>
-
-        <article class="sol-card reveal">
-          <div class="sol-icon" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><path d="M20 40a12 12 0 1 1 9-21 14 14 0 1 1 15 21" fill="none" stroke="#1047a8" stroke-width="4" stroke-linecap="round"/><path d="M24 48h16M20 54h24" stroke="#2b8cff" stroke-width="4" stroke-linecap="round"/></svg>
-          </div>
-          <h3>Умный мониторинг</h3>
-          <p>Показатели, аварии, ресурс фильтров — в одной панели. Интеграция в BMS и телеметрию.</p>
-          <ul class="sol-list">
-            <li>API + Modbus</li>
-            <li>Push-уведомления</li>
-            <li>Отчёты по ESG</li>
-          </ul>
-        </article>
-      </div>
-
-      <div class="solutions-cta reveal">
-        <a class="btn-primary" href="#contact">Запросить спецификацию</a>
-        <span class="hint">Получите список модулей и смету за 1–2 дня</span>
-      </div>
+    <!-- РЕШЕНИЯ -->
+    <section class="solutions" id="dev">
+      <h2 class="reveal">Решения для застройщиков</h2>
+      <p class="lead reveal">FS разрабатывает и внедряет комплексные системы очистки воды, обеспечивающие качество на уровне стандарта будущего.</p>
     </section>
   </main>
 
-  <!-- JS -->
   <script>
-  // Счётчик (6 цифр, ~6000/с)
+  // ----------- СЧЁТЧИК -----------
   (function(){
     const BPS=6000, DIGITS=6, odo=document.getElementById('odo');
-    function makeDigit(){const d=document.createElement('div');d.className='digit';const s=document.createElement('div');s.className='strip';
+    function makeDigit(){const d=document.createElement('div');d.className='digit';
+      const s=document.createElement('div');s.className='strip';
       for(let k=0;k<10;k++){const c=document.createElement('div');c.className='cell';c.textContent=k;s.appendChild(c)}
       const e=document.createElement('div');e.className='cell';e.textContent='0';s.appendChild(e);d.appendChild(s);return d}
     function build(){odo.innerHTML='';for(let i=0;i<DIGITS;i++) odo.appendChild(makeDigit())}
     build();
-    let cellH=0; function measure(){const s=odo.querySelector('.cell'); if(s) cellH=Math.round(s.getBoundingClientRect().height)}
-    measure(); addEventListener('resize',()=>{measure(); setNumber(cur)});
-    let prev=new Array(DIGITS).fill(0), start=performance.now(), cur=0;
-    function setNumber(n){const str=Math.max(0,Math.floor(n)).toString().padStart(DIGITS,'0'); const strips=odo.querySelectorAll('.digit .strip');
-      for(let i=0;i<DIGITS;i++){const st=strips[i]; const c=+str[i]; if(c!==prev[i]){st.parentElement.classList.add('anim'); st.style.transform='translate3d(0,'+(-cellH*c)+'px,0)'}}
-      prev=str.split('').map(Number)
-    }
-    function frame(now){const t=(now-start)/1000; cur=(BPS*t)/1000; const stepped=Math.floor(cur*10)/10; setNumber(stepped); requestAnimationFrame(frame)}
+    let cellH=0; function measure(){const s=odo.querySelector('.cell');if(s) cellH=Math.round(s.getBoundingClientRect().height)}
+    measure();addEventListener('resize',()=>{measure();setNumber(cur)});
+    let prev=new Array(DIGITS).fill(0),start=performance.now(),cur=0;
+    function setNumber(n){const str=Math.floor(n).toString().padStart(DIGITS,'0');const strips=odo.querySelectorAll('.digit .strip');
+      for(let i=0;i<DIGITS;i++){const st=strips[i];const c=+str[i];if(c!==prev[i]){st.parentElement.classList.add('anim');st.style.transform='translate3d(0,'+(-cellH*c)+'px,0)'}}prev=str.split('').map(Number)}
+    function frame(now){const t=(now-start)/1000;cur=(BPS*t)/1000;setNumber(cur);requestAnimationFrame(frame)}
     requestAnimationFrame(frame);
   })();
 
-  // Падающие бутылки (фон позади текста)
+  // ----------- БУТЫЛКИ -----------
   (function(){
-    const section = document.getElementById('about');
-    const canvas  = document.getElementById('bottleCanvas');
-    const ctx     = canvas.getContext('2d');
-    let W=0,H=0,dpr=1,bottles=[],running=false,rafId=0,spawnTimer=0;
-    function resize(){
-      const r=section.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);
-      W=Math.floor(r.width);H=Math.floor(r.height);
-      canvas.width=W*dpr;canvas.height=H*dpr;
-      canvas.style.width=W+'px';canvas.style.height=H+'px';
-      canvas.style.zIndex='0'; // ниже текста
-      ctx.setTransform(dpr,0,0,dpr,0,0);}
-    resize();addEventListener('resize',resize,{passive:true});
-    function drawBottle(x,y,w,h,angle,alpha=1){ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);ctx.rotate(angle);
-      const r=Math.min(w,h)/6;ctx.fillStyle='#3a7cff';ctx.beginPath();ctx.roundRect(-w/2,-h/2,w,h,r);ctx.fill();
-      ctx.fillStyle='#1e4fb3';ctx.beginPath();ctx.roundRect(-w*0.18,-h*0.58,w*0.36,h*0.12,r*0.4);ctx.fill();
-      ctx.restore();}
-    class Bottle{constructor(x){this.w=28+Math.random()*16;this.h=this.w*2.1;this.x=x;this.y=-this.h;this.vy=1.2+Math.random()*1.6;
-      this.ang=Math.random()*Math.PI;this.vang=(Math.random()*0.6-0.3)*0.02;this.drift=(Math.random()*0.6-0.3)*0.25;
-      this.settled=false;this.alpha=0;}update(){if(!this.settled){this.y+=this.vy;this.x+=this.drift;this.ang+=this.vang;
-      this.alpha=Math.min(1,this.alpha+0.06);if(this.y>=H-this.h*0.5){this.y=H-this.h*0.5;this.settled=true;}}}
-      draw(){drawBottle(this.x,this.y,this.w,this.h,this.ang,this.alpha);} }
-    function isFilled(){const area=W*H,avg=(40*80),target=Math.max(12,Math.floor(area/(avg*6)));
-      return bottles.filter(b=>b.settled).length>=target;}
-    function tick(){ctx.clearRect(0,0,W,H);if(!isFilled()){spawnTimer-=1;if(spawnTimer<=0){spawnTimer=3;bottles.push(new Bottle(Math.random()*W));}}
-      for(let i=0;i<bottles.length;i++){const b=bottles[i];b.update();b.draw();if(b.y>H+200){bottles.splice(i,1);i--;}}
-      if(running)rafId=requestAnimationFrame(tick);}
-    function start(){if(running)return;running=true;bottles=[];spawnTimer=0;rafId=requestAnimationFrame(tick);}
-    function stop(){running=false;cancelAnimationFrame(rafId);ctx.clearRect(0,0,W,H);bottles=[];}
-    const io=new IntersectionObserver(e=>{e.forEach(x=>x.isIntersecting?start():stop())},{threshold:0.25});io.observe(section);
+    const canvas=document.getElementById('bottleCanvas');if(!canvas)return;
+    const ctx=canvas.getContext('2d');let W=0,H=0,dpr=1,bottles=[],running=false,rafId=0;
+    function resize(){const r=canvas.parentElement.getBoundingClientRect();dpr=window.devicePixelRatio||1;
+      W=Math.round(r.width);H=Math.round(r.height);
+      canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}
+    resize();addEventListener('resize',resize);
+    function drawBottle(x,y,w,h,a,alpha){ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);ctx.rotate(a);
+      ctx.fillStyle='#3a7cff';ctx.beginPath();ctx.roundRect(-w/2,-h/2,w,h,w*0.15);ctx.fill();ctx.restore();}
+    class Bottle{constructor(){this.x=Math.random()*W;this.y=-40;this.w=20+Math.random()*15;this.h=this.w*2;this.vy=1+Math.random()*1;this.a=0;this.va=Math.random()*.02;this.alpha=0;}
+      update(){this.y+=this.vy;this.a+=this.va;this.alpha=Math.min(1,this.alpha+.04);if(this.y>H)this.y=-50;}
+      draw(){drawBottle(this.x,this.y,this.w,this.h,this.a,this.alpha);}}
+    function loop(){ctx.clearRect(0,0,W,H);for(const b of bottles){b.update();b.draw();}
+      if(bottles.length<40&&Math.random()<.3)bottles.push(new Bottle());
+      if(running)rafId=requestAnimationFrame(loop);}
+    const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){running=true;loop();}else{running=false;cancelAnimationFrame(rafId);}})},{threshold:.2});
+    io.observe(canvas.parentElement);
   })();
 
-  // Reveal + анимация потока воды
+  // ----------- ЭФФЕКТ ПОТОКА ---------
   (function(){
-    const tech=document.getElementById('tech');
-    const ioTech=new IntersectionObserver(e=>{e.forEach(x=>x.isIntersecting?tech.classList.add('play'):tech.classList.remove('play'));},{threshold:.35});
-    ioTech.observe(tech);
-    const revEls=document.querySelectorAll('.reveal');
-    const ioRev=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');ioRev.unobserve(x.target)}})},{threshold:.25});
-    revEls.forEach(el=>ioRev.observe(el));
+    const flow=document.getElementById('flow');
+    function anim(){let offset=0;function f(){offset-=3;flow.style.strokeDashoffset=offset;requestAnimationFrame(f);}f();}
+    anim();
+  })();
+
+  // ----------- ИНТЕРАКТИВНЫЕ ТОЧКИ ---------
+  (function(){
+    const dots=document.querySelectorAll('.stage-dot');
+    const info=document.getElementById('stageInfo');
+    const title=document.getElementById('stageTitle');
+    const text=document.getElementById('stageText');
+    dots.forEach(dot=>{
+      dot.addEventListener('click',()=>{
+        title.textContent=dot.dataset.title;
+        text.textContent=dot.dataset.text;
+        info.hidden=false;
+        dots.forEach(d=>d.classList.remove('active'));
+        dot.classList.add('active');
+      });
+    });
   })();
   </script>
 </body>
