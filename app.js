@@ -1,180 +1,86 @@
-// ---------- UTIL
-const qs = s => document.querySelector(s);
-const qsa = s => [...document.querySelectorAll(s)];
+const qs=s=>document.querySelector(s), qsa=s=>[...document.querySelectorAll(s)];
 
-// ---------- COUNTER (single row, top-to-bottom)
+/* ===== COUNTER (6 цифр, сверху-вниз, плавно) ===== */
 (() => {
-  const container = qs('#odo');
-  if (!container) return;
-
-  const DIGITS = 6;           // считаем в тысячах
-  const BPS = 6000;           // 6 тыс/сек
-  let count = 300000;         // старт в тысячах
-  const perTick = 0.1;        // шаг 0.1 тыс = 100 бутылок
-  let cellH = 0;
-  let prev = Array(DIGITS).fill(0);
+  const box = qs('#odo'); if (!box) return;
+  const DIGITS = 6, BPS = 6000;       // 6 тыс/сек = реальные данные
+  let count = 300000, cellH = 0, prev = Array(DIGITS).fill(0);
 
   const makeDigit = () => {
-    const d = document.createElement('div');
-    d.className = 'digit';
-    const s = document.createElement('div');
-    s.className = 'strip';
-    for (let i=0;i<10;i++){
-      const c = document.createElement('div');
-      c.className='cell'; c.textContent=i;
-      s.appendChild(c);
-    }
-    // дополнительный «0» для ровной прокрутки — остается скрытым благодаря overflow
-    const extra = document.createElement('div');
-    extra.className='cell'; extra.textContent='0';
-    s.appendChild(extra);
-    d.appendChild(s);
-    return d;
+    const d = document.createElement('div'); d.className='digit';
+    const s = document.createElement('div'); s.className='strip';
+    for(let i=0;i<10;i++){ const c=document.createElement('div'); c.className='cell'; c.textContent=i; s.appendChild(c); }
+    const extra=document.createElement('div'); extra.className='cell'; extra.textContent='0'; s.appendChild(extra);
+    d.appendChild(s); return d;
   };
+  box.innerHTML=''; for(let i=0;i<DIGITS;i++) box.appendChild(makeDigit());
 
-  const build = () => {
-    container.innerHTML = '';
-    for (let i=0;i<DIGITS;i++) container.appendChild(makeDigit());
-  };
-
-  const measure = () => {
-    const probe = container.querySelector('.cell');
-    if (!probe) return;
-    cellH = Math.round(probe.getBoundingClientRect().height);
-  };
-
+  const measure = () => { const c=box.querySelector('.cell'); if(!c) return; cellH=Math.round(c.getBoundingClientRect().height); };
   const setNumber = (n) => {
-    const str = Math.max(0, Math.floor(n)).toString().padStart(DIGITS,'0');
-    const strips = container.querySelectorAll('.strip');
-    for (let i=0;i<DIGITS;i++){
-      const cur = +str[i];
-      if (cur !== prev[i]){
-        const s = strips[i];
-        s.parentElement.classList.add('anim');
-        // прокрутка СВЕРХУ ВНИЗ
-        const y = -cellH * cur;
-        s.style.transform = `translate3d(0, ${y}px, 0)`;
+    const str = Math.max(0,Math.floor(n)).toString().padStart(DIGITS,'0');
+    const strips = box.querySelectorAll('.strip');
+    for(let i=0;i<DIGITS;i++){
+      const cur=+str[i]; if(cur!==prev[i]){
+        const s=strips[i]; s.parentElement.classList.add('anim');
+        s.style.transform=`translate3d(0, ${-cellH*cur}px, 0)`; // сверху-вниз
       }
     }
     prev = str.split('').map(x=>+x);
   };
 
-  build();
-  // обновляем размеры после загрузки шрифтов
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(()=>{ measure(); setNumber(count); });
-  } else { setTimeout(()=>{ measure(); setNumber(count); }, 50); }
-  window.addEventListener('resize', ()=>{ measure(); setNumber(count); });
+  (document.fonts?.ready||Promise.resolve()).then(()=>{ measure(); setNumber(count); });
+  addEventListener('resize',()=>{ measure(); setNumber(count); });
 
-  // рендер
-  let last = performance.now(), acc = 0;
-  const loop = now => {
-    const dt = (now - last)/1000; last = now;
-    acc += (BPS/1000) * dt; // BPS (бут/сек) => тысяч/сек
-    while (acc >= perTick){ acc -= perTick; count += perTick; setNumber(count); }
+  let last=performance.now(), acc=0, step=0.1; // 0.1 тыс = 100 шт
+  const loop=now=>{
+    const dt=(now-last)/1000; last=now;
+    acc += (BPS/1000)*dt;
+    while(acc>=step){ acc-=step; count+=step; setNumber(count); }
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
 })();
 
-// ---------- REVEAL
+/* ===== REVEAL ===== */
 (() => {
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); });
-  }, {threshold: .2});
+  const io=new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); }),{threshold:.2});
   qsa('.reveal').forEach(el=>io.observe(el));
 })();
 
-// ---------- BOTTLES BG (behind text)
+/* ===== FALLING BOTTLES (behind text) ===== */
 (() => {
-  const canvas = qs('#bottlesCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W,H, bottles=[];
-  const COLORS = ['#dfeaff','#e7f0ff','#eaf2ff'];
-
-  const resize = () => { W = canvas.width = canvas.clientWidth; H = canvas.height = canvas.clientHeight; };
-  const rand = (a,b)=>a+Math.random()*(b-a);
-
-  const spawn = (x) => {
-    bottles.push({
-      x: x ?? rand(0,W),
-      y: -40,
-      w: rand(60,110),
-      h: rand(16,26),
-      a: rand(-.5,.5),
-      s: rand(40,80),        // скорость падения
-      r: rand(-.5,.5),       // скорость вращения
-      c: COLORS[(Math.random()*COLORS.length)|0],
-      life: 1
+  const cvs=qs('#bottlesCanvas'); if(!cvs) return; const ctx=cvs.getContext('2d');
+  let W,H,items=[];
+  const COLORS=['#e7f0ff','#eaf3ff','#dfeaff'];
+  const resize=()=>{ W=cvs.width=cvs.clientWidth; H=cvs.height=cvs.clientHeight; };
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const spawn=()=>items.push({x:rnd(0,W),y:-40,w:rnd(60,110),h:rnd(16,26),a:rnd(-.5,.5),vy:rnd(40,80),vr:rnd(-.5,.5),c:COLORS[(Math.random()*COLORS.length)|0]});
+  const step=(dt)=>{ ctx.clearRect(0,0,W,H); if(items.length<50) spawn();
+    items.forEach(b=>{ b.y+=b.vy*dt; b.a+=b.vr*dt; if(b.y>H+60) b.y=-40;
+      ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(b.a); ctx.globalAlpha=.55; ctx.fillStyle=b.c; ctx.fillRect(-b.w/2,-b.h/2,b.w,b.h); ctx.restore();
     });
   };
-
-  const step = (dt) => {
-    ctx.clearRect(0,0,W,H);
-    // ограничение количества, пока фон «заполнится»
-    if (bottles.length < 40) spawn();
-    bottles.forEach(b=>{
-      b.y += b.s*dt;
-      b.a += b.r*dt;
-      if (b.y > H+60) b.life = 0;
-      ctx.save();
-      ctx.translate(b.x,b.y); ctx.rotate(b.a);
-      ctx.fillStyle = b.c;
-      ctx.globalAlpha = .55;
-      ctx.fillRect(-b.w/2,-b.h/2,b.w,b.h);
-      ctx.restore();
-    });
-    bottles = bottles.filter(b=>b.life>0);
-  };
-
-  const loop = t=>{
-    const now = performance.now();
-    if(!loop.p) loop.p=now;
-    const dt = (now-loop.p)/1000; loop.p=now;
-    step(dt);
-    requestAnimationFrame(loop);
-  };
-
-  const io = new IntersectionObserver((e)=>{
-    if(e[0].isIntersecting){ resize(); requestAnimationFrame(loop); }
-  },{threshold:.1});
-  io.observe(canvas);
-  window.addEventListener('resize',resize);
-  resize();
+  const loop=()=>{ const t=performance.now(); if(!loop.p) loop.p=t; const dt=(t-loop.p)/1000; loop.p=t; step(dt); requestAnimationFrame(loop); };
+  const io=new IntersectionObserver(e=>{ if(e[0].isIntersecting){ resize(); requestAnimationFrame(loop);} },{threshold:.1});
+  io.observe(cvs); addEventListener('resize',resize); resize();
 })();
 
-// ---------- PIPE stages switching
+/* ===== BUBBLES under "Что делает FS" ===== */
 (() => {
-  qsa('.how .stage').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      qsa('.stage-card').forEach(c=>c.classList.remove('show'));
-      const id = btn.getAttribute('data-target');
-      const card = qs(id);
-      if (card) card.classList.add('show');
-    });
-  });
-})();
-
-// ---------- BUBBLES on Services
-(() => {
-  const canvas = qs('#bubblesCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W,H, arr=[];
-  const resize = ()=>{ W=canvas.width=canvas.clientWidth; H=canvas.height=canvas.clientHeight; };
-  const spawn = ()=>arr.push({x:Math.random()*W,y:H+20,r:4+Math.random()*10,s:.6+Math.random()*1.4,a:Math.random()*Math.PI});
-  for(let i=0;i<40;i++) spawn();
-  const loop=()=>{
-    ctx.clearRect(0,0,W,H);
-    arr.forEach(b=>{
-      b.y -= b.s; b.x += Math.sin(b.a+=.02)*.3;
-      ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(100,160,255,.20)'; ctx.fill();
-      if(b.y < -20){ b.y=H+20; b.x=Math.random()*W; }
-    });
+  const cvs=qs('#bubblesTeaser'); if(!cvs) return; const ctx=cvs.getContext('2d');
+  let W,H,arr=[];
+  const resize=()=>{ W=cvs.width=cvs.clientWidth; H=cvs.height=cvs.clientHeight; arr = Array.from({length:40},()=>({x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*10,s:.6+Math.random()*1.4,a:Math.random()*Math.PI})); };
+  const loop=()=>{ ctx.clearRect(0,0,W,H);
+    arr.forEach(b=>{ b.y-=b.s; b.x+=Math.sin(b.a+=.02)*.3; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fillStyle='rgba(100,160,255,.18)'; ctx.fill(); if(b.y<-20){ b.y=H+20; b.x=Math.random()*W; }});
     requestAnimationFrame(loop);
   };
-  resize(); loop();
-  window.addEventListener('resize',resize);
+  resize(); loop(); addEventListener('resize',resize);
+})();
+
+/* ===== PIPE stages switching ===== */
+(() => {
+  qsa('.how .stage').forEach(b=>b.addEventListener('click',()=>{
+    qsa('.stage-card').forEach(c=>c.classList.remove('show'));
+    qs(b.dataset.target)?.classList.add('show');
+  }));
 })();
