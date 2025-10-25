@@ -22,13 +22,28 @@
   .cell{height:100%;display:flex;align-items:center;justify-content:center;font-family:Impact, Haettenschweiler, 'Arial Black', sans-serif;font-weight:900;font-size:clamp(60px,13vw,150px);color:var(--ink)}
   .digit.anim .strip{transition:transform .45s cubic-bezier(.25,.8,.25,1)}
   .subtitle{color:#fff;max-width:820px;text-align:center;font-family:Impact, Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(18px,2.4vw,26px);line-height:1.35;padding:0 16px}
+
   /* секция с белым фоном + 3D канвас сзади */
   .why{position:relative;background:#fff;color:var(--text);padding:120px 8vw;overflow:hidden}
-  .why h2{position:relative;z-index:1;font-family:Impact, Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(36px,5vw,72px);letter-spacing:-.02em;line-height:1.05}
-  .why p{position:relative;z-index:1;margin-top:16px;max-width:760px;font-size:clamp(18px,2vw,22px);line-height:1.6;color:#30455c}
-  .three-bg{position:absolute;inset:0;z-index:0;background:#fff}
+  .three-bg{position:absolute;inset:0;z-index:0}
   canvas#scene3d{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .fallback{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;background:rgba(10,31,51,.06);padding:10px 14px;border-radius:10px;font-size:14px;color:#0a1f33}
+  .why h2, .why p{position:relative;z-index:2}
+  .why h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(36px,5vw,72px);letter-spacing:-.02em;line-height:1.05}
+  .why p{margin-top:16px;max-width:760px;font-size:clamp(18px,2vw,22px);line-height:1.6;color:#30455c}
+
+  .fallback{
+    position:absolute;
+    right:16px; bottom:16px;
+    z-index:1;
+    pointer-events:none;
+    background:rgba(10,31,51,.06);
+    backdrop-filter:blur(4px);
+    border-radius:10px;
+    padding:8px 10px;
+    font-size:12px;
+    line-height:1.2;
+    color:#0a1f33;
+  }
 </style>
 </head>
 <body>
@@ -56,7 +71,7 @@
   <p>Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут. FS создаёт системы, которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит. Мы верим, что будущее — это не борьба с природой, а забота о ней.</p>
 </section>
 
-<!-- ========== СЧЁТЧИК (как раньше, лёгкий) ========== -->
+<!-- ========== СЧЁТЧИК ========== -->
 <script>
 (function(){
   const BPS=6000, DIGITS=6, odo=document.getElementById('odo');
@@ -76,168 +91,58 @@
 })();
 </script>
 
-<!-- ========== 3D: ЛЁГКО, БЕЗ МОДУЛЕЙ. если CDN недоступен — тихий фолбэк ========== -->
+<!-- ========== 3D ПОДКЛЮЧЕНИЕ ========== -->
 <script src="https://unpkg.com/three@0.161.0/build/three.min.js" onerror="document.getElementById('fallback').hidden=false"></script>
 <script src="https://unpkg.com/three@0.161.0/examples/js/loaders/FBXLoader.js" onerror="document.getElementById('fallback').hidden=false"></script>
+
+<script>
+  // Уведомление, если 3D не загрузилось
+  (function(){
+    const fb=document.getElementById('fallback');
+    if(!fb) return;
+    const show=()=>{fb.hidden=false;setTimeout(()=>fb.hidden=true,4000)};
+    if(!window.THREE||!window.FBXLoader){show();}
+    window.addEventListener('three-ready',()=>fb.hidden=true);
+  })();
+</script>
+
 <script>
 (function(){
-  if(!(window.THREE && window.FBXLoader)) { return; } // CDN не загрузился — не ломаем страницу
+  if(!(window.THREE && window.FBXLoader)) return;
 
-  const FBX_URL = "./model.fbx"; // <-- ваш файл рядом со страницей
+  const FBX_URL = "./model.fbx"; // ваш файл рядом со страницей
 
   const canvas = document.getElementById('scene3d');
-  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  const renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(35, 16/9, 0.1, 200);
+  const camera = new THREE.PerspectiveCamera(35,16/9,0.1,200);
   camera.position.set(0,1.7,6);
 
   function resize(){
-    const w = canvas.clientWidth, h = canvas.clientHeight;
+    const w=canvas.clientWidth,h=canvas.clientHeight;
     renderer.setPixelRatio(Math.min(devicePixelRatio,2));
     renderer.setSize(w,h,false);
-    camera.aspect = w/h; camera.updateProjectionMatrix();
+    camera.aspect=w/h;camera.updateProjectionMatrix();
   }
-  resize(); addEventListener('resize', resize, {passive:true});
+  resize(); addEventListener('resize',resize,{passive:true});
 
-  // белый фон секции уже есть, здесь — свет и тени
-  const hemi = new THREE.HemisphereLight(0xffffff, 0xdde6f2, 0.9); scene.add(hemi);
-  const dir  = new THREE.DirectionalLight(0xffffff, 0.9); dir.position.set(5,10,5); dir.castShadow=true; scene.add(dir);
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(30,30), new THREE.ShadowMaterial({opacity:0.22}));
-  ground.rotation.x = -Math.PI/2; ground.position.y = 0; ground.receiveShadow = true; scene.add(ground);
-  renderer.shadowMap.enabled = true;
+  const hemi=new THREE.HemisphereLight(0xffffff,0xdde6f2,0.9);scene.add(hemi);
+  const dir=new THREE.DirectionalLight(0xffffff,0.9);dir.position.set(5,10,5);dir.castShadow=true;scene.add(dir);
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.ShadowMaterial({opacity:0.22}));
+  ground.rotation.x=-Math.PI/2;ground.position.y=0;ground.receiveShadow=true;scene.add(ground);
+  renderer.shadowMap.enabled=true;
 
-  // загрузка FBX
-  const loader = new FBXLoader();
-  let model=null, mixer=null, bottleMesh=null, rightHand=null;
-  loader.load(FBX_URL, (fbx)=>{
-    model=fbx;
-    model.traverse(o=>{ if(o.isMesh){o.castShadow=true;o.receiveShadow=true} });
-    // масштаб под рост ~1.75м и старт слева
-    const box=new THREE.Box3().setFromObject(model), size=new THREE.Vector3(); box.getSize(size);
-    const scale=1.75/Math.max(size.y||1,1e-6); model.scale.setScalar(scale);
-    model.position.set(-6,0,0); model.rotation.y=0;
+  const loader=new FBXLoader();
+  loader.load(FBX_URL,(fbx)=>{
+    const model=fbx;
+    model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+    const box=new THREE.Box3().setFromObject(model),size=new THREE.Vector3();box.getSize(size);
+    const scale=1.75/Math.max(size.y||1,1e-6);model.scale.setScalar(scale);
+    model.position.set(0,0,0);
     scene.add(model);
 
-    // анимации из файла, если есть — просто включим первый клип (не мешает нашей логике)
-    if(fbx.animations && fbx.animations.length){
-      mixer=new THREE.AnimationMixer(model);
-      mixer.clipAction(fbx.animations[0]).play();
-    }
-
-    // найдём правую кисть и бутылку по имени (если есть)
-    rightHand=findBone(model,[/right.*hand/i,/mixamorig.*righthand/i,/hand_r\b/i,/\bR_Hand\b/i,/прав.*кисть/i]);
-    bottleMesh=findBottle(model);
-
-    // старт поведения
-    startCycle();
-  });
-
-  function findBone(root, regs){
-    let res=null; root.traverse(o=>{
-      if(res) return;
-      if(o.isBone||o.type==='Bone'){ const n=(o.name||'').toLowerCase(); if(regs.some(r=>r.test(n))) res=o; }
-    }); return res;
-  }
-  function findBottle(root){
-    let m=null; root.traverse(o=>{
-      if(m) return;
-      if(o.isMesh){ const n=(o.name||'').toLowerCase(); if(n.includes('bottle')||n.includes('бутыл')) m=o; }
-    }); return m;
-  }
-
-  // ——— Процедурная анимация ———
-  const clock = new THREE.Clock();
-  let playing=false, startT=0, goRight=true, xMid=0;
-  let handBottle=null, holding=true;
-  const TRASH_LIMIT=120, trashGroup=new THREE.Group(); scene.add(trashGroup);
-
-  const T_IN=2.0, T_DRINK=2.0, T_HOLD=0.8, T_DROP=0.2, T_OUT=3.0, T_TOTAL=T_IN+T_DRINK+T_HOLD+T_DROP+T_OUT;
-
-  function attachBottle(){
-    if(!bottleMesh){ return; }
-    if(handBottle){ handBottle.parent?.remove(handBottle); handBottle=null; }
-    handBottle=bottleMesh.clone();
-    handBottle.material=handBottle.material.clone();
-    if(rightHand){ rightHand.add(handBottle); handBottle.position.set(0.06,-0.02,0.02); handBottle.rotation.set(-0.15,0.35,1.55); handBottle.scale.setScalar(0.7); }
-    else { model.add(handBottle); handBottle.position.set(0.25,1.45,0.15); handBottle.scale.setScalar(0.7); } // без костей — примерно у правой руки
-  }
-  function detachBottleToWorld(){
-    if(!handBottle) return null;
-    handBottle.updateWorldMatrix(true,false);
-    const m=handBottle.clone(); m.material=m.material.clone();
-    m.applyMatrix4(handBottle.matrixWorld); scene.add(m);
-    handBottle.parent?.remove(handBottle); handBottle=null; return m;
-  }
-  function addTrash(m){
-    if(!m) return;
-    if(trashGroup.children.length>TRASH_LIMIT) trashGroup.remove(trashGroup.children[0]);
-    m.userData={vy:2.0, rot: (Math.random()*0.6-0.3), alpha:1};
-    m.traverse(o=>{ if(o.material){o.material=o.material.clone(); o.material.transparent=true; }});
-    trashGroup.add(m);
-  }
-  function updateTrash(dt){
-    const gy=0.01;
-    for(let i=0;i<trashGroup.children.length;i++){
-      const m=trashGroup.children[i], u=m.userData||{};
-      if(m.position.y>gy){ u.vy-=9.8*dt*2; m.position.y+=u.vy*dt; m.rotation.y+=u.rot*dt; }
-      else { m.position.y=gy; u.alpha-=dt*0.03; m.traverse(o=>{ if(o.material) o.material.opacity=Math.max(0,u.alpha||0); }); if(u.alpha<=0){ trashGroup.remove(m); i--; continue; } }
-      m.userData=u;
-    }
-  }
-
-  function startCycle(){
-    if(!model) return;
-    goRight=!goRight;
-    xMid = THREE.MathUtils.randFloat(-1.2,1.2);
-    model.position.x = goRight? -6 : 6;
-    model.rotation.y = goRight? 0 : Math.PI;
-    holding=true; attachBottle();
-    startT=performance.now()/1000; playing=true;
-  }
-
-  function animateRig(t){ // поднимаем правую руку к рту (если есть кисть)
-    if(!rightHand) return;
-    const inEnd=T_IN, drinkEnd=T_IN+T_DRINK, holdEnd=T_IN+T_DRINK+T_HOLD, dropEnd=holdEnd+T_DROP;
-    let k=0;
-    if(t<inEnd) k=0;
-    else if(t<drinkEnd) k=(t-inEnd)/T_DRINK;
-    else if(t<holdEnd) k=1;
-    else if(t<dropEnd) k=1-(t-holdEnd)/T_DROP;
-    else k=0;
-    const qFrom=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0));
-    const qTo  =new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.2,0.25,0.6)); // к губам
-    rightHand.quaternion.slerpQuaternions(qFrom,qTo,THREE.MathUtils.clamp(k,0,1));
-    if(handBottle){
-      if(t>=inEnd && t<=holdEnd) handBottle.position.set(0.065,-0.015,0.015); else handBottle.position.set(0.06,-0.02,0.02);
-    }
-  }
-
-  function loop(){
-    requestAnimationFrame(loop);
-    const dt=clock.getDelta();
-    if(model && playing){
-      const now=performance.now()/1000, t=now-startT;
-      // движение по X
-      const start=goRight? -6:6, stop=xMid, end=goRight? 6:-6;
-      if(t<=T_IN){ const k=1-Math.pow(1-(t/T_IN),3); model.position.x=THREE.MathUtils.lerp(start,stop,k); }
-      else if(t<=T_IN+T_DRINK+T_HOLD){ model.position.x=stop; }
-      else { const k=(t-(T_IN+T_DRINK+T_HOLD))/T_OUT; model.position.x=THREE.MathUtils.lerp(stop,end,THREE.MathUtils.clamp(k,0,1)); }
-      // рука/бутылка
-      animateRig(t);
-      // момент броска
-      const dropMoment=T_IN+T_DRINK+T_HOLD+0.05;
-      if(holding && t>=dropMoment){
-        holding=false;
-        const wb=detachBottleToWorld();
-        if(wb){ wb.userData={vy:2.0, rot:(Math.random()*0.6-0.3), alpha:1}; addTrash(wb); }
-      }
-      if(t>=T_TOTAL){ playing=false; setTimeout(startCycle,300); }
-    }
-    updateTrash(dt);
-    mixer && mixer.update(dt);
     renderer.render(scene,camera);
-  }
-  loop();
+  });
 })();
 </script>
 </body>
