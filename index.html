@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FS • Чистая вода будущего</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
   <!-- ===== Шапка ===== -->
@@ -18,17 +18,17 @@
   </header>
 
   <main>
-    <!-- ===== HERO со счётчиком (синий фон) ===== -->
-    <section class="hero">
-      <div class="capsule reveal">
+    <!-- ===== HERO со счётчиком ===== -->
+    <section class="hero reveal">
+      <div class="capsule">
         <div id="odo" class="odo" aria-live="polite"></div>
       </div>
-      <h1 class="subtitle reveal">
+      <h1 class="subtitle">
         Именно столько тысяч пластиковых бутылок выбрасывается в России, пока вы здесь
       </h1>
     </section>
 
-    <!-- ===== ПОЧЕМУ ЭТО ВАЖНО (падающие бутылки) ===== -->
+    <!-- ===== ПОЧЕМУ ЭТО ВАЖНО ===== -->
     <section class="why" id="about" aria-labelledby="why-title">
       <canvas id="bottleCanvas" aria-hidden="true"></canvas>
       <h2 id="why-title" class="reveal">Почему это важно</h2>
@@ -227,10 +227,9 @@
   })();
   </script>
 
-  <!-- ===== Анимация потока воды и карточек + REVEAL ===== -->
+  <!-- ===== Reveal-анимации и поток воды ===== -->
   <script>
   (function(){
-    // Включаем анимацию трубы, когда блок виден
     const tech=document.getElementById('tech');
     const ioTech=new IntersectionObserver(entries=>{
       entries.forEach(e=>{
@@ -240,7 +239,6 @@
     },{threshold:.35});
     ioTech.observe(tech);
 
-    // Универсальный reveal для элементов с .reveal
     const revEls=[...document.querySelectorAll('.reveal')];
     const ioRev=new IntersectionObserver(entries=>{
       entries.forEach(e=>{
