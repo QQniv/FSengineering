@@ -5,6 +5,68 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FS • Чистая вода будущего</title>
   <link rel="stylesheet" href="styles.css?v=7" />
+
+  <!-- Inline-стили ТОЛЬКО для секции 2 (чтобы не править styles.css) -->
+  <style>
+    /* ===== 2. Что делает FS (локальные стили) ===== */
+    .products{
+      background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);
+      padding:120px 8vw 140px;
+      text-align:center;
+    }
+    .products h2{
+      font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;
+      font-size:clamp(40px,5vw,76px);
+      color:#0b1f33;
+      margin-bottom:12px;
+    }
+    .products .lead{
+      color:#354a60;
+      max-width:800px;
+      margin:0 auto 40px;
+      font-size:clamp(18px,2vw,22px);
+      line-height:1.6;
+    }
+    .prod-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:22px;
+    }
+    .prod-card{
+      background:#fff;
+      border:1px solid rgba(16,71,168,.14);
+      border-radius:20px;
+      padding:28px 22px;
+      box-shadow:0 10px 26px rgba(43,140,255,.08);
+      transition:transform .4s cubic-bezier(.25,.8,.25,1), box-shadow .4s;
+      position:relative; overflow:hidden;
+      transform: translateY(12px); opacity:0;
+    }
+    .prod-card.reveal.show{ transform:none; opacity:1; }
+    .prod-card::before{
+      content:""; position:absolute; inset:0;
+      background:radial-gradient(circle at 50% 120%,rgba(43,140,255,.08),transparent 70%);
+      opacity:0; transition:opacity .5s ease;
+    }
+    .prod-card:hover::before{opacity:1;}
+    .prod-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(43,140,255,.18);}
+    .prod-icon{width:60px;height:60px;margin:0 auto 12px;}
+    .prod-icon img{width:100%;height:auto;filter:drop-shadow(0 4px 6px rgba(43,140,255,.2));}
+    .prod-card h3{
+      font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;
+      font-size:clamp(16px,1.8vw,20px);
+      color:#1047a8; margin-bottom:6px;
+    }
+    .prod-card p{
+      font-size:clamp(14px,1.6vw,16px);
+      line-height:1.55; color:#2c4055;
+    }
+    @media(max-width:1100px){ .prod-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media(max-width:640px){
+      .products{padding:90px 8vw 110px;}
+      .prod-grid{grid-template-columns:1fr;}
+    }
+  </style>
 </head>
 <body>
   <!-- ===== Шапка ===== -->
@@ -13,6 +75,7 @@
     <nav>
       <a href="#">О проекте</a>
       <a href="#about">Почему это важно</a>
+      <a href="#products">Что делает FS</a>
       <a href="#tech">Как мы очищаем воду</a>
       <a href="#dev">Решения</a>
     </nav>
@@ -41,7 +104,49 @@
       </p>
     </section>
 
-    <!-- ===== КАК МЫ ОЧИЩАЕМ ВОДУ ===== -->
+    <!-- ===== 2. ЧТО ДЕЛАЕТ FS ===== -->
+    <section class="products" id="products" aria-labelledby="products-title">
+      <h2 id="products-title" class="reveal">Что делает FS</h2>
+      <p class="lead reveal">
+        Мы проектируем и внедряем современные решения очистки воды — от квартиры до целого города.
+      </p>
+
+      <div class="prod-grid">
+        <article class="prod-card reveal">
+          <div class="prod-icon" aria-hidden="true">
+            <img src="icons/home.svg" alt="" />
+          </div>
+          <h3>Фильтрационные комплексы для жилых домов</h3>
+          <p>Глубокая очистка воды на вводе. Без хлора, ржавчины и запахов в каждой квартире.</p>
+        </article>
+
+        <article class="prod-card reveal">
+          <div class="prod-icon" aria-hidden="true">
+            <img src="icons/developer.svg" alt="" />
+          </div>
+          <h3>Системы водоочистки для девелоперов</h3>
+          <p>Инженерные решения под любые объёмы и требования, адаптация под BIM и ESG.</p>
+        </article>
+
+        <article class="prod-card reveal">
+          <div class="prod-icon" aria-hidden="true">
+            <img src="icons/apartment.svg" alt="" />
+          </div>
+          <h3>Индивидуальные решения для квартир</h3>
+          <p>Компактные фильтры с высокой минерализацией, подбор под качество вашей воды.</p>
+        </article>
+
+        <article class="prod-card reveal">
+          <div class="prod-icon" aria-hidden="true">
+            <img src="icons/service.svg" alt="" />
+          </div>
+          <h3>Сервис и обслуживание</h3>
+          <p>Плановая диагностика, замена картриджей и удалённый мониторинг через приложение FS.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== 3. КАК МЫ ОЧИЩАЕМ ВОДУ ===== -->
     <section class="tech" id="tech" aria-labelledby="tech-title">
       <h2 id="tech-title" class="reveal">Как мы очищаем воду</h2>
       <p class="lead reveal">
@@ -103,7 +208,7 @@
       </div>
     </section>
 
-    <!-- ===== РЕШЕНИЯ ДЛЯ ЗАСТРОЙЩИКОВ ===== -->
+    <!-- ===== 4. РЕШЕНИЯ ДЛЯ ЗАСТРОЙЩИКОВ ===== -->
     <section class="solutions" id="dev" aria-labelledby="solutions-title">
       <div class="solutions-head">
         <h2 id="solutions-title" class="reveal">Решения для застройщиков</h2>
