@@ -2,78 +2,116 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FS • Вода и технологии</title>
   <link href="styles.css" rel="stylesheet">
 </head>
 <body>
+  <!-- Шапка -->
   <header class="topbar">
-    <a class="brand" href="index.html">FS<span class="thin">воду</span></a>
+    <a class="brand" href="#hero">FS<span class="thin">воду</span></a>
     <nav class="nav">
       <a href="#why">Почему это важно</a>
+      <a href="#what">Что делает FS</a>
       <a href="#how">Как очищаем</a>
       <a href="services.html">Услуги</a>
     </nav>
   </header>
 
-  <!-- Hero / Counter -->
-  <section class="hero" id="home">
-    <div class="capsule" id="capsule">
-      <div class="odo" id="odo" aria-live="polite"></div>
+  <!-- 1) Счётчик -->
+  <section id="hero" class="hero">
+    <div class="capsule">
+      <div id="odo" class="odo" aria-live="polite"></div>
     </div>
     <p class="subtitle impact">
       Именно столько тысяч пластиковых бутылок выбрасывается в России, пока вы здесь
     </p>
   </section>
 
-  <!-- WHY -->
-  <section class="why" id="why">
+  <!-- 2) Почему это важно (с падающими бутылками на фоне) -->
+  <section id="why" class="why">
     <canvas id="bottlesCanvas" class="layer"></canvas>
     <div class="why-inner">
       <h2 class="impact reveal">Почему это важно</h2>
       <p class="lead reveal">
-        Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут. FS создаёт системы,
-        которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит.
+        Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут.
+        FS создаёт системы, которые очищают воду и уменьшают количество отходов,
+        возвращая природе то, что ей принадлежит.
       </p>
     </div>
   </section>
 
-  <!-- HOW -->
-  <section class="how" id="how">
+  <!-- 3) Что делает FS (тизер на главной, с пузырьками на фоне) -->
+  <section id="what" class="svc-teaser">
+    <canvas id="bubblesTeaser" class="layer"></canvas>
+    <div class="svc-inner">
+      <h2 class="impact reveal">Что делает FS</h2>
+
+      <!-- горизонтальный скролл на мобилке, только по оси X -->
+      <div class="cards reveal" tabindex="0" aria-label="Карточки услуг (горизонтальный скролл)">
+        <article class="card">
+          <h3 class="impact">Частные дома</h3>
+          <p>Автономные фильтрационные системы для коттеджей и загородных домов.</p>
+          <a href="services.html#house" class="more">Подробнее</a>
+        </article>
+
+        <article class="card">
+          <h3 class="impact">Девелоперам</h3>
+          <p>Комплексные станции для МКД и кварталов, SCADA/телеметрия, резервирование.</p>
+          <a href="services.html#dev" class="more">Подробнее</a>
+        </article>
+
+        <article class="card">
+          <h3 class="impact">Квартиры</h3>
+          <p>Компактные решения с высокой производительностью и тихой работой.</p>
+          <a href="services.html#apt" class="more">Подробнее</a>
+        </article>
+
+        <article class="card">
+          <h3 class="impact">Сервис</h3>
+          <p>Регламентные замены, диагностика, гарантийная и постгарантийная поддержка.</p>
+          <a href="services.html#service" class="more">Подробнее</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4) Как мы очищаем воду (труба слева-направо, 5 точек) -->
+  <section id="how" class="how">
     <h2 class="impact reveal">Как мы очищаем воду</h2>
 
     <div class="pipe-wrap">
       <div class="pipe">
         <div class="water"></div>
-        <!-- точки этапов -->
-        <button class="stage pulse" style="--x:10%" data-target="#stage1" aria-label="Грубая очистка"></button>
-        <button class="stage pulse" style="--x:35%" data-target="#stage2" aria-label="Сорбция"></button>
-        <button class="stage pulse" style="--x:58%" data-target="#stage3" aria-label="Мембрана"></button>
-        <button class="stage pulse" style="--x:78%" data-target="#stage4" aria-label="Минерализация"></button>
-        <button class="stage pulse" style="--x:92%" data-target="#stage5" aria-label="УФ-обеззараживание"></button>
+        <!-- точки чуть левее, как просили -->
+        <button class="stage pulse" style="--x:10%" data-target="#s1" aria-label="Грубая очистка"></button>
+        <button class="stage pulse" style="--x:33%" data-target="#s2" aria-label="Сорбция"></button>
+        <button class="stage pulse" style="--x:55%" data-target="#s3" aria-label="Мембрана"></button>
+        <button class="stage pulse" style="--x:75%" data-target="#s4" aria-label="Минерализация"></button>
+        <button class="stage pulse" style="--x:90%" data-target="#s5" aria-label="УФ"></button>
       </div>
     </div>
 
     <div class="stages">
-      <article id="stage1" class="stage-card show">
+      <article id="s1" class="stage-card show">
         <h3 class="impact">Грубая очистка</h3>
         <p>Механические фильтры задерживают песок, ржавчину и крупные примеси.</p>
       </article>
-      <article id="stage2" class="stage-card">
+      <article id="s2" class="stage-card">
         <h3 class="impact">Сорбция</h3>
-        <p>Активированный уголь убирает запахи и органические соединения.</p>
+        <p>Активированный уголь убирает запахи и органику.</p>
       </article>
-      <article id="stage3" class="stage-card">
+      <article id="s3" class="stage-card">
         <h3 class="impact">Мембрана</h3>
-        <p>Тонкая мембрана удаляет растворённые соли и тяжёлые металлы.</p>
+        <p>Удаляет растворённые соли и тяжёлые металлы.</p>
       </article>
-      <article id="stage4" class="stage-card">
+      <article id="s4" class="stage-card">
         <h3 class="impact">Минерализация</h3>
-        <p>Возвращаем воде полезные минералы для комфортного вкуса.</p>
+        <p>Возвращает воде полезные минералы для комфортного вкуса.</p>
       </article>
-      <article id="stage5" class="stage-card">
+      <article id="s5" class="stage-card">
         <h3 class="impact">УФ-обеззараживание</h3>
-        <p>Ультрафиолетовая камера уничтожает бактерии и вирусы.</p>
+        <p>УФ-камера уничтожает бактерии и вирусы на выходе.</p>
       </article>
     </div>
   </section>
@@ -82,7 +120,7 @@
     <div class="wrap">
       <span>© FS Engineering</span>
       <nav>
-        <a href="index.html">Главная</a>
+        <a href="#hero">Главная</a>
         <a href="services.html">Услуги</a>
       </nav>
     </div>
