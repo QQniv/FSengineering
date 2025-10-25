@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FS • Счётчик + 3D фон</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
@@ -57,15 +57,13 @@
   })();
   </script>
 
-  <!-- ===== 3D ПОДКЛЮЧЕНИЕ (не мешает контенту, с авто-скрытием бейджа) ===== -->
+  <!-- ===== 3D ПОДКЛЮЧЕНИЕ (CDN). Если не загрузится — покажем бейдж и не ломаем страницу. ===== -->
   <script src="https://unpkg.com/three@0.161.0/build/three.min.js"
           onerror="document.getElementById('fallback').hidden=false"></script>
   <script src="https://unpkg.com/three@0.161.0/examples/js/loaders/FBXLoader.js"
           onerror="document.getElementById('fallback').hidden=false"></script>
-
   <script>
-    // авто-скрытие бейджа, чтобы не перекрывал текст
-    (function(){
+    (function(){ // авто-скрытие бейджа
       const fb=document.getElementById('fallback');
       if(!fb) return;
       const show=()=>{fb.hidden=false; setTimeout(()=>fb.hidden=true, 4000);};
@@ -74,46 +72,198 @@
     })();
   </script>
 
+  <!-- ===== 3D: процедурная анимация «идёт → пьёт → бросает» для model.fbx ===== -->
   <script>
   (function(){
     if(!(window.THREE && window.FBXLoader)) return;
 
-    const FBX_URL = "./model.fbx"; // положите рядом с index.html (или поправьте путь)
+    const FBX_URL = "./model.fbx";                 // положи рядом с index.html (или поменяй путь)
+    const TRASH_LIMIT = 120;
+    const T_IN=2.0, T_DRINK=2.0, T_HOLD=0.8, T_DROP=0.2, T_OUT=3.0;
+    const T_TOTAL=T_IN+T_DRINK+T_HOLD+T_DROP+T_OUT;
 
-    const canvas = document.getElementById('scene3d');
-    const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(35, 16/9, 0.1, 200);
+    const canvas=document.getElementById('scene3d');
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+    const scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(35,16/9,0.1,200);
     camera.position.set(0,1.7,6);
 
     function resize(){
-      const w=canvas.clientWidth, h=canvas.clientHeight;
+      const w=canvas.clientWidth,h=canvas.clientHeight;
       renderer.setPixelRatio(Math.min(devicePixelRatio,2));
       renderer.setSize(w,h,false);
       camera.aspect=w/h; camera.updateProjectionMatrix();
     }
-    resize(); addEventListener('resize', resize, {passive:true});
+    resize(); addEventListener('resize',resize,{passive:true});
 
-    const hemi=new THREE.HemisphereLight(0xffffff,0xdde6f2,0.9); scene.add(hemi);
-    const dir =new THREE.DirectionalLight(0xffffff,0.9); dir.position.set(5,10,5); dir.castShadow=true; scene.add(dir);
+    // свет/пол
+    const hemi=new THREE.HemisphereLight(0xffffff,0xdde6f2,0.9);
+    const dir =new THREE.DirectionalLight(0xffffff,0.9); dir.position.set(5,10,5); dir.castShadow=true;
     const ground=new THREE.Mesh(new THREE.PlaneGeometry(30,30), new THREE.ShadowMaterial({opacity:0.22}));
-    ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+    ground.rotation.x=-Math.PI/2; ground.receiveShadow=true;
+    scene.add(hemi,dir,ground);
     renderer.shadowMap.enabled=true;
+
+    const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+    const lerp=THREE.MathUtils.lerp;
+    const rand=THREE.MathUtils.randFloat;
+    const easeOut=(k)=>1-Math.pow(1-k,3);
+    const clock=new THREE.Clock();
+
+    const trashGroup=new THREE.Group(); scene.add(trashGroup);
+    function addTrash(m){
+      if(!m) return;
+      if(trashGroup.children.length>TRASH_LIMIT) trashGroup.remove(trashGroup.children[0]);
+      m.traverse(o=>{ if(o.material){o.material=o.material.clone(); o.material.transparent=true;} });
+      m.userData={vy:2.0, rot:(Math.random()*0.6-0.3), alpha:1};
+      trashGroup.add(m);
+    }
+    function updateTrash(dt){
+      const gy=0.01;
+      for(let i=0;i<trashGroup.children.length;i++){
+        const o=trashGroup.children[i], u=o.userData||{};
+        if(o.position.y>gy){ u.vy-=9.8*dt*2; o.position.y+=u.vy*dt; o.rotation.y+=u.rot*dt; }
+        else { o.position.y=gy; u.alpha-=dt*0.03;
+          o.traverse(n=>{ if(n.material) n.material.opacity=Math.max(0,u.alpha||0); });
+          if(u.alpha<=0){ trashGroup.remove(o); i--; continue; }
+        }
+        o.userData=u;
+      }
+    }
+
+    function findBone(root, regs){
+      let res=null; root.traverse(o=>{
+        if(res) return;
+        if(o.isBone||o.type==='Bone'){
+          const n=(o.name||'').toLowerCase();
+          if(regs.some(r=>r.test(n))) res=o;
+        }
+      }); return res;
+    }
+    function findBottle(root){
+      let m=null; root.traverse(o=>{
+        if(m) return;
+        if(o.isMesh){
+          const n=(o.name||'').toLowerCase();
+          if(n.includes('bottle')||n.includes('бутыл')) m=o;
+        }
+      }); return m;
+    }
+    function makeSimpleBottle(){
+      const g=new THREE.CapsuleGeometry(0.09,0.45,8,16);
+      const mat=new THREE.MeshStandardMaterial({color:0x2b8cff, metalness:0.1, roughness:0.3});
+      const body=new THREE.Mesh(g,mat);
+      const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.08,16), new THREE.MeshStandardMaterial({color:0x1047a8}));
+      cap.position.y=0.285; body.add(cap);
+      body.castShadow=body.receiveShadow=true; body.rotation.z=Math.PI/2;
+      return body;
+    }
+
+    let model=null, mixer=null, rightHand=null, bottleMesh=null;
+    let handBottle=null, holding=true, playing=false, startT=0, goRight=true, xMid=0;
 
     const loader=new FBXLoader();
     loader.load(FBX_URL,(fbx)=>{
-      fbx.traverse(o=>{ if(o.isMesh){o.castShadow=true;o.receiveShadow=true;} });
-      // нормируем масштаб под ~1.75м
+      model=fbx;
+      model.traverse(o=>{ if(o.isMesh){o.castShadow=true;o.receiveShadow=true;} });
       const box=new THREE.Box3().setFromObject(fbx), size=new THREE.Vector3(); box.getSize(size);
       const scale=1.75/Math.max(size.y||1,1e-6); fbx.scale.setScalar(scale);
-      fbx.position.set(0,0,0);
-      scene.add(fbx);
+      fbx.position.set(-6,0,0); scene.add(fbx);
+
+      if(fbx.animations && fbx.animations.length){
+        mixer=new THREE.AnimationMixer(fbx);
+        mixer.clipAction(fbx.animations[0]).play();
+      }
+
+      rightHand = findBone(fbx, [/right.*hand/i,/mixamorig.*righthand/i,/hand_r\b/i,/\br_hand\b/i,/прав.*кисть/i]);
+      bottleMesh = findBottle(fbx) || makeSimpleBottle();
+
+      startCycle();
       window.dispatchEvent(new Event('three-ready'));
-      renderer.render(scene,camera);
     });
 
-    // рендер-цикл (если позже добавим анимацию)
-    function loop(){ requestAnimationFrame(loop); renderer.render(scene,camera); }
+    function attachBottle(){
+      if(!bottleMesh||!model) return;
+      if(handBottle){ handBottle.parent?.remove(handBottle); handBottle=null; }
+      handBottle = bottleMesh.clone();
+      if(rightHand){
+        rightHand.add(handBottle);
+        handBottle.position.set(0.06,-0.02,0.02);
+        handBottle.rotation.set(-0.15,0.35,1.55);
+        handBottle.scale.setScalar(0.75);
+      } else {
+        model.add(handBottle);
+        handBottle.position.set(0.25,1.45,0.15);
+        handBottle.scale.setScalar(0.75);
+      }
+    }
+    function detachBottleToWorld(){
+      if(!handBottle) return null;
+      handBottle.updateWorldMatrix(true,false);
+      const m=handBottle.clone();
+      if(m.material) m.material=m.material.clone();
+      m.applyMatrix4(handBottle.matrixWorld);
+      scene.add(m);
+      handBottle.parent?.remove(handBottle);
+      handBottle=null;
+      return m;
+    }
+
+    function startCycle(){
+      if(!model) return;
+      goRight=!goRight;
+      xMid = rand(-1.2,1.2);
+      model.position.x = goRight? -6 : 6;
+      model.rotation.y  = goRight? 0  : Math.PI;
+      holding=true; attachBottle();
+      startT=performance.now()/1000; playing=true;
+    }
+
+    function animateHand(t){
+      if(!rightHand) return;
+      const inEnd=T_IN, drinkEnd=T_IN+T_DRINK, holdEnd=T_IN+T_DRINK+T_HOLD, dropEnd=holdEnd+T_DROP;
+      let k=0;
+      if(t<inEnd) k=0;
+      else if(t<drinkEnd) k=(t-inEnd)/T_DRINK;
+      else if(t<holdEnd) k=1;
+      else if(t<dropEnd) k=1-(t-holdEnd)/T_DROP;
+      else k=0;
+
+      const qFrom=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0));
+      const qTo  =new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.2,0.25,0.6));
+      rightHand.quaternion.slerpQuaternions(qFrom,qTo, clamp(k,0,1));
+
+      if(handBottle){
+        if(t>=inEnd && t<=holdEnd) handBottle.position.set(0.065,-0.015,0.015);
+        else                       handBottle.position.set(0.06,-0.02,0.02);
+      }
+    }
+
+    function loop(){
+      requestAnimationFrame(loop);
+      const dt=clock.getDelta();
+      mixer && mixer.update(dt);
+
+      if(model && playing){
+        const t=performance.now()/1000 - startT;
+        const start=goRight? -6:6, stop=xMid, end=goRight? 6:-6;
+        if(t<=T_IN)                       model.position.x = lerp(start, stop, easeOut(t/T_IN));
+        else if(t<=T_IN+T_DRINK+T_HOLD)   model.position.x = stop;
+        else                              model.position.x = lerp(stop, end, clamp((t-(T_IN+T_DRINK+T_HOLD))/T_OUT,0,1));
+
+        animateHand(t);
+
+        const dropMoment=T_IN+T_DRINK+T_HOLD+0.05;
+        if(holding && t>=dropMoment){
+          holding=false;
+          const w=detachBottleToWorld(); if(w){ w.userData={vy:2.0,rot:(Math.random()*0.6-0.3),alpha:1}; addTrash(w); }
+        }
+        if(t>=T_TOTAL){ playing=false; setTimeout(startCycle,300); }
+      }
+
+      updateTrash(dt);
+      renderer.render(scene,camera);
+    }
     loop();
   })();
   </script>
