@@ -1,188 +1,90 @@
-/* =========================
-   FS — Base Styles (v1.1)
-   ========================= */
 :root{
-  --bg: #ffffff;
-  --ink: #0b1f33;          /* насыщённый заголовочный */
-  --ink-soft:#354a60;      /* параграфы */
-  --blue:#2b8cff;          /* основной акцент */
-  --blue-dark:#1047a8;     /* тёмный акцент */
-  --panel:#ffffff;         /* карточки/капсулы */
-  --hair: rgba(16,71,168,.14); /* тонкая рамка */
-  --shadow: 0 10px 26px rgba(0,0,0,.06);
-  --shadow-big: 0 25px 80px rgba(0,0,0,.12);
-
-  --page-x: 8vw;           /* боковые поля секций */
-  --r: 16px;               /* радиус карточек */
+  --bg:#ffffff;
+  --ink:#0b1f33;
+  --ink-soft:#354a60;
+  --blue:#2b8cff;
+  --blue-dark:#1047a8;
+  --panel:#ffffff;
+  --hair:rgba(16,71,168,.14);
+  --shadow:0 10px 26px rgba(0,0,0,.06);
+  --shadow-big:0 25px 80px rgba(0,0,0,.12);
+  --page-x:8vw;
+  --r:16px;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
 }
 
-main{ display:block }
-
-/* =========================
-   Header / Topbar
-   ========================= */
+/* ===== Шапка ===== */
 .topbar{
-  position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px var(--page-x);
-  background: #fff;
-  border-bottom: 1px solid rgba(0,0,0,.06);
-  backdrop-filter: saturate(1.1);
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px var(--page-x);
+  background:#fff;border-bottom:1px solid rgba(0,0,0,.06);
 }
-.logo{
-  font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
-  font-size: 44px; letter-spacing: .5px;
-}
-.topbar nav a{
-  color: var(--ink); text-decoration: none; margin-left: 28px; font-weight: 600;
-  transition: opacity .2s ease;
-}
-.topbar nav a:hover{ opacity:.75 }
+.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:44px;}
+.topbar nav a{color:var(--ink);text-decoration:none;margin-left:28px;font-weight:600;transition:.2s}
+.topbar nav a:hover{opacity:.75}
 
-/* =========================
-   Section: HERO + Counter
-   ========================= */
+/* ===== Hero ===== */
 .hero{
-  background: var(--blue);            /* нужный синий фон */
-  color: #fff;
-  min-height: 72vh;                   /* больше воздуха */
-  display: grid; place-items: center; gap: 28px;
-  padding: 72px 0 96px;               /* увеличенные отступы */
+  background:var(--blue);
+  color:#fff;
+  min-height:72vh;
+  display:grid;place-items:center;gap:28px;
+  padding:72px 0 96px;
 }
 .capsule{
-  background: var(--panel);
-  border-radius: 999px;
-  width: min(1000px, 85vw);
-  height: min(460px, 58vh);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow-big);
-  transform: translateY(12px);
+  background:var(--panel);
+  border-radius:999px;
+  width:min(1000px,85vw);
+  height:min(460px,58vh);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-big);
 }
-.odo{ display: flex; gap: 8px; align-items: center; }
-.digit{
-  position: relative; overflow: hidden; border-radius: 12px;
-  width: clamp(56px, 7vw, 96px);
-  height: clamp(98px, 15vw, 170px);
-}
-.strip{ position:absolute; inset:0; display:flex; flex-direction:column; }
-.cell{
-  height: 100%; display:flex; align-items:center; justify-content:center;
-  font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
-  font-size: clamp(68px, 13vw, 160px); color: var(--ink);
-}
-.digit.anim .strip{ transition: transform .45s cubic-bezier(.25,.8,.25,1); }
+.odo{display:flex;gap:8px;align-items:center;}
+.digit{position:relative;overflow:hidden;border-radius:12px;width:clamp(56px,7vw,96px);height:clamp(98px,15vw,170px);}
+.strip{position:absolute;inset:0;display:flex;flex-direction:column;}
+.cell{height:100%;display:flex;align-items:center;justify-content:center;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(68px,13vw,160px);color:var(--ink);}
+.digit.anim .strip{transition:transform .45s cubic-bezier(.25,.8,.25,1);}
+.subtitle{max-width:980px;text-align:center;color:#fff;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(20px,2.4vw,30px);line-height:1.35;}
 
-.subtitle{
-  max-width: 980px; text-align: center; color: #fff;
-  font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
-  font-size: clamp(20px, 2.4vw, 30px); line-height: 1.35;
-}
+/* ===== Reveal ===== */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1);}
+.reveal.show{opacity:1;transform:translateY(0);}
 
-/* =========================
-   Reveal animations
-   ========================= */
-.reveal{ opacity:0; transform: translateY(16px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
-.reveal.show{ opacity:1; transform: translateY(0); }
+/* ===== WHY ===== */
+.why{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#fff;}
+.why h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:14px;}
+.why p{color:var(--ink-soft);max-width:980px;line-height:1.65;font-size:clamp(18px,2vw,22px);}
+#bottleCanvas{position:absolute;inset:0;z-index:1;pointer-events:none;}
 
-/* =========================
-   Section: WHY (falling bottles)
-   ========================= */
-.why{
-  position: relative; overflow: hidden;
-  padding: 120px var(--page-x) 140px;  /* больше отступов */
-  background: #fff;
-}
-.why h2{
-  position: relative; z-index: 2;
-  font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
-  font-size: clamp(40px, 5.2vw, 76px);
-  margin-bottom: 14px;
-}
-.why p{
-  position: relative; z-index: 2;
-  color: var(--ink-soft);
-  max-width: 980px; line-height: 1.65;
-  font-size: clamp(18px, 2vw, 22px);
-}
-#bottleCanvas{
-  position: absolute; inset: 0; z-index: 1; pointer-events: none;
-}
+/* ===== TECH ===== */
+.tech{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#fff;}
+.tech h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:12px;color:var(--ink);}
+.tech .lead{color:var(--ink-soft);max-width:900px;line-height:1.65;font-size:clamp(18px,2vw,22px);margin-bottom:34px;}
+.pipeline{display:grid;gap:32px;}
+.pipe-svg{width:100%;filter:drop-shadow(0 12px 28px rgba(16,71,168,.12));}
+@keyframes flowMove{to{stroke-dashoffset:-500;}}
+.tech.play #flow{animation:flowMove 3.6s linear infinite;}
+.stages{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;}
+.stage{background:var(--panel);border:1px solid var(--hair);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);transform:translateY(16px);opacity:0;transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .6s ease;}
+.stage h3{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;color:var(--blue-dark);margin-bottom:8px;font-size:clamp(16px,2vw,18px);}
+.stage p{color:#33465a;line-height:1.6;font-size:clamp(14px,1.6vw,16px);}
+.tech.play .stage{opacity:1;transform:translateY(0);}
+.tech.play .stage:nth-child(1){transition-delay:.05s;}
+.tech.play .stage:nth-child(2){transition-delay:.18s;}
+.tech.play .stage:nth-child(3){transition-delay:.3s;}
 
-/* =========================
-   Section: TECH (pipeline)
-   ========================= */
-.tech{
-  position: relative; overflow: hidden;
-  padding: 120px var(--page-x) 140px;  /* больше отступов */
-  background: #fff;
+/* ===== Responsive ===== */
+@media(max-width:900px){
+  .stages{grid-template-columns:1fr;}
+  .hero{padding:64px 0 88px;}
 }
-.tech h2{
-  font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;  /* Impact */
-  font-size: clamp(40px, 5.2vw, 76px);
-  margin-bottom: 12px; color: var(--ink);
-}
-.tech .lead{
-  color: var(--ink-soft);
-  max-width: 900px; line-height: 1.65;
-  font-size: clamp(18px, 2vw, 22px);
-  margin-bottom: 34px;
-}
-
-.pipeline{ position:relative; display:grid; grid-template-columns:1fr; gap:32px; }
-.pipe-svg{ width:100%; height:auto; filter: drop-shadow(0 12px 28px rgba(16,71,168,.12)); }
-
-/* анимация движения воды по трубе */
-@keyframes flowMove{ to{ stroke-dashoffset: -500; } }
-.tech.play #flow{ animation: flowMove 3.6s linear infinite; }
-
-/* карточки этапов */
-.stages{
-  list-style: none;
-  display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
-  gap: 22px;
-}
-.stage{
-  background: var(--panel);
-  border: 1px solid var(--hair);
-  border-radius: var(--r);
-  padding: 20px 20px 18px;
-  box-shadow: var(--shadow);
-  transform: translateY(16px);
-  opacity: 0;
-  transition: transform .6s cubic-bezier(.2,.7,.2,1), opacity .6s ease;
-}
-.stage h3{
-  font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif; /* Impact для заголовков */
-  color: var(--blue-dark);
-  letter-spacing: .3px; margin-bottom: 8px; font-size: clamp(16px, 2vw, 18px);
-}
-.stage p{ color:#33465a; line-height:1.6; font-size: clamp(14px,1.6vw,16px); }
-.tech.play .stage{ opacity:1; transform: translateY(0); }
-.tech.play .stage:nth-child(1){ transition-delay: .05s; }
-.tech.play .stage:nth-child(2){ transition-delay: .18s; }
-.tech.play .stage:nth-child(3){ transition-delay: .30s; }
-
-/* =========================
-   Responsive
-   ========================= */
-@media (max-width: 900px){
-  .stages{ grid-template-columns: 1fr; }
-  .hero{ min-height: 68vh; padding: 64px 0 88px; }
-  .capsule{ height: min(440px, 56vh); }
-  .topbar{ padding: 16px calc(var(--page-x) - 2vw); }
-  .topbar nav a{ margin-left: 18px; }
-}
-@media (max-width: 560px){
-  .logo{ font-size: 38px; }
-  .subtitle{ padding: 0 20px; }
-}
+@media(max-width:560px){
+  .logo{font
