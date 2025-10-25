@@ -1,352 +1,93 @@
 <!doctype html>
-<html lang="ru" class="no-js">
+<html lang="ru">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>FS • Чистая вода будущего</title>
-<style>
-:root{
-  --ink:#0a1f33; --text:#32475c; --blue:#2b8cff; --panel:#ffffff;
-  --page-x:8vw; --shadow:0 25px 80px rgba(0,0,0,.12);
-  --parallax-strength:.14; --digit-crop:clamp(4px,1.2vw,10px);
-}
-@media (max-width:900px){ :root{ --parallax-strength:.09 } }
-@media (prefers-reduced-motion:reduce){ :root{ --parallax-strength:0 } }
-
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#fff;color:var(--ink);overflow-x:hidden}
-.no-js .reveal{opacity:1 !important; transform:none !important}
-
-/* header */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:18px var(--page-x);background:#fff;border-bottom:1px solid rgba(0,0,0,.06)}
-.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:44px}
-nav a{text-decoration:none;color:var(--ink);margin-left:28px;font-weight:600;transition:opacity .2s}
-nav a:hover{opacity:.75}
-
-/* HERO / COUNTER */
-.hero{background:var(--blue);color:#fff;display:grid;place-items:center;gap:28px;padding:64px 0 120px;min-height:68vh}
-.capsule{
-  position:relative;background:var(--panel);border-radius:999px;overflow:hidden;
-  width:min(1020px,92vw); aspect-ratio: 7 / 4; box-shadow:var(--shadow);
-}
-.odo{display:flex;gap:8px;justify-content:center;align-items:center;height:100%}
-.digit{
-  position:relative;overflow:hidden;border-radius:12px;background:transparent;
-  width:clamp(34px,8.6vw,96px); height:clamp(70px,24vw,170px);
-  transform:scaleY(-1); clip-path: inset(var(--digit-crop) 0 var(--digit-crop) 0 round 12px);
-}
-.strip{position:absolute;inset:0;display:flex;flex-direction:column;will-change:transform;transform:translate3d(0,0,0)}
-.cell{
-  height:100%;display:flex;align-items:center;justify-content:center;
-  font-family:Impact,Haettenschweiler,'Arial Black',sans-serif; line-height:1;
-  font-size:clamp(46px,12vw,160px); color:var(--ink); transform:scaleY(-1);
-  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-}
-/* плавность и лёгкая лесенка */
-.digit.anim .strip{transition:transform .55s cubic-bezier(.22,.8,.18,1)}
-.digit[data-i="1"].anim .strip{transition-delay:.02s}
-.digit[data-i="2"].anim .strip{transition-delay=.04s}
-.digit[data-i="3"].anim .strip{transition-delay=.06s}
-.digit[data-i="4"].anim .strip{transition-delay=.08s}
-.digit[data-i="5"].anim .strip{transition-delay=.10s}
-
-@media (max-width:360px){
-  .digit{width:clamp(30px,9.5vw,84px);height:clamp(64px,26vw,150px)}
-  .cell{font-size:clamp(40px,13vw,140px)}
-}
-
-.subtitle{max-width:980px;text-align:center;color:#fff;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(20px,2.4vw,30px);line-height:1.35}
-
-/* reveal + нежный параллакс */
-.reveal{opacity:0;--rvY:22px;--pY:0px;transform:translateY(calc(var(--rvY) + var(--pY)));transition:opacity .8s ease,transform .8s ease}
-.reveal.visible{opacity:1;--rvY:0px}
-[data-parallax]{will-change:transform}
-
-/* spacing */
-section{scroll-margin-top:84px}
-.sp-top{margin-top:90px}
-.sp-between{margin-bottom:96px}
-
-/* WHY + falling bottles */
-.why{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#fff;text-align:center}
-.why h2{position:relative;z-index:2;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:14px}
-.why p{position:relative;z-index:2;color:var(--text);max-width:980px;margin:0 auto;line-height:1.65;font-size:clamp(18px,2vw,22px)}
-#bottleCanvas{position:absolute;inset:0;z-index:0;pointer-events:none}
-.motion-btn{position:absolute;right:16px;bottom:16px;z-index:3;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,.08);color:#0b1f33;border-radius:999px;padding:10px 16px;font-weight:700;font-size:12px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.08)}
-.motion-btn:hover{background:#fff}
-
-/* PRODUCTS */
-.products{padding:120px var(--page-x);text-align:center;background:#fff}
-.products h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(36px,5vw,72px)}
-.subtitle-small{color:var(--text);font-size:clamp(18px,2vw,22px);margin:8px 0 60px}
-.cards-wrapper{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:40px;max-width:1000px;margin:0 auto}
-.card{display:block;text-decoration:none;color:inherit;background:linear-gradient(180deg,#f8fbff 0%,#e8f1ff 100%);border-radius:28px;padding:40px 32px;box-shadow:0 10px 30px rgba(0,0,0,.05);transition:transform .3s ease, box-shadow .3s ease;text-align:left}
-.card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(43,140,255,.18)}
-.card-icon{font-size:38px;margin-bottom:18px}
-.card h3{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:22px;color:var(--ink);margin-bottom:10px}
-.card p{font-size:17px;color:var(--text);line-height:1.5}
-
-@media (max-width:768px){
-  .cards-wrapper{
-    display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:24px; padding-bottom:10px;
-    -webkit-overflow-scrolling:touch; touch-action: pan-x; overscroll-behavior-x: contain;
-  }
-  .cards-wrapper *{touch-action:pan-x}
-  .card{flex:0 0 85%; scroll-snap-align:center; text-align:center; padding:32px}
-}
-
-/* TECH (pipe) */
-.tech{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#fff}
-.tech h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:12px}
-.lead{color:var(--text);max-width:900px;line-height:1.65;font-size:clamp(18px,2vw,22px);margin:0 auto 24px;text-align:center}
-.pipe-wrap{position:relative}
-.pipe-svg{width:100%;filter:drop-shadow(0 12px 28px rgba(16,71,168,.12))}
-@keyframes flowLeftToRight{from{stroke-dashoffset:520}to{stroke-dashoffset:0}}
-#flow{animation:flowLeftToRight 5s linear infinite}
-.stage-dot{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:#2b8cff;border:3px solid #fff;box-shadow:0 0 12px rgba(43,140,255,.6);cursor:pointer;z-index:3;animation:pulse 1.8s ease-in-out infinite}
-.stage-dot.active{background:#0f56cf}
-@keyframes pulse{0%,100%{box-shadow:0 0 10px rgba(43,140,255,.6),0 0 0 0 rgba(43,140,255,.35)}50%{box-shadow:0 0 18px rgba(43,140,255,.9),0 0 0 10px rgba(43,140,255,0)}}
-.stage-info{position:absolute;left:50%;top:50%;transform:translate(-50%,-130%);min-width:240px;max-width:320px;padding:12px 14px;background:rgba(11,31,51,.95);color:#fff;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.25);z-index:4}
-.stage-info h3{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:18px;margin-bottom:6px}
-.stage-info p{font-size:13px;line-height:1.5;color:#e7eef8}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FS • Вода и технологии</title>
+  <link href="styles.css" rel="stylesheet">
 </head>
 <body>
-<header class="topbar">
-  <div class="logo">FS</div>
-  <nav>
-    <a href="#about">Почему это важно</a>
-    <a href="#tech">Как очищаем воду</a>
-    <a href="services.html">Услуги</a>
-  </nav>
-</header>
+  <header class="topbar">
+    <a class="brand" href="index.html">FS<span class="thin">воду</span></a>
+    <nav class="nav">
+      <a href="#why">Почему это важно</a>
+      <a href="#how">Как очищаем</a>
+      <a href="services.html">Услуги</a>
+    </nav>
+  </header>
 
-<main>
-  <!-- HERO -->
-  <section class="hero sp-between" id="hero">
-    <div class="capsule reveal" data-parallax="0.03">
-      <div id="odo" class="odo" aria-live="polite"></div>
+  <!-- Hero / Counter -->
+  <section class="hero" id="home">
+    <div class="capsule" id="capsule">
+      <div class="odo" id="odo" aria-live="polite"></div>
     </div>
-    <h1 class="subtitle reveal" data-parallax="0.04">
+    <p class="subtitle impact">
       Именно столько тысяч пластиковых бутылок выбрасывается в России, пока вы здесь
-    </h1>
+    </p>
   </section>
 
   <!-- WHY -->
-  <section class="why sp-top sp-between" id="about" aria-labelledby="why-title">
-    <canvas id="bottleCanvas" aria-hidden="true"></canvas>
-    <h2 id="why-title" class="reveal" data-parallax="0.03">Почему это важно</h2>
-    <p class="reveal" data-parallax="0.04">
-      Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут.
-      FS создаёт системы, которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит.
-    </p>
-    <button class="motion-btn" id="motionBtn">📱 Включить движение от наклона</button>
-  </section>
-
-  <!-- PRODUCTS -->
-  <section class="products sp-between" id="products">
-    <h2 class="reveal" data-parallax="0.02">Что делает FS</h2>
-    <p class="subtitle-small reveal" data-parallax="0.03">Системы, которые очищают воду — и заботятся о будущем.</p>
-    <div class="cards-wrapper">
-      <a class="card reveal" data-parallax="0.02" href="services.html#houses">
-        <div class="card-icon">🏠</div>
-        <h3>Фильтрационные системы<br>для частных домов</h3>
-        <p>Современные решения для автономных домов и коттеджей.</p>
-      </a>
-      <a class="card reveal" data-parallax="0.02" href="services.html#developers">
-        <div class="card-icon">🏗️</div>
-        <h3>Системы водоочистки<br>для девелоперов</h3>
-        <p>Проекты — от кварталов до бизнес-центров.</p>
-      </a>
-      <a class="card reveal" data-parallax="0.02" href="services.html#apartments">
-        <div class="card-icon">🏢</div>
-        <h3>Индивидуальные решения<br>для квартир</h3>
-        <p>Фильтры с адаптацией под тип водоснабжения.</p>
-      </a>
-      <a class="card reveal" data-parallax="0.02" href="services.html#service">
-        <div class="card-icon">🔧</div>
-        <h3>Сервис и обслуживание</h3>
-        <p>Мониторинг качества и замена фильтров по графику.</p>
-      </a>
+  <section class="why" id="why">
+    <canvas id="bottlesCanvas" class="layer"></canvas>
+    <div class="why-inner">
+      <h2 class="impact reveal">Почему это важно</h2>
+      <p class="lead reveal">
+        Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут. FS создаёт системы,
+        которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит.
+      </p>
     </div>
   </section>
 
-  <!-- TECH -->
-  <section class="tech sp-between" id="tech" aria-labelledby="tech-title">
-    <h2 id="tech-title" class="reveal" data-parallax="0.02">Как мы очищаем воду</h2>
-    <p class="lead reveal" data-parallax="0.03">
-      Поток проходит пять стадий: <b>грубая</b> → <b>сорбция</b> → <b>мембрана</b> → <b>минерализация</b> → <b>УФ</b>.
-      Нажмите на пульсирующие точки.
-    </p>
+  <!-- HOW -->
+  <section class="how" id="how">
+    <h2 class="impact reveal">Как мы очищаем воду</h2>
 
     <div class="pipe-wrap">
-      <svg class="pipe-svg reveal" data-parallax="0.02" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="tubeGrad" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0" stop-color="#eaf1ff"/><stop offset="1" stop-color="#dbe7ff"/>
-          </linearGradient>
-          <linearGradient id="waterGrad" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0" stop-color="#1047a8"/><stop offset="1" stop-color="#2b8cff"/>
-          </linearGradient>
-        </defs>
-        <path d="M 40 110 H 360 C 410 110, 410 40, 460 40 H 600 C 650 40, 650 180, 700 180 H 860 C 910 180, 910 110, 960 110 H 1160"
-              fill="none" stroke="url(#tubeGrad)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
-        <path id="flow"
-              d="M 40 110 H 360 C 410 110, 410 40, 460 40 H 600 C 650 40, 650 180, 700 180 H 860 C 910 180, 910 110, 960 110 H 1160"
-              fill="none" stroke="url(#waterGrad)" stroke-width="16"
-              stroke-dasharray="90 430" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-
-      <!-- точки слегка левее (гармония) -->
-      <button class="stage-dot" style="--x:22%;--y:50%;" data-title="Грубая очистка" data-text="Удаляет песок и ржавчину."></button>
-      <button class="stage-dot" style="--x:44%;--y:20%;" data-title="Сорбция" data-text="Уголь устраняет запах и хлор."></button>
-      <button class="stage-dot" style="--x:61%;--y:83%;" data-title="Мембрана" data-text="Удаляет соли и бактерии."></button>
-      <button class="stage-dot" style="--x:72%;--y:68%;" data-title="Минерализация" data-text="Возвращает полезные минералы (Ca, Mg)."></button>
-      <button class="stage-dot" style="--x:82%;--y:51%;" data-title="УФ" data-text="Обеззараживание ультрафиолетом."></button>
-
-      <div class="stage-info" id="stageInfo" hidden>
-        <h3 id="stageTitle"></h3><p id="stageText"></p>
+      <div class="pipe">
+        <div class="water"></div>
+        <!-- точки этапов -->
+        <button class="stage pulse" style="--x:10%" data-target="#stage1" aria-label="Грубая очистка"></button>
+        <button class="stage pulse" style="--x:35%" data-target="#stage2" aria-label="Сорбция"></button>
+        <button class="stage pulse" style="--x:58%" data-target="#stage3" aria-label="Мембрана"></button>
+        <button class="stage pulse" style="--x:78%" data-target="#stage4" aria-label="Минерализация"></button>
+        <button class="stage pulse" style="--x:92%" data-target="#stage5" aria-label="УФ-обеззараживание"></button>
       </div>
     </div>
+
+    <div class="stages">
+      <article id="stage1" class="stage-card show">
+        <h3 class="impact">Грубая очистка</h3>
+        <p>Механические фильтры задерживают песок, ржавчину и крупные примеси.</p>
+      </article>
+      <article id="stage2" class="stage-card">
+        <h3 class="impact">Сорбция</h3>
+        <p>Активированный уголь убирает запахи и органические соединения.</p>
+      </article>
+      <article id="stage3" class="stage-card">
+        <h3 class="impact">Мембрана</h3>
+        <p>Тонкая мембрана удаляет растворённые соли и тяжёлые металлы.</p>
+      </article>
+      <article id="stage4" class="stage-card">
+        <h3 class="impact">Минерализация</h3>
+        <p>Возвращаем воде полезные минералы для комфортного вкуса.</p>
+      </article>
+      <article id="stage5" class="stage-card">
+        <h3 class="impact">УФ-обеззараживание</h3>
+        <p>Ультрафиолетовая камера уничтожает бактерии и вирусы.</p>
+      </article>
+    </div>
   </section>
-</main>
 
-<script>
-document.documentElement.classList.remove('no-js');document.documentElement.classList.add('js');
-</script>
+  <footer class="footer">
+    <div class="wrap">
+      <span>© FS Engineering</span>
+      <nav>
+        <a href="index.html">Главная</a>
+        <a href="services.html">Услуги</a>
+      </nav>
+    </div>
+  </footer>
 
-<!-- старт сверху -->
-<script>
-(function(){const t=()=>{scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;};
-if('scrollRestoration'in history)history.scrollRestoration='manual';if(!location.hash)t();addEventListener('load',t);addEventListener('pageshow',t);})();
-</script>
-
-<!-- COUNTER -->
-<script>
-(function(){
-  const BPS=6000, DIGITS=6, STEP=0.1, o=document.getElementById('odo');
-  function digit(i){const d=document.createElement('div');d.className='digit';d.dataset.i=i;
-    const s=document.createElement('div');s.className='strip';
-    for(let k=0;k<10;k++){const c=document.createElement('div');c.className='cell';c.textContent=k;s.appendChild(c)}
-    const e=document.createElement('div');e.className='cell';e.textContent='0';s.appendChild(e);d.appendChild(s);return d}
-  function build(){o.innerHTML='';for(let i=0;i<DIGITS;i++)o.appendChild(digit(i))}
-  build();
-  let cellH=0;function measure(){const s=o.querySelector('.cell');if(s)cellH=Math.round(s.getBoundingClientRect().height)};
-  measure(); addEventListener('resize',()=>{measure();setNum(cnt)});
-  let prev=Array(DIGITS).fill(0),cnt=0;
-  function setNum(n){const str=Math.max(0,Math.floor(n)).toString().padStart(DIGITS,'0');const strips=o.querySelectorAll('.digit .strip');
-    for(let i=0;i<DIGITS;i++){const d=+str[i];if(d!==prev[i]){const y=-Math.round(cellH*d);strips[i].parentElement.classList.add('anim');strips[i].style.transform=`translate3d(0,${y}px,0)`}}
-    prev=str.split('').map(Number)}
-  let acc=0,last=performance.now();function loop(now){const dt=(now-last)/1000;last=now;acc+=BPS*dt/1000;while(acc>=STEP){acc-=STEP;cnt+=STEP;setNum(cnt)}requestAnimationFrame(loop)}requestAnimationFrame(loop);
-})();
-</script>
-
-<!-- REVEAL -->
-<script>
-(function(){
-  const els=document.querySelectorAll('.reveal');
-  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}})},{threshold:.25});
-  els.forEach(el=>io.observe(el));
-})();
-</script>
-
-<!-- SOFT PARALLAX -->
-<script>
-(function(){
-  const els=[...document.querySelectorAll('[data-parallax]')];
-  const k=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--parallax-strength'))||0;
-  const upd=()=>{const vh=innerHeight, kk=k();for(const el of els){const sp=parseFloat(el.dataset.parallax||'0');if(!sp||!kk){el.style.setProperty('--pY','0px');continue}
-    const r=el.getBoundingClientRect();const max=12;const y=Math.max(-max,Math.min(max,(r.top-vh*0.5)*sp*kk));el.style.transform=`translateY(${y}px)`}};
-  let ticking=false;const onScroll=()=>{if(!ticking){ticking=true;requestAnimationFrame(()=>{ticking=false;upd()})}};upd();addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll,{passive:true});
-})();
-</script>
-
-<!-- FALLING BOTTLES -->
-<script>
-(function(){
-  const section=document.querySelector('.why'); if(!section) return;
-  const canvas=document.getElementById('bottleCanvas'); const ctx=canvas.getContext('2d');
-  let W=0,H=0,dpr=1, running=false, useTilt=false, gx=0, gy=1;
-  const BTN=document.getElementById('motionBtn');
-
-  function resize(){
-    const r=section.getBoundingClientRect();
-    dpr=Math.min(devicePixelRatio||1,2);
-    W=Math.max(320,Math.floor(r.width)); H=Math.max(260,Math.floor(r.height));
-    canvas.width=W*dpr; canvas.height=H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  resize(); addEventListener('resize',resize,{passive:true});
-
-  class Bottle{
-    constructor(){ this.reset(true); }
-    reset(start=false){
-      this.w=18+Math.random()*12; this.h=this.w*3.1;
-      this.x=Math.random()*W; this.y=start?(-Math.random()*H):(-this.h);
-      this.vx=(Math.random()-.5)*0.3; this.vy=0.8+Math.random()*0.8;
-      this.rot=(Math.random()*Math.PI); this.vr=(Math.random()-.5)*0.02;
-      this.opacity=0.12+Math.random()*0.1;
-    }
-    step(){
-      const gX = useTilt ? gx*0.8 : 0;
-      const gY = useTilt ? gy*0.8 : 1;
-      this.vx += gX*0.02; this.vy += gY*0.02;
-      this.x += this.vx; this.y += this.vy; this.rot += this.vr;
-      if(this.y - this.h > H + 40) this.reset();
-      if(this.x<-50) this.x=W+50; else if(this.x>W+50) this.x=-50;
-    }
-    draw(){
-      ctx.save(); ctx.globalAlpha=this.opacity; ctx.translate(this.x,this.y); ctx.rotate(this.rot);
-      const w=this.w,h=this.h,r=4;
-      // тело
-      ctx.fillStyle='#a9c9ff';
-      roundRect(ctx,-w/2,-h/2,w,h,r); ctx.fill();
-      // горлышко
-      ctx.fillStyle='#7fa6ff'; ctx.fillRect(-w*0.18,-h/2-8,w*0.36,10);
-      ctx.restore();
-    }
-  }
-  function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
-
-  const items=[];
-  function targetCount(){ return Math.round((W*H)/15000)+22; }
-
-  function tick(){
-    ctx.clearRect(0,0,W,H);
-    const need=targetCount();
-    while(items.length<need) items.push(new Bottle());
-    for(const b of items){ b.step(); b.draw(); }
-    if(running) requestAnimationFrame(tick);
-  }
-
-  const obs=new IntersectionObserver(es=>{es.forEach(e=>{running=e.isIntersecting; if(running) tick();});},{threshold:.15});
-  obs.observe(section);
-
-  // tilt
-  BTN.addEventListener('click',()=>{
-    useTilt = !useTilt;
-    BTN.textContent = useTilt ? '📱 Движение активно' : '📱 Включить движение от наклона';
-  });
-  window.addEventListener('deviceorientation',(e)=>{
-    if(!useTilt) return;
-    const nx = (e.gamma||0)/30; const ny = (e.beta||0)/30;
-    gx = Math.max(-1,Math.min(1,nx)); gy = Math.max(-1,Math.min(1,ny));
-  },{passive:true});
-})();
-</script>
-
-<!-- PIPE DOTS INFO -->
-<script>
-(function(){
-  const wrap=document.querySelector('.pipe-wrap'); if(!wrap)return;
-  const info=document.getElementById('stageInfo'); const title=document.getElementById('stageTitle'); const text=document.getElementById('stageText');
-  wrap.addEventListener('click',(e)=>{const dot=e.target.closest('.stage-dot'); if(!dot){info.hidden=true;return;}
-    title.textContent=dot.dataset.title||''; text.textContent=dot.dataset.text||'';
-    info.hidden=false; info.style.left=dot.style.getPropertyValue('--x'); info.style.top=dot.style.getPropertyValue('--y');
-    wrap.querySelectorAll('.stage-dot').forEach(d=>d.classList.remove('active')); dot.classList.add('active');
-  });
-})();
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
