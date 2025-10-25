@@ -8,7 +8,7 @@
 :root{
   --ink:#0a1f33; --text:#32475c; --blue:#2b8cff; --blue-dark:#1047a8; --panel:#ffffff;
   --shadow-big:0 25px 80px rgba(0,0,0,.12); --page-x:8vw;
-  /* нежный параллакс (0 — выкл, 1 — сильно) */
+  /* нежный параллакс */
   --parallax-strength: 0.18;
 }
 @media (max-width:900px){ :root{ --parallax-strength: 0.12; } }
@@ -42,7 +42,7 @@ nav a:hover{opacity:.75}
 .digit[data-i="5"].anim .strip{transition-delay:.10s}
 .subtitle{max-width:980px;text-align:center;color:#fff;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(20px,2.4vw,30px);line-height:1.35}
 
-/* reveal + parallax composition */
+/* reveal + parallax */
 .reveal{opacity:0;--rvY:22px;--pY:0px;transform:translateY(calc(var(--rvY) + var(--pY)));transition:opacity .8s ease,transform .8s ease}
 .reveal.visible{opacity:1;--rvY:0px}
 [data-parallax]{will-change:transform}
@@ -57,21 +57,17 @@ section{scroll-margin-top:84px}
 .why h2{position:relative;z-index:2;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:14px}
 .why p{position:relative;z-index:2;color:var(--text);max-width:980px;margin:0 auto;line-height:1.65;font-size:clamp(18px,2vw,22px)}
 #bottleCanvas{position:absolute;inset:0;z-index:0;pointer-events:none}
-.motion-btn{
-  position:absolute;right:16px;bottom:16px;z-index:3;
-  background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
-  border:1px solid rgba(0,0,0,.08);color:#0b1f33;border-radius:999px;
-  padding:10px 16px;font-weight:700;font-size:12px;cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
-}
+.motion-btn{position:absolute;right:16px;bottom:16px;z-index:3;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,.08);color:#0b1f33;border-radius:999px;padding:10px 16px;font-weight:700;font-size:12px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.08)}
 .motion-btn:hover{background:#fff}
 
 /* products */
 .products{padding:120px var(--page-x);text-align:center;background:#fff}
 .products h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(36px,5vw,72px)}
 .subtitle-small{color:var(--text);font-size:clamp(18px,2vw,22px);margin:8px 0 60px}
+
+/* ссылки-карточки ведут на services.html#... */
 .cards-wrapper{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:40px;max-width:1000px;margin:0 auto}
-.card{background:linear-gradient(180deg,#f8fbff 0%,#e8f1ff 100%);border-radius:28px;padding:40px 32px;box-shadow:0 10px 30px rgba(0,0,0,.05);transition:transform .3s ease, box-shadow .3s ease;text-align:left}
+.card{display:block;text-decoration:none;color:inherit;background:linear-gradient(180deg,#f8fbff 0%,#e8f1ff 100%);border-radius:28px;padding:40px 32px;box-shadow:0 10px 30px rgba(0,0,0,.05);transition:transform .3s ease, box-shadow .3s ease;text-align:left}
 .card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(43,140,255,.18)}
 .card-icon{font-size:38px;margin-bottom:18px}
 .card h3{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:22px;color:var(--ink);margin-bottom:10px}
@@ -109,6 +105,7 @@ section{scroll-margin-top:84px}
   <nav>
     <a href="#about">Почему это важно</a>
     <a href="#tech">Как очищаем воду</a>
+    <a href="services.html">Услуги</a>
   </nav>
 </header>
 
@@ -131,7 +128,6 @@ section{scroll-margin-top:84px}
       Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут.
       FS создаёт системы, которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит.
     </p>
-    <!-- всегда видимая кнопка -->
     <button class="motion-btn" id="motionBtn">📱 Включить движение от наклона</button>
   </section>
 
@@ -140,26 +136,26 @@ section{scroll-margin-top:84px}
     <h2 class="reveal" data-parallax="0.02">Что делает FS</h2>
     <p class="subtitle-small reveal" data-parallax="0.03">Системы, которые очищают воду — и заботятся о будущем.</p>
     <div class="cards-wrapper">
-      <div class="card reveal" data-parallax="0.02">
+      <a class="card reveal" data-parallax="0.02" href="services.html#houses">
         <div class="card-icon">🏠</div>
         <h3>Фильтрационные системы<br>для частных домов</h3>
         <p>Современные решения для автономных домов и коттеджей.</p>
-      </div>
-      <div class="card reveal" data-parallax="0.02">
+      </a>
+      <a class="card reveal" data-parallax="0.02" href="services.html#developers">
         <div class="card-icon">🏗️</div>
         <h3>Системы водоочистки<br>для девелоперов</h3>
-        <p>Проекты любого масштаба — от жилых кварталов до бизнес-центров.</p>
-      </div>
-      <div class="card reveal" data-parallax="0.02">
+        <p>Проекты — от кварталов до бизнес-центров.</p>
+      </a>
+      <a class="card reveal" data-parallax="0.02" href="services.html#apartments">
         <div class="card-icon">🏢</div>
         <h3>Индивидуальные решения<br>для квартир</h3>
         <p>Фильтры с адаптацией под тип водоснабжения.</p>
-      </div>
-      <div class="card reveal" data-parallax="0.02">
+      </a>
+      <a class="card reveal" data-parallax="0.02" href="services.html#service">
         <div class="card-icon">🔧</div>
         <h3>Сервис и обслуживание</h3>
         <p>Мониторинг качества и замена фильтров по графику.</p>
-      </div>
+      </a>
     </div>
   </section>
 
@@ -189,11 +185,10 @@ section{scroll-margin-top:84px}
               stroke-dasharray="90 430" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
 
-      <!-- точки сдвинуты левее -->
       <button class="stage-dot" style="--x:24%;--y:50%;" data-title="Грубая очистка" data-text="Удаляет песок и ржавчину."></button>
       <button class="stage-dot" style="--x:46%;--y:20%;" data-title="Сорбция" data-text="Уголь устраняет запах и хлор."></button>
       <button class="stage-dot" style="--x:63%;--y:83%;" data-title="Мембрана" data-text="Удаляет соли и бактерии."></button>
-      <button class="stage-dot" style="--x:74%;--y:68%;" data-title="Минерализация" data-text="Возвращает полезные минералы (Ca, Mg) для корректного вкуса воды."></button>
+      <button class="stage-dot" style="--x:74%;--y:68%;" data-title="Минерализация" data-text="Возвращает полезные минералы (Ca, Mg)."></button>
       <button class="stage-dot" style="--x:84%;--y:51%;" data-title="УФ" data-text="Обеззараживание ультрафиолетом."></button>
 
       <div class="stage-info" id="stageInfo" hidden>
@@ -225,7 +220,7 @@ section{scroll-margin-top:84px}
   let acc=0,last=performance.now();function loop(now){const dt=(now-last)/1000;last=now;acc+=(BOTTLES_PER_SEC*dt)/1000;while(acc>=STEP){acc-=STEP;cnt+=STEP;setNumber(cnt)}requestAnimationFrame(loop)}requestAnimationFrame(loop);
 })();
 
-/* параллакс — нежный, с глобальным регулятором и ограничением */
+/* параллакс */
 (function(){
   const els=[...document.querySelectorAll('[data-parallax]')];
   const getK=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--parallax-strength'))||0;
@@ -235,7 +230,7 @@ section{scroll-margin-top:84px}
       const sp=parseFloat(el.dataset.parallax||'0');
       if(!sp || !k){ el.style.setProperty('--pY','0px'); continue; }
       const r=el.getBoundingClientRect();
-      const max=14; // мягкая «шапка»
+      const max=14;
       const raw=(r.top - vh*0.5) * sp * k;
       const y=Math.max(-max, Math.min(max, raw));
       el.style.setProperty('--pY', `${y}px`);
@@ -246,15 +241,13 @@ section{scroll-margin-top:84px}
   update(); addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',onScroll,{passive:true});
 })();
 
-/* бутылки + кнопка «включить/выключить наклон» */
+/* бутылки + кнопка наклона */
 (function(){
   const section=document.getElementById('about'); if(!section) return;
   const canvas=document.getElementById('bottleCanvas'); const ctx=canvas.getContext('2d');
   const btn=document.getElementById('motionBtn');
   let W=0,H=0,dpr=1,running=false; const pool=[];
-  let tiltX=0; // -1..1
-  let motionEnabled=false;
-  let oriHandler=null;
+  let tiltX=0; let motionEnabled=false; let oriHandler=null;
 
   function resize(){const r=section.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);W=Math.max(320,Math.floor(r.width));H=Math.max(280,Math.floor(r.height));canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);canvas.style.zIndex='0';section.style.position='relative'}
   function clearAll(){pool.length=0;ctx.clearRect(0,0,W,H)}
@@ -286,43 +279,29 @@ section{scroll-margin-top:84px}
 
   const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){clearAll(); if(!running){running=true; tick();}} else {running=false; clearAll();}})},{threshold:.25}); io.observe(section);
 
-  // курсор/тач — эмуляция наклона (работает всегда, чтобы был эффект без разрешений)
+  // эмуляция наклона (всегда доступна)
   section.addEventListener('mousemove',(e)=>{const rect=section.getBoundingClientRect(); const x=(e.clientX-rect.left)/rect.width-0.5; if(!motionEnabled){ tiltX=Math.max(-1,Math.min(1,x*1.2)); }});
   section.addEventListener('mouseleave',()=>{if(!motionEnabled) tiltX=0;});
   section.addEventListener('touchmove',(e)=>{if(!e.touches||!e.touches[0])return; const rect=section.getBoundingClientRect(); const x=(e.touches[0].clientX-rect.left)/rect.width-0.5; if(!motionEnabled){ tiltX=Math.max(-1,Math.min(1,x*1.2)); }},{passive:true});
   section.addEventListener('touchend',()=>{if(!motionEnabled) tiltX=0;},{passive:true});
 
-  // кнопка — включить/выключить реальный наклон
-  function attachOrientation(){
-    if(oriHandler) return;
-    oriHandler=(ev)=>{const g=ev.gamma||0; tiltX=Math.max(-1,Math.min(1,g/30));};
-    addEventListener('deviceorientation',oriHandler);
-  }
-  function detachOrientation(){
-    if(!oriHandler) return;
-    removeEventListener('deviceorientation',oriHandler);
-    oriHandler=null; tiltX=0;
-  }
+  // кнопка: включить/выключить реальный наклон
+  let oriHandler=null;
+  function attachOrientation(){ if(oriHandler) return; oriHandler=(ev)=>{const g=ev.gamma||0; tiltX=Math.max(-1,Math.min(1,g/30));}; addEventListener('deviceorientation',oriHandler); }
+  function detachOrientation(){ if(!oriHandler) return; removeEventListener('deviceorientation',oriHandler); oriHandler=null; tiltX=0; }
 
   btn.addEventListener('click', async ()=>{
-    if(!motionEnabled){
-      // включаем
+    if(btn.dataset.state!=='on'){
       try{
         if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
-          const p=await DeviceOrientationEvent.requestPermission();
-          if(p!=='granted'){ /* отказ — просто остаёмся на эмуляции */ return; }
+          const p=await DeviceOrientationEvent.requestPermission(); if(p!=='granted') return;
         }
-        attachOrientation();
+        attachOrientation(); btn.dataset.state='on'; btn.textContent='🔒 Отключить движение';
         motionEnabled=true;
-        btn.textContent='🔒 Отключить движение';
-      }catch(e){
-        // если что-то пошло не так — остаёмся на эмуляции
-      }
+      }catch(e){ /* остаёмся на эмуляции */ }
     }else{
-      // выключаем
-      detachOrientation();
+      detachOrientation(); btn.dataset.state='off'; btn.textContent='📱 Включить движение от наклона';
       motionEnabled=false;
-      btn.textContent='📱 Включить движение от наклона';
     }
   });
 })();
