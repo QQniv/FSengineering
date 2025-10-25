@@ -14,6 +14,7 @@
       <a href="#">О проекте</a>
       <a href="#about">Почему это важно</a>
       <a href="#tech">Как мы очищаем воду</a>
+      <a href="#dev">Решения</a>
     </nav>
   </header>
 
@@ -101,10 +102,68 @@
         </ul>
       </div>
     </section>
+
+    <!-- ===== РЕШЕНИЯ ДЛЯ ЗАСТРОЙЩИКОВ ===== -->
+    <section class="solutions" id="dev" aria-labelledby="solutions-title">
+      <div class="solutions-head">
+        <h2 id="solutions-title" class="reveal">Решения для застройщиков</h2>
+        <p class="lead reveal">
+          Централизованные системы очистки воды для жилых комплексов и коммерческих объектов.
+          Гибкая модульность, удалённый мониторинг, экономия на сервисе.
+        </p>
+      </div>
+
+      <div class="solutions-grid">
+        <article class="sol-card reveal">
+          <div class="sol-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M6 30 32 10 58 30" fill="none" stroke="#1047a8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 56V32h36v24" fill="none" stroke="#2b8cff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Центральная станция ЖК</h3>
+          <p>Одна общедомовая станция на вводе. Чистая вода во всех квартирах и помещениях комплекса.</p>
+          <ul class="sol-list">
+            <li>Производительность от 10 до 200 м³/ч</li>
+            <li>Резервирование модулей</li>
+            <li>Диспетчеризация 24/7</li>
+          </ul>
+        </article>
+
+        <article class="sol-card reveal">
+          <div class="sol-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="40" rx="8" fill="none" stroke="#1047a8" stroke-width="4"/><path d="M20 22h24M20 32h24M20 42h24" stroke="#2b8cff" stroke-width="4" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Модульные блоки</h3>
+          <p>Собираем систему под дебит и качество воды. Удобный монтаж в ТП, подвале или тех.этаже.</p>
+          <ul class="sol-list">
+            <li>Сорбция, мембрана, УФ</li>
+            <li>Быстрая замена кассет</li>
+            <li>Шум &lt; 45 дБ</li>
+          </ul>
+        </article>
+
+        <article class="sol-card reveal">
+          <div class="sol-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M20 40a12 12 0 1 1 9-21 14 14 0 1 1 15 21" fill="none" stroke="#1047a8" stroke-width="4" stroke-linecap="round"/><path d="M24 48h16M20 54h24" stroke="#2b8cff" stroke-width="4" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Умный мониторинг</h3>
+          <p>Показатели, аварии, ресурс фильтров — в одной панели. Интеграция в BMS и телеметрию.</p>
+          <ul class="sol-list">
+            <li>API + Modbus</li>
+            <li>Push-уведомления</li>
+            <li>Отчёты по ESG</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="solutions-cta reveal">
+        <a class="btn-primary" href="#contact">Запросить спецификацию</a>
+        <span class="hint">Получите список модулей и смету за 1–2 дня</span>
+      </div>
+    </section>
   </main>
 
-  <!-- ===== Счётчик ===== -->
+  <!-- ===== JS блоки ===== -->
   <script>
+  // СЧЁТЧИК
   (function(){
     const BPS=6000, DIGITS=6, odo=document.getElementById('odo');
     function makeDigit(){const d=document.createElement('div');d.className='digit';const s=document.createElement('div');s.className='strip';
@@ -122,129 +181,45 @@
     function frame(now){const t=(now-start)/1000; cur=(BPS*t)/1000; const stepped=Math.floor(cur*10)/10; setNumber(stepped); requestAnimationFrame(frame)}
     requestAnimationFrame(frame);
   })();
-  </script>
 
-  <!-- ===== Падающие бутылки ===== -->
-  <script>
+  // ПАДАЮЩИЕ БУТЫЛКИ
   (function(){
     const section = document.getElementById('about');
     const canvas  = document.getElementById('bottleCanvas');
     const ctx     = canvas.getContext('2d');
-
-    let W=0,H=0, dpr=1;
-    let bottles=[], running=false, rafId=0, spawnTimer=0;
-
+    let W=0,H=0,dpr=1,bottles=[],running=false,rafId=0,spawnTimer=0;
     function resize(){
-      const r = section.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio||1, 2);
-      W = Math.max(1, Math.floor(r.width));
-      H = Math.max(1, Math.floor(r.height));
-      canvas.width  = Math.floor(W*dpr);
-      canvas.height = Math.floor(H*dpr);
-      canvas.style.width = W+'px';
-      canvas.style.height= H+'px';
-      canvas.style.position='absolute';
-      canvas.style.inset='0';
-      ctx.setTransform(dpr,0,0,dpr,0,0);
-    }
-    resize();
-    addEventListener('resize', resize, {passive:true});
-
-    function drawBottle(x,y,w,h,angle,alpha=1){
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.translate(x,y);
-      ctx.rotate(angle);
-      const r = Math.min(w,h)/6;
-      ctx.fillStyle = '#3a7cff';
-      ctx.beginPath(); ctx.roundRect(-w/2, -h/2, w, h, r); ctx.fill();
-      ctx.fillStyle = '#1e4fb3';
-      ctx.beginPath(); ctx.roundRect(-w*0.18, -h*0.58, w*0.36, h*0.12, r*0.4); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,.22)';
-      ctx.beginPath(); ctx.roundRect(-w*0.32, -h*0.35, w*0.16, h*0.55, r*0.6); ctx.fill();
-      ctx.restore();
-    }
-
-    class Bottle {
-      constructor(x){
-        this.w = 28 + Math.random()*16;
-        this.h = this.w*2.1;
-        this.x = x;
-        this.y = -this.h;
-        this.vy = 1.2 + Math.random()*1.6;
-        this.ang = Math.random()*Math.PI;
-        this.vang= (Math.random()*0.6-0.3)*0.02;
-        this.drift = (Math.random()*0.6-0.3)*0.25;
-        this.settled = false;
-        this.alpha = 0;
-      }
-      update(){
-        if(!this.settled){
-          this.y += this.vy;
-          this.x += this.drift;
-          this.ang += this.vang;
-          this.alpha = Math.min(1, this.alpha+0.06);
-          if(this.y >= H - this.h*0.5){
-            this.y = H - this.h*0.5;
-            this.settled = true;
-          }
-        } else this.ang += this.vang*0.2;
-      }
-      draw(){ drawBottle(this.x, this.y, this.w, this.h, this.ang, this.alpha); }
-    }
-
-    function isFilled(){
-      const area = W*H;
-      const avg = (40*80);
-      const target = Math.max(12, Math.floor(area / (avg*6)));
-      return bottles.filter(b=>b.settled).length >= target;
-    }
-
-    function tick(){
-      ctx.clearRect(0,0,W,H);
-      if(!isFilled()){
-        spawnTimer -= 1;
-        if(spawnTimer<=0){
-          spawnTimer = 3;
-          bottles.push(new Bottle(Math.random()*W));
-        }
-      }
-      for(let i=0;i<bottles.length;i++){
-        const b=bottles[i]; b.update(); b.draw();
-        if(b.y>H+200){ bottles.splice(i,1); i--; }
-      }
-      if(running) rafId=requestAnimationFrame(tick);
-    }
-    function start(){ if(running)return; running=true; bottles=[]; spawnTimer=0; rafId=requestAnimationFrame(tick);}
-    function stop(){ running=false; cancelAnimationFrame(rafId); ctx.clearRect(0,0,W,H); bottles=[]; }
-
-    const io=new IntersectionObserver(entries=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting) start(); else stop();
-      });
-    },{threshold:0.25});
-    io.observe(section);
+      const r=section.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);
+      W=Math.floor(r.width);H=Math.floor(r.height);
+      canvas.width=W*dpr;canvas.height=H*dpr;
+      canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+    resize();addEventListener('resize',resize,{passive:true});
+    function drawBottle(x,y,w,h,angle,alpha=1){ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);ctx.rotate(angle);
+      const r=Math.min(w,h)/6;ctx.fillStyle='#3a7cff';ctx.beginPath();ctx.roundRect(-w/2,-h/2,w,h,r);ctx.fill();
+      ctx.fillStyle='#1e4fb3';ctx.beginPath();ctx.roundRect(-w*0.18,-h*0.58,w*0.36,h*0.12,r*0.4);ctx.fill();
+      ctx.restore();}
+    class Bottle{constructor(x){this.w=28+Math.random()*16;this.h=this.w*2.1;this.x=x;this.y=-this.h;this.vy=1.2+Math.random()*1.6;
+      this.ang=Math.random()*Math.PI;this.vang=(Math.random()*0.6-0.3)*0.02;this.drift=(Math.random()*0.6-0.3)*0.25;
+      this.settled=false;this.alpha=0;}update(){if(!this.settled){this.y+=this.vy;this.x+=this.drift;this.ang+=this.vang;
+      this.alpha=Math.min(1,this.alpha+0.06);if(this.y>=H-this.h*0.5){this.y=H-this.h*0.5;this.settled=true;}}}
+      draw(){drawBottle(this.x,this.y,this.w,this.h,this.ang,this.alpha);} }
+    function isFilled(){const area=W*H,avg=(40*80),target=Math.max(12,Math.floor(area/(avg*6)));
+      return bottles.filter(b=>b.settled).length>=target;}
+    function tick(){ctx.clearRect(0,0,W,H);if(!isFilled()){spawnTimer-=1;if(spawnTimer<=0){spawnTimer=3;bottles.push(new Bottle(Math.random()*W));}}
+      for(let i=0;i<bottles.length;i++){const b=bottles[i];b.update();b.draw();if(b.y>H+200){bottles.splice(i,1);i--;}}
+      if(running)rafId=requestAnimationFrame(tick);}
+    function start(){if(running)return;running=true;bottles=[];spawnTimer=0;rafId=requestAnimationFrame(tick);}
+    function stop(){running=false;cancelAnimationFrame(rafId);ctx.clearRect(0,0,W,H);bottles=[];}
+    const io=new IntersectionObserver(e=>{e.forEach(x=>x.isIntersecting?start():stop())},{threshold:0.25});io.observe(section);
   })();
-  </script>
 
-  <!-- ===== Reveal-анимации и поток воды ===== -->
-  <script>
+  // Reveal-анимации и поток воды
   (function(){
     const tech=document.getElementById('tech');
-    const ioTech=new IntersectionObserver(entries=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting) tech.classList.add('play');
-        else tech.classList.remove('play');
-      });
-    },{threshold:.35});
+    const ioTech=new IntersectionObserver(e=>{e.forEach(x=>x.isIntersecting?tech.classList.add('play'):tech.classList.remove('play'));},{threshold:.35});
     ioTech.observe(tech);
-
-    const revEls=[...document.querySelectorAll('.reveal')];
-    const ioRev=new IntersectionObserver(entries=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){ e.target.classList.add('show'); ioRev.unobserve(e.target); }
-      });
-    },{threshold:.25});
+    const revEls=document.querySelectorAll('.reveal');
+    const ioRev=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('show');ioRev.unobserve(x.target)}})},{threshold:.25});
     revEls.forEach(el=>ioRev.observe(el));
   })();
   </script>
