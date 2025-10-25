@@ -19,8 +19,8 @@
     nav a{text-decoration:none;color:var(--ink);margin-left:28px;font-weight:600;transition:opacity .2s}
     nav a:hover{opacity:.75}
 
-    /* HERO */
-    .hero{background:var(--blue);color:#fff;min-height:72vh;display:grid;place-items:center;gap:28px;padding:72px 0 96px}
+    /* HERO (увеличил нижний отступ) */
+    .hero{background:var(--blue);color:#fff;min-height:72vh;display:grid;place-items:center;gap:28px;padding:72px 0 140px}
     .capsule{position:relative;background:var(--panel);border-radius:999px;width:min(1000px,85vw);height:min(460px,58vh);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-big)}
     .capsule::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.22) 50%,rgba(255,255,255,0) 100%);transform:translateX(-100%);animation:shine 7s linear infinite}
     @keyframes shine{to{transform:translateX(100%)}}
@@ -29,19 +29,10 @@
     .digit{
       position:relative;overflow:hidden;border-radius:12px;
       width:clamp(56px,7vw,96px);height:clamp(98px,15vw,170px);
-      background:transparent;
-      /* трюк: инвертируем направление движения, чтобы визуально было сверху-вниз */
-      transform:scaleY(-1);
+      background:transparent; transform:scaleY(-1);
     }
     .strip{position:absolute;inset:0;display:flex;flex-direction:column;will-change:transform}
-    .cell{
-      height:100%;display:flex;align-items:center;justify-content:center;
-      font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;
-      font-size:clamp(68px,13vw,160px);color:var(--ink);
-      /* возвращаем текст в нормальную ориентацию */
-      transform:scaleY(-1);
-    }
-    /* плавная прокрутка с каскадом */
+    .cell{height:100%;display:flex;align-items:center;justify-content:center;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(68px,13vw,160px);color:var(--ink);transform:scaleY(-1)}
     .digit.anim .strip{transition:transform .55s cubic-bezier(.22,.8,.18,1)}
     .digit[data-i="0"].anim .strip{transition-delay:.00s}
     .digit[data-i="1"].anim .strip{transition-delay:.02s}
@@ -56,14 +47,20 @@
     .reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .8s ease}
     .reveal.visible{opacity:1;transform:translateY(0)}
 
-    /* WHY */
-    .why{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#fff}
+    /* WHY (центрирование + большие внешние отступы) */
+    .why{
+      position:relative;overflow:hidden;
+      padding:120px var(--page-x) 140px;
+      margin-top:64px;        /* больше расстояние от HERO */
+      margin-bottom:72px;     /* больше расстояние до PRODUCTS */
+      background:#fff; text-align:center;
+    }
     .why h2{position:relative;z-index:2;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:14px}
-    .why p{position:relative;z-index:2;color:var(--text);max-width:980px;line-height:1.65;font-size:clamp(18px,2vw,22px)}
+    .why p{position:relative;z-index:2;color:var(--text);max-width:980px;margin:0 auto;line-height:1.65;font-size:clamp(18px,2vw,22px)}
     #bottleCanvas{position:absolute;inset:0;z-index:0;pointer-events:none}
 
-    /* PRODUCTS */
-    .products{padding:120px var(--page-x);text-align:center;background:#fff}
+    /* PRODUCTS (добавил внешний верхний отступ) */
+    .products{padding:120px var(--page-x);text-align:center;background:#fff; margin-top:12px}
     .products h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(36px,5vw,72px)}
     .subtitle-small{color:var(--text);font-size:clamp(18px,2vw,22px);margin:8px 0 60px}
     .cards-wrapper{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:40px;max-width:1000px;margin:0 auto}
@@ -80,7 +77,7 @@
     /* TECH */
     .tech{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#fff}
     .tech h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:12px}
-    .lead{color:var(--text);max-width:900px;line-height:1.65;font-size:clamp(18px,2vw,22px);margin-bottom:24px}
+    .lead{color:var(--text);max-width:900px;line-height:1.65;font-size:clamp(18px,2vw,22px);margin-bottom:24px;text-align:center}
     .pipe-wrap{position:relative}
     .pipe-svg{width:100%;filter:drop-shadow(0 12px 28px rgba(16,71,168,.12))}
     @keyframes flowLeftToRight{from{stroke-dashoffset:520}to{stroke-dashoffset:0}}
@@ -209,7 +206,7 @@
       for(let i=0;i<DIGITS;i++){
         const d=+str[i];
         if(d!==prev[i]){
-          const y=-cellH*d; // внутренняя лента едет ВВЕРХ, а из-за scaleY(-1) это выглядит как движение ВНИЗ
+          const y=-cellH*d; // внутренняя лента едет вверх, визуально вниз
           const st=strips[i]; st.parentElement.classList.add('anim'); st.style.transform=`translate3d(0,${y}px,0)`;
         }
       }
@@ -226,7 +223,7 @@
     requestAnimationFrame(loop);
   })();
 
-  /* ПАДАЮЩИЕ БУТЫЛКИ: при входе — заново; за текстом */
+  /* ПАДАЮЩИЕ БУТЫЛКИ */
   (function(){
     const section=document.getElementById('about'); if(!section) return;
     const canvas=document.getElementById('bottleCanvas'); const ctx=canvas.getContext('2d');
@@ -274,22 +271,18 @@
       draw(){ drawBottle(this.x,this.y,this.w,this.h,this.ang,this.alpha); }
     }
 
-    function isFilled(){
-      const target=Math.max(14, Math.floor((W*H)/(90*220)));
-      let settled=0; for(const b of pool) if(b.settled) settled++; return settled>=target;
-    }
-
+    function isFilled(){ const target=Math.max(14, Math.floor((W*H)/(90*220))); let settled=0; for(const b of pool) if(b.settled) settled++; return settled>=target; }
     function tick(){
       ctx.clearRect(0,0,W,H);
       if(!isFilled() && pool.length<120 && Math.random()<0.5) pool.push(new Bottle());
       let moving=false; for(const b of pool){ if(!b.settled) moving=true; b.update(); b.draw(); }
-      if(running && (moving || !isFilled())) rafId=requestAnimationFrame(tick); else rafId=0;
+      if(running && (moving || !isFilled())) requestAnimationFrame(tick);
     }
 
     const io=new IntersectionObserver(entries=>{
       entries.forEach(e=>{
         if(e.isIntersecting){ clearAll(); if(!running){ running=true; tick(); } }
-        else { running=false; cancelAnimationFrame(rafId); clearAll(); }
+        else { running=false; clearAll(); }
       });
     },{threshold:0.25});
     io.observe(section);
