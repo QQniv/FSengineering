@@ -4,69 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FS • Чистая вода будущего</title>
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=8" />
 
-  <!-- Inline-стили ТОЛЬКО для секции 2 (чтобы не править styles.css) -->
-  <style>
-    /* ===== 2. Что делает FS (локальные стили) ===== */
-    .products{
-      background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);
-      padding:120px 8vw 140px;
-      text-align:center;
-    }
-    .products h2{
-      font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;
-      font-size:clamp(40px,5vw,76px);
-      color:#0b1f33;
-      margin-bottom:12px;
-    }
-    .products .lead{
-      color:#354a60;
-      max-width:800px;
-      margin:0 auto 40px;
-      font-size:clamp(18px,2vw,22px);
-      line-height:1.6;
-    }
-    .prod-grid{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:22px;
-    }
-    .prod-card{
-      background:#fff;
-      border:1px solid rgba(16,71,168,.14);
-      border-radius:20px;
-      padding:28px 22px;
-      box-shadow:0 10px 26px rgba(43,140,255,.08);
-      transition:transform .4s cubic-bezier(.25,.8,.25,1), box-shadow .4s;
-      position:relative; overflow:hidden;
-      transform: translateY(12px); opacity:0;
-    }
-    .prod-card.reveal.show{ transform:none; opacity:1; }
-    .prod-card::before{
-      content:""; position:absolute; inset:0;
-      background:radial-gradient(circle at 50% 120%,rgba(43,140,255,.08),transparent 70%);
-      opacity:0; transition:opacity .5s ease;
-    }
-    .prod-card:hover::before{opacity:1;}
-    .prod-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(43,140,255,.18);}
-    .prod-icon{width:60px;height:60px;margin:0 auto 12px;}
-    .prod-icon img{width:100%;height:auto;filter:drop-shadow(0 4px 6px rgba(43,140,255,.2));}
-    .prod-card h3{
-      font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;
-      font-size:clamp(16px,1.8vw,20px);
-      color:#1047a8; margin-bottom:6px;
-    }
-    .prod-card p{
-      font-size:clamp(14px,1.6vw,16px);
-      line-height:1.55; color:#2c4055;
-    }
-    @media(max-width:1100px){ .prod-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
-    @media(max-width:640px){
-      .products{padding:90px 8vw 110px;}
-      .prod-grid{grid-template-columns:1fr;}
-    }
-  </style>
+  <!-- 3D viewer (без сборки) -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 </head>
 <body>
   <!-- ===== Шапка ===== -->
@@ -104,17 +45,52 @@
       </p>
     </section>
 
-    <!-- ===== 2. ЧТО ДЕЛАЕТ FS ===== -->
+    <!-- ===== 2. ЧТО ДЕЛАЕТ FS (большая 3D-модель + карточки) ===== -->
     <section class="products" id="products" aria-labelledby="products-title">
-      <h2 id="products-title" class="reveal">Что делает FS</h2>
-      <p class="lead reveal">
-        Мы проектируем и внедряем современные решения очистки воды — от квартиры до целого города.
-      </p>
+      <div class="products-head">
+        <h2 id="products-title" class="reveal">Что делает FS</h2>
+        <p class="lead reveal">
+          Мы проектируем и внедряем современные решения очистки воды — от квартиры до целого города.
+          Изучите ключевой модуль в 3D и разберите его по частям.
+        </p>
+      </div>
 
+      <!-- Большая 3D модель -->
+      <div class="model-showcase reveal">
+        <div class="viewer-wrap">
+          <!-- Положи файл сюда: /models/filter.glb -->
+          <model-viewer id="fs-model"
+            src="models/filter.glb"
+            alt="Фильтрационный комплекс FS"
+            camera-controls
+            auto-rotate
+            rotation-per-second="15deg"
+            shadow-intensity="1"
+            exposure="1.2"
+            disable-zoom
+            ar
+            ar-modes="webxr scene-viewer quick-look"
+            style="width:100%;height:100%;background:#eef4ff;">
+          </model-viewer>
+
+          <!-- Интерактивные плюсики (оверлей 2D, проценты по контейнеру) -->
+          <button class="hotspot" style="--x:28%;--y:42%;" data-title="Корпус из нержавеющей стали" data-text="Долговечность и коррозионная устойчивость, класс AISI 304/316."></button>
+          <button class="hotspot" style="--x:63%;--y:30%;" data-title="Модуль мембраны" data-text="Тонкая очистка: удаляет микро-примеси и бактерии."></button>
+          <button class="hotspot" style="--x:50%;--y:62%;" data-title="Угольный сорбент" data-text="Поглощает хлор, запахи и органику."></button>
+
+          <!-- Всплывающая карточка описания -->
+          <div class="hotspot-card" id="hotspotCard" hidden>
+            <strong id="hotspotTitle"></strong>
+            <p id="hotspotText"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Карточки направлений -->
       <div class="prod-grid">
         <article class="prod-card reveal">
           <div class="prod-icon" aria-hidden="true">
-            <img src="icons/home.svg" alt="" />
+            <img src="icons/home.svg" alt="">
           </div>
           <h3>Фильтрационные комплексы для жилых домов</h3>
           <p>Глубокая очистка воды на вводе. Без хлора, ржавчины и запахов в каждой квартире.</p>
@@ -122,26 +98,26 @@
 
         <article class="prod-card reveal">
           <div class="prod-icon" aria-hidden="true">
-            <img src="icons/developer.svg" alt="" />
+            <img src="icons/developer.svg" alt="">
           </div>
           <h3>Системы водоочистки для девелоперов</h3>
-          <p>Инженерные решения под любые объёмы и требования, адаптация под BIM и ESG.</p>
+          <p>Решения под любые объёмы и требования, интеграция в BIM и ESG-отчётность.</p>
         </article>
 
         <article class="prod-card reveal">
           <div class="prod-icon" aria-hidden="true">
-            <img src="icons/apartment.svg" alt="" />
+            <img src="icons/apartment.svg" alt="">
           </div>
           <h3>Индивидуальные решения для квартир</h3>
-          <p>Компактные фильтры с высокой минерализацией, подбор под качество вашей воды.</p>
+          <p>Компактные фильтры с минерализацией. Подбор под ваш анализ воды.</p>
         </article>
 
         <article class="prod-card reveal">
           <div class="prod-icon" aria-hidden="true">
-            <img src="icons/service.svg" alt="" />
+            <img src="icons/service.svg" alt="">
           </div>
           <h3>Сервис и обслуживание</h3>
-          <p>Плановая диагностика, замена картриджей и удалённый мониторинг через приложение FS.</p>
+          <p>Диагностика, замена картриджей и удалённый мониторинг в приложении FS.</p>
         </article>
       </div>
     </section>
@@ -266,7 +242,7 @@
     </section>
   </main>
 
-  <!-- ===== JS блоки ===== -->
+  <!-- ===== JS ===== -->
   <script>
   // СЧЁТЧИК
   (function(){
@@ -287,7 +263,7 @@
     requestAnimationFrame(frame);
   })();
 
-  // ПАДАЮЩИЕ БУТЫЛКИ
+  // ПАДАЮЩИЕ БУТЫЛКИ (позади текста)
   (function(){
     const section = document.getElementById('about');
     const canvas  = document.getElementById('bottleCanvas');
@@ -297,7 +273,9 @@
       const r=section.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);
       W=Math.floor(r.width);H=Math.floor(r.height);
       canvas.width=W*dpr;canvas.height=H*dpr;
-      canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+      canvas.style.width=W+'px';canvas.style.height=H+'px';
+      canvas.style.zIndex='0'; // ключ: ниже текста
+      ctx.setTransform(dpr,0,0,dpr,0,0);}
     resize();addEventListener('resize',resize,{passive:true});
     function drawBottle(x,y,w,h,angle,alpha=1){ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);ctx.rotate(angle);
       const r=Math.min(w,h)/6;ctx.fillStyle='#3a7cff';ctx.beginPath();ctx.roundRect(-w/2,-h/2,w,h,r);ctx.fill();
@@ -326,6 +304,24 @@
     const revEls=document.querySelectorAll('.reveal');
     const ioRev=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('show');ioRev.unobserve(x.target)}})},{threshold:.25});
     revEls.forEach(el=>ioRev.observe(el));
+
+    // Логика «плюсиков» (попап)
+    const wrap=document.querySelector('.viewer-wrap');
+    const card=document.getElementById('hotspotCard');
+    const title=document.getElementById('hotspotTitle');
+    const text=document.getElementById('hotspotText');
+    wrap?.addEventListener('click',e=>{
+      const btn=e.target.closest('.hotspot');
+      if(!btn){ card.hidden=true; return; }
+      title.textContent=btn.dataset.title||'';
+      text.textContent=btn.dataset.text||'';
+      card.style.left=btn.style.getPropertyValue('--x');
+      card.style.top=btn.style.getPropertyValue('--y');
+      card.hidden=false;
+    });
+    document.addEventListener('click',e=>{
+      if(!e.target.closest('.viewer-wrap')) card.hidden=true;
+    });
   })();
   </script>
 </body>
