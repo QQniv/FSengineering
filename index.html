@@ -378,8 +378,97 @@ document.documentElement.classList.add('js');
       }
     }
 
-    const SPR = bottleSpriteClassic(124, 0.085);
+    <script>
+/* === СПРАЙТ БУТЫЛКИ под твой референс === */
+function bottleSpriteFS(size=124, alpha=0.085){
+  const cn=document.createElement('canvas'); cn.width=cn.height=size;
+  const c=cn.getContext('2d');
 
+  // helper: roundRect fallback
+  function rrPath(ctx,x,y,w,h,r){
+    r=Math.max(0,Math.min(r,Math.min(w,h)/2));
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,  x+w,y+h, r);
+    ctx.arcTo(x+w,y+h, x,y+h, r);
+    ctx.arcTo(x,y+h,   x,y,   r);
+    ctx.arcTo(x,y,     x+w,y, r);
+    ctx.closePath();
+  }
+  function rr(ctx,x,y,w,h,r){
+    if(ctx.roundRect) ctx.roundRect(x,y,w,h,r);
+    else rrPath(ctx,x,y,w,h,r);
+  }
+
+  c.save();
+  c.translate(size/2,size/2);
+  c.rotate(-0.45); // лёгкий диагональный наклон как на скрине
+
+  const bodyW=size*0.62;
+  const bodyH=size*0.66;
+  const neckW=bodyW*0.44;       // короткое и широкое горлышко
+  const neckH=bodyH*0.18;
+  const capH =bodyH*0.12;
+  const rBody=bodyW*0.22;
+
+  const x=-bodyW/2, y=-bodyH/2;
+
+  // тень
+  c.globalAlpha=Math.min(alpha*1.3,0.12);
+  c.fillStyle='rgba(0,0,0,0.06)';
+  c.beginPath();
+  c.ellipse(0, bodyH*0.52, bodyW*0.46, bodyH*0.18, 0, 0, Math.PI*2);
+  c.fill();
+
+  // корпус (прямоугольник с большими скруглениями — «плоские плечи»)
+  c.globalAlpha=alpha;
+  c.fillStyle='#3a86ff';
+  c.beginPath(); rr(c, x, y, bodyW, bodyH, rBody); c.fill();
+
+  // плечи + горлышко (лёгкое сужение)
+  c.beginPath();
+  const neckTopY = y - neckH;
+  c.moveTo( bodyW/2, y + bodyH*0.02);
+  c.lineTo( neckW/2, y );
+  c.lineTo( neckW/2*0.95, neckTopY );
+  c.lineTo( -neckW/2*0.95, neckTopY );
+  c.lineTo( -neckW/2, y );
+  c.lineTo( -bodyW/2, y + bodyH*0.02);
+  c.closePath();
+  c.fillStyle='#3a86ff';
+  c.fill();
+
+  // крышка (два тона)
+  c.globalAlpha=alpha*0.95;
+  c.fillStyle='#0e3e9b';
+  c.beginPath(); rr(c, -neckW*0.46, neckTopY-capH, neckW*0.92, capH*0.65, capH*0.2); c.fill();
+  c.fillStyle='#1655cf';
+  c.beginPath(); rr(c, -neckW*0.42, neckTopY-capH*0.92, neckW*0.84, capH*0.28, capH*0.14); c.fill();
+
+  // маленькие тёмные «метки» по бокам горлышка (как на рефе)
+  c.globalAlpha=alpha*0.95;
+  c.fillStyle='#0e3e9b';
+  const mW=neckW*0.12, mH=neckH*0.28;
+  c.beginPath(); rr(c,  neckW*0.6-mW, neckTopY+mH*0.1, mW, mH, mW*0.25); c.fill();
+  c.beginPath(); rr(c, -neckW*0.6,    neckTopY+mH*0.1, mW, mH, mW*0.25); c.fill();
+
+  // диагональные белые полосы-блики (как на скрине)
+  c.globalAlpha=alpha*0.75;
+  c.save();
+  c.rotate(-0.06);
+  c.fillStyle='#ffffff';
+  const sW=bodyW*0.14, sH=bodyH*0.42, rad=sW*0.4;
+  c.beginPath(); rr(c, x+bodyW*0.10, y+bodyH*0.10, sW, sH, rad); c.fill();
+  c.globalAlpha=alpha*0.55;
+  c.beginPath(); rr(c, x+bodyW*0.28, y+bodyH*0.04, sW*0.85, sH*0.35, rad*0.8); c.fill();
+  c.restore();
+
+  c.restore();
+  return cn;
+}
+
+/* используй новый спрайт */
+const SPR = bottleSpriteFS(124, 0.085);
+</script>
     class Bottle{
       constructor(resetTop=true){ this.reset(resetTop); }
       reset(fromTop){
