@@ -260,7 +260,8 @@ document.documentElement.classList.add('js');
 </script>
 
 <script>
-/* БУТЫЛКИ: постоянное падение, БЕЗ накопления и БЕЗ кнопки, более прозрачные */
+/* БУТЫЛКИ: постоянное падение, без накопления, более прозрачные
+   СИЛУЭТ — классический: изящные «плечи», узкое горлышко и крышка. */
 (function(){
   try{
     const section=document.getElementById('about'); if(!section) return;
@@ -280,40 +281,92 @@ document.documentElement.classList.add('js');
       seed();
     }
 
-    // более «бутылочная» форма, но с мягкой прозрачностью
-    function makeSprite(size=120, alpha=0.085){
+    // КЛАССИЧЕСКИЙ спрайт бутылки: корпус + плечи + горлышко + крышка + блик
+    function bottleSpriteClassic(size=124, alpha=0.085){
       const cn=document.createElement('canvas'); cn.width=cn.height=size;
       const c=cn.getContext('2d');
-      c.save(); c.translate(size/2,size/2); c.rotate(-Math.PI/2.2);
+      c.save();
+      c.translate(size/2,size/2);
+      c.rotate(-Math.PI/2.18);   // лёгкий наклон
 
-      // корпус
-      c.globalAlpha=alpha;
-      c.fillStyle='#3a86ff';
-      const w=size*.66,h=size*.26,r=h/2,x=-w/2,y=-h/2;
-      c.beginPath();
-      c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
-      c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); c.fill();
+      // параметры формы
+      const bodyW = size*0.62;   // ширина корпуса
+      const bodyH = size*0.66;   // высота корпуса (не вся бутылка)
+      const neckW = bodyW*0.28;  // ширина горлышка
+      const neckH = bodyH*0.24;  // высота горлышка
+      const capH  = bodyH*0.10;  // высота крышки
+      const rBody = bodyH*0.26;  // скругления корпуса
 
-      // этикетка
-      c.fillStyle='rgba(30,86,197,1)';
-      c.globalAlpha=alpha*0.9;
+      const x = -bodyW/2, y = -bodyH/2;
+
+      // ТЕНЬ
+      c.globalAlpha = Math.min(alpha*1.2, 0.12);
+      c.fillStyle='rgba(0,0,0,0.06)';
       c.beginPath();
-      roundRectPath(c,-w*0.18,-h*0.48,w*0.36,h*0.14,r*0.6);
+      c.ellipse(0, bodyH*0.50, bodyW*0.46, bodyH*0.18, 0, 0, Math.PI*2);
       c.fill();
 
-      // горлышко
-      c.globalAlpha=alpha*0.95;
-      c.fillStyle='#0e3e9b'; c.fillRect(-w*0.18,-h*0.62,w*0.36,h*0.08);
-      c.fillStyle='#1655cf'; c.fillRect(-w*0.16,-h*0.62,w*0.32,h*0.04);
+      // КОРПУС (скруглённый прямоугольник)
+      c.globalAlpha = alpha;
+      c.fillStyle = '#3a86ff';
+      c.beginPath();
+      roundRectPath(c, x, y, bodyW, bodyH, rBody);
+      c.fill();
 
-      // лёгкий блик
-      c.globalAlpha=alpha*0.7;
-      c.fillStyle='#ffffff';
-      c.fillRect(x+8,y+6, w*.18, h*.35);
+      // ПЛЕЧИ → ГОРЛЫШКО (плавная «сужающаяся» форма)
+      c.beginPath();
+      const shoulderY = y;                    // верх корпуса
+      const neckTopY  = shoulderY - neckH;    // верх горлышка (низ крышки)
+      // правая половина плеча
+      c.moveTo( bodyW/2, shoulderY );
+      c.bezierCurveTo(
+        bodyW/2, shoulderY - bodyH*0.14,     // контрольная вниз-вверх
+        neckW/2 + bodyW*0.06, shoulderY - bodyH*0.22,
+        neckW/2, neckTopY
+      );
+      // крышка верхом вправо
+      c.lineTo( neckW/2, neckTopY - capH );
+      // верх крышки по прямой влево
+      c.lineTo( -neckW/2, neckTopY - capH );
+      // левая половина плеча симметрично
+      c.lineTo( -neckW/2, neckTopY );
+      c.bezierCurveTo(
+        -neckW/2 - bodyW*0.06, shoulderY - bodyH*0.22,
+        -bodyW/2, shoulderY - bodyH*0.14,
+        -bodyW/2, shoulderY
+      );
+      c.closePath();
+      c.fillStyle = '#3a86ff';
+      c.fill();
+
+      // Оттенок-кольцо на крышке
+      c.globalAlpha = alpha*0.95;
+      c.fillStyle = '#0e3e9b';
+      c.fillRect(-neckW*0.5, neckTopY - capH, neckW, capH*0.42);
+      // Крышка (чуть светлее грань)
+      c.fillStyle = '#1655cf';
+      c.fillRect(-neckW*0.45, neckTopY - capH, neckW*0.9, capH*0.28);
+
+      // ЭТИКЕТКА
+      c.globalAlpha = alpha*0.75;
+      c.fillStyle   = '#1e56c5';
+      const labelW = bodyW*0.38, labelH = bodyH*0.16;
+      roundRectPath(c, -labelW/2, y + bodyH*0.06, labelW, labelH, labelH*0.35);
+      c.fill();
+
+      // БЛИК
+      c.globalAlpha = alpha*0.7;
+      c.fillStyle = '#ffffff';
+      c.beginPath();
+      c.roundRect
+        ? c.roundRect(x + bodyW*0.08, y + bodyH*0.10, bodyW*0.14, bodyH*0.36, bodyH*0.08)
+        : roundRectPath(c, x + bodyW*0.08, y + bodyH*0.10, bodyW*0.14, bodyH*0.36, bodyH*0.08);
+      c.fill();
 
       c.restore();
       return cn;
 
+      // helper
       function roundRectPath(ctx,x,y,w,h,r){
         r=Math.max(0,Math.min(r, Math.min(w,h)/2));
         ctx.moveTo(x+r,y);
@@ -324,7 +377,8 @@ document.documentElement.classList.add('js');
         ctx.closePath();
       }
     }
-    const SPR = makeSprite();
+
+    const SPR = bottleSpriteClassic(124, 0.085);
 
     class Bottle{
       constructor(resetTop=true){ this.reset(resetTop); }
@@ -332,30 +386,29 @@ document.documentElement.classList.add('js');
         this.s = 0.7 + Math.random()*0.9;
         this.x = Math.random()*W;
         this.y = fromTop ? -Math.random()*H*0.8 - SPR.height*this.s : -SPR.height*this.s;
-        this.vy = 0.9 + Math.random()*1.3;             // скорость падения
-        this.vx = (Math.random()-.5)*0.2;              // лёгкий дрейф
+        this.vy = 0.85 + Math.random()*1.35;  // скорость падения
+        this.vx = (Math.random()-.5)*0.22;    // лёгкий дрейф
         this.r  = Math.random()*6.28;
-        this.vr = (Math.random()-.5)*0.01;
+        this.vr = (Math.random()-.5)*0.012;
       }
       step(){
         this.x += this.vx;
         this.y += this.vy;
         this.r += this.vr;
-        // обёртка по X, чтобы не упирались
         if(this.x < -60) this.x = W+60;
         if(this.x > W+60) this.x = -60;
-        // когда вышла за низ — перезапуск сверху
-        if(this.y > H + 70) this.reset(true);
+        if(this.y > H + 70) this.reset(true); // без накопления
       }
       draw(){
         const w=SPR.width*this.s, h=SPR.height*this.s;
         ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.r);
-        ctx.drawImage(SPR, -w/2, -h/2, w, h); ctx.restore();
+        ctx.drawImage(SPR, -w/2, -h/2, w, h);
+        ctx.restore();
       }
     }
 
     function seed(){
-      const count = Math.round((W*H)/12000) + 24;
+      const count = Math.round((W*H)/12000) + 24; // плотность
       items = Array.from({length:count}, () => new Bottle(true));
     }
 
