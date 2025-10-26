@@ -1,145 +1,196 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" class="no-js">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FS — Услуги и решения</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    /* локальные стили только для services */
-    body.services { background: linear-gradient(#f8fbff,#eef6ff); color:#0f2131; }
-    .svc-page .topbar{background:rgba(255,255,255,.9);border-bottom:1px solid #e9f0fb}
-    .svc-page .wrap{max-width:1200px;margin:0 auto;padding:0 6vw}
-    .svc-page .impact{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;letter-spacing:.02em}
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>FS • Услуги и решения</title>
+<style>
+:root{
+  --ink:#0a1f33; --text:#32475c; --blue:#2b8cff; --panel:#ffffff;
+  --page-x:8vw; --shadow:0 16px 50px rgba(0,0,0,.08);
+  --parallax-strength: 0.16;
+}
+@media (max-width:900px){ :root{ --parallax-strength: 0.10; } }
+@media (prefers-reduced-motion:reduce){ :root{ --parallax-strength: 0; } }
 
-    .svc-hero{padding:96px 0 64px;text-align:center}
-    .svc-hero h1{margin:0 0 14px;font-size:clamp(40px,7.2vw,76px)}
-    .svc-hero p{margin:0 auto;max-width:900px;color:#3e5164;font-size:clamp(16px,3.6vw,22px);line-height:1.6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff;overflow-x:hidden}
+.no-js .reveal{opacity:1 !important; transform:none !important}
 
-    .svc-section{padding:64px 0}
-    .svc-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center}
-    .svc-media{
-      border-radius:20px;background:#eef3ff;box-shadow:0 16px 60px rgba(15,33,49,.12);
-      overflow:hidden;min-height:240px
-    }
-    .svc-media img{width:100%;height:100%;display:block;object-fit:cover}
-    @media (max-width:920px){ .svc-grid{grid-template-columns:1fr;gap:18px} .svc-media{max-height:260px} }
-    @media (max-width:560px){ .svc-media{max-height:220px} }
+/* header — такой же, как на главной */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:18px var(--page-x);background:#fff;border-bottom:1px solid rgba(0,0,0,.06)}
+.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:44px}
+nav a{text-decoration:none;color:var(--ink);margin-left:28px;font-weight:600;transition:opacity .2s}
+nav a:hover{opacity:.75}
 
-    .svc-text h2{margin:0 0 12px;font-size:clamp(28px,6vw,46px)}
-    .svc-text p{margin:0 0 14px;color:#3e5164;font-size:clamp(15px,3.6vw,18px);line-height:1.7}
-    .svc-text ul{margin:8px 0 0 20px;color:#3e5164;font-size:clamp(15px,3.6vw,18px);line-height:1.7}
+/* hero */
+.svc-hero{padding:96px var(--page-x) 24px;text-align:center}
+.svc-hero h1{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.6vw,80px);margin-bottom:10px}
+.svc-hero p{color:var(--text);max-width:940px;margin:0 auto;line-height:1.65;font-size:clamp(18px,2vw,22px)}
 
-    .svc-reveal{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
-    .svc-reveal.on{opacity:1;transform:none}
+/* grid секции */
+section{scroll-margin-top:84px}
+.block{padding:72px var(--page-x)}
+.svc{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;max-width:1200px;margin:0 auto}
+.media{border-radius:22px;overflow:hidden;background:#eef4ff;box-shadow:var(--shadow);min-height:260px}
+.media img{width:100%;height:100%;display:block;object-fit:cover}
+.text h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(28px,4.8vw,46px);margin-bottom:10px}
+.text p{color:var(--text);line-height:1.65;margin-bottom:10px}
+.text ul{margin-left:18px;color:var(--text);line-height:1.6}
+.text li{margin:6px 0}
 
-    .anchor{position:relative;top:-88px}
-    @media (max-width:640px){ .anchor{top:-72px} }
-  </style>
+/* порядок и мобильный */
+@media (max-width:980px){
+  .svc{grid-template-columns:1fr;gap:16px}
+  .media{max-height:260px}
+}
+@media (max-width:560px){ .media{max-height:220px} }
+
+/* мягкий reveal и лёгкий параллакс */
+.reveal{opacity:0;--rvY:18px;--pY:0px;transform:translateY(calc(var(--rvY) + var(--pY)));transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;--rvY:0}
+[data-parallax]{will-change:transform}
+
+/* нижний футер как на главной */
+.footer{padding:28px var(--page-x);border-top:1px solid rgba(0,0,0,.06);color:#5a728d;display:flex;align-items:center;justify-content:space-between}
+.footer nav a{margin-left:18px;color:#5a728d}
+</style>
 </head>
-<body class="services svc-page">
-  <header class="topbar">
-    <a class="brand" href="index.html#hero">FS<span class="thin">воду</span></a>
-    <nav class="nav">
-      <a href="index.html#why">Почему это важно</a>
-      <a href="index.html#what">Что делает FS</a>
-      <a href="index.html#how">Как очищаем</a>
-      <a href="services.html" aria-current="page">Услуги</a>
-    </nav>
-  </header>
+<body>
+<header class="topbar">
+  <div class="logo">FS</div>
+  <nav>
+    <a href="index.html#about">Почему это важно</a>
+    <a href="index.html#tech">Как очищаем воду</a>
+    <a href="services.html" aria-current="page">Услуги</a>
+  </nav>
+</header>
 
+<main>
+  <!-- HERO -->
   <section class="svc-hero">
-    <div class="wrap">
-      <h1 class="impact svc-reveal">Услуги и решения FS</h1>
-      <p class="svc-reveal">Подберём систему водоочистки под ваш объект — от квартиры и частного дома до жилого комплекса. Ниже — ключевые сценарии и состав решения.</p>
+    <h1 class="reveal" data-parallax="0.02">Услуги и решения FS</h1>
+    <p class="reveal" data-parallax="0.03">Подберём систему водоочистки под ваш объект — от квартиры и частного дома до жилого комплекса. Ниже — основные сценарии и состав решения.</p>
+  </section>
+
+  <!-- Частные дома -->
+  <section id="houses" class="block">
+    <div class="svc">
+      <div class="text">
+        <h2 class="reveal" data-parallax="0.02">Фильтрационные системы для частных домов</h2>
+        <p class="reveal" data-parallax="0.03">Автономные решения для коттеджей. Стабильная работа при перепадах качества воды, защита сантехники и бытовой техники.</p>
+        <ul class="reveal" data-parallax="0.04">
+          <li>Грубая очистка, сорбция, мембрана, минерализация, УФ</li>
+          <li>Мониторинг и удалённые уведомления</li>
+          <li>Индивидуальная обвязка под котельную</li>
+        </ul>
+      </div>
+      <figure class="media reveal" data-parallax="0.02">
+        <img src="img/houses.jpg" alt="Частные дома">
+      </figure>
     </div>
   </section>
 
-  <main class="wrap">
-    <span id="house" class="anchor"></span>
-    <section class="svc-section svc-reveal">
-      <div class="svc-grid">
-        <div class="svc-text">
-          <h2 class="impact">Фильтрационные системы для частных домов</h2>
-          <p>Автономные решения для коттеджей и загородных домов. Стабильная работа при перепадах качества воды, защита сантехники и бытовой техники.</p>
-          <ul>
-            <li>Грубая очистка, сорбция, мембрана, минерализация, УФ</li>
-            <li>Мониторинг и удалённые уведомления</li>
-            <li>Индивидуальная обвязка под котельную</li>
-          </ul>
-        </div>
-        <figure class="svc-media"><img src="img/houses.jpg" alt="Частный дом"></figure>
+  <!-- Девелоперы -->
+  <section id="developers" class="block">
+    <div class="svc">
+      <figure class="media reveal" data-parallax="0.02">
+        <img src="img/developers.jpg" alt="Жилые комплексы">
+      </figure>
+      <div class="text">
+        <h2 class="reveal" data-parallax="0.02">Системы водоочистки для девелоперов</h2>
+        <p class="reveal" data-parallax="0.03">Комплексные станции для МКД и кварталов. Масштабируемая архитектура, учёт пиковых нагрузок и проектных норм.</p>
+        <ul class="reveal" data-parallax="0.04">
+          <li>Модульные блоки и резервирование</li>
+          <li>SCADA/телеметрия, API для УК</li>
+          <li>Инжиниринг, шефмонтаж и сервис</li>
+        </ul>
       </div>
-    </section>
-
-    <span id="dev" class="anchor"></span>
-    <section class="svc-section svc-reveal">
-      <div class="svc-grid">
-        <figure class="svc-media"><img src="img/developers.jpg" alt="Жилой комплекс"></figure>
-        <div class="svc-text">
-          <h2 class="impact">Системы водоочистки для девелоперов</h2>
-          <p>Комплексные станции для МКД и кварталов. Масштабируемая архитектура, учёт пиковых нагрузок и проектных норм.</p>
-          <ul>
-            <li>Модульные блоки и резервирование</li>
-            <li>SCADA/телеметрия, API для УК</li>
-            <li>Инжиниринг, шефмонтаж и сервис</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <span id="apt" class="anchor"></span>
-    <section class="svc-section svc-reveal">
-      <div class="svc-grid">
-        <div class="svc-text">
-          <h2 class="impact">Решения для квартир</h2>
-          <p>Компактные системы с высокой производительностью и тихой работой. Простое обслуживание и чистая вода без компромиссов.</p>
-          <ul>
-            <li>Пред- и постфильтрация, мембрана, минерализация</li>
-            <li>Смарт-индикаторы ресурса картриджей</li>
-          </ul>
-        </div>
-        <figure class="svc-media"><img src="img/apartments.jpg" alt="Интерьер квартиры"></figure>
-      </div>
-    </section>
-
-    <span id="service" class="anchor"></span>
-    <section class="svc-section svc-reveal">
-      <div class="svc-grid">
-        <figure class="svc-media"><img src="img/service.jpg" alt="Сервис и обслуживание"></figure>
-        <div class="svc-text">
-          <h2 class="impact">Сервис и обслуживание</h2>
-          <p>Регламентные замены, диагностика, экстренная поддержка. Работаем по SLA, ведём историю узлов и держим склад расходников.</p>
-          <ul>
-            <li>Плановые визиты и реактивные выезды</li>
-            <li>Расширенная гарантия</li>
-            <li>Отчётность и прозрачные витрины работ</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="wrap">
-      <span>© FS Engineering</span>
-      <nav>
-        <a href="index.html#hero">Главная</a>
-        <a href="index.html#how">Как очищаем</a>
-      </nav>
     </div>
-  </footer>
+  </section>
 
-  <script>
-    // мягкий reveal с фолбэком
-    (function(){
-      try{
-        const els=document.querySelectorAll('.svc-reveal');
-        if(!('IntersectionObserver'in window)){els.forEach(e=>e.classList.add('on'));return;}
-        const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on')}),{threshold:.15});
-        els.forEach(e=>io.observe(e));
-      }catch(e){document.querySelectorAll('.svc-reveal').forEach(x=>x.classList.add('on'));}
-    })();
-  </script>
+  <!-- Квартиры -->
+  <section id="apartments" class="block">
+    <div class="svc">
+      <div class="text">
+        <h2 class="reveal" data-parallax="0.02">Решения для квартир</h2>
+        <p class="reveal" data-parallax="0.03">Компактные системы с высокой производительностью и тихой работой. Простое обслуживание и чистая вода без компромиссов.</p>
+        <ul class="reveal" data-parallax="0.04">
+          <li>Пред- и постфильтрация, мембрана, минерализация</li>
+          <li>Смарт-индикаторы ресурса картриджей</li>
+        </ul>
+      </div>
+      <figure class="media reveal" data-parallax="0.02">
+        <img src="img/apartments.jpg" alt="Интерьеры квартир">
+      </figure>
+    </div>
+  </section>
+
+  <!-- Сервис -->
+  <section id="service" class="block">
+    <div class="svc">
+      <figure class="media reveal" data-parallax="0.02">
+        <img src="img/service.jpg" alt="Сервис и обслуживание">
+      </figure>
+      <div class="text">
+        <h2 class="reveal" data-parallax="0.02">Сервис и обслуживание</h2>
+        <p class="reveal" data-parallax="0.03">Регламентные замены, диагностика, экстренная поддержка. Работаем по SLA, ведём историю узлов и держим склад расходников.</p>
+        <ul class="reveal" data-parallax="0.04">
+          <li>Плановые визиты и реактивные выезды</li>
+          <li>Расширенная гарантия</li>
+          <li>Отчётность и прозрачные витрины работ</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>© FS Engineering</span>
+  <nav>
+    <a href="index.html#hero">Главная</a>
+    <a href="index.html#tech">Как очищаем</a>
+  </nav>
+</footer>
+
+<script>
+/* снять no-js */
+document.documentElement.classList.remove('no-js');
+document.documentElement.classList.add('js');
+
+/* мягкий reveal */
+(function(){
+  try{
+    const els=document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver'in window)){els.forEach(e=>e.classList.add('visible'));return;}
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+    },{threshold:.18});
+    els.forEach(el=>io.observe(el));
+  }catch{ document.querySelectorAll('.reveal').forEach(e=>e.classList.add('visible')); }
+})();
+
+/* нежный параллакс — как на главной */
+(function(){
+  const els=[...document.querySelectorAll('[data-parallax]')];
+  const getK=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--parallax-strength'))||0;
+  const update=()=>{
+    const vh=innerHeight, k=getK();
+    for(const el of els){
+      const sp=parseFloat(el.dataset.parallax||'0');
+      if(!sp || !k){ el.style.setProperty('--pY','0px'); continue; }
+      const r=el.getBoundingClientRect();
+      const max=12;
+      const raw=(r.top - vh*0.5) * sp * k;
+      const y=Math.max(-max, Math.min(max, raw));
+      el.style.transform=`translateY(${y}px)`;
+    }
+  };
+  let ticking=false;
+  const onScroll=()=>{ if(!ticking){ ticking=true; requestAnimationFrame(()=>{ ticking=false; update(); }); } };
+  update(); addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',onScroll,{passive:true});
+})();
+</script>
 </body>
 </html>
