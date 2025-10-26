@@ -60,8 +60,7 @@ section{scroll-margin-top:84px}
 .why h2{position:relative;z-index:2;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:14px}
 .why p{position:relative;z-index:2;color:var(--text);max-width:980px;margin:0 auto;line-height:1.65;font-size:clamp(18px,2vw,22px)}
 #bottleCanvas{position:absolute;inset:0;z-index:0;pointer-events:none}
-.motion-btn{position:absolute;right:16px;bottom:16px;z-index:3;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,.08);color:#0b1f33;border-radius:999px;padding:10px 16px;font-weight:700;font-size:12px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.08)}
-.motion-btn:hover{background:#fff}
+/* .motion-btn удалена */
 
 /* products */
 .products{padding:120px var(--page-x);text-align:center;background:#fff}
@@ -131,7 +130,7 @@ section{scroll-margin-top:84px}
       Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут.
       FS создаёт системы, которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит.
     </p>
-    <button class="motion-btn" id="motionBtn">📱 Включить движение от наклона</button>
+    <!-- Кнопка наклона удалена -->
   </section>
 
   <!-- PRODUCTS -->
@@ -167,7 +166,7 @@ section{scroll-margin-top:84px}
     <h2 id="tech-title" class="reveal" data-parallax="0.02">Как мы очищаем воду</h2>
     <p class="lead reveal" data-parallax="0.03">
       Поток проходит пять стадий: <b>грубая</b> → <b>сорбция</b> → <b>мембрана</b> → <b>минерализация</b> → <b>УФ</b>.
-      Нажмите на пульсирующие точки.
+      Нажми на пульсирующие точки.
     </p>
 
     <div class="pipe-wrap">
@@ -261,92 +260,119 @@ document.documentElement.classList.add('js');
 </script>
 
 <script>
-/* бутылки + кнопка наклона — с безопасным бэкапом для roundRect */
+/* БУТЫЛКИ: постоянное падение, БЕЗ накопления и БЕЗ кнопки, более прозрачные */
 (function(){
   try{
     const section=document.getElementById('about'); if(!section) return;
     const canvas=document.getElementById('bottleCanvas'); const ctx=canvas.getContext('2d');
-    const btn=document.getElementById('motionBtn');
-    let W=0,H=0,dpr=1,running=false; const pool=[];
-    let tiltX=0; let motionEnabled=false; let oriHandler=null;
 
-    function resize(){const r=section.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);W=Math.max(320,Math.floor(r.width));H=Math.max(280,Math.floor(r.height));canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);canvas.style.zIndex='0';section.style.position='relative'}
-    function clearAll(){pool.length=0;ctx.clearRect(0,0,W,H)}
-    resize(); addEventListener('resize',resize,{passive:true});
+    let W=0,H=0,dpr=1,running=false; let items=[];
+    const MAX_DPR=2;
 
-    /* безопасный скруглённый прямоугольник */
-    function roundRectPath(ctx,x,y,w,h,r){
-      r=Math.max(0,Math.min(r, Math.min(w,h)/2));
-      ctx.moveTo(x+r,y);
-      ctx.arcTo(x+w,y,  x+w,y+h, r);
-      ctx.arcTo(x+w,y+h, x,y+h, r);
-      ctx.arcTo(x,y+h,   x,y,   r);
-      ctx.arcTo(x,y,     x+w,y, r);
-      ctx.closePath();
+    function resize(){
+      const r=section.getBoundingClientRect();
+      dpr=Math.min(window.devicePixelRatio||1, MAX_DPR);
+      W=Math.max(320, Math.floor(r.width));
+      H=Math.max(280, Math.floor(r.height));
+      canvas.width=W*dpr; canvas.height=H*dpr;
+      canvas.style.width=W+'px'; canvas.style.height=H+'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      seed();
     }
 
-    function drawBottle(x,y,w,h,ang,alpha){
-      ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);ctx.rotate(ang);
-      // тень
-      ctx.fillStyle='rgba(0,0,0,0.06)';ctx.beginPath();ctx.ellipse(0,h*0.52,w*0.45,w*0.18,0,0,Math.PI*2);ctx.fill();
+    // более «бутылочная» форма, но с мягкой прозрачностью
+    function makeSprite(size=120, alpha=0.085){
+      const cn=document.createElement('canvas'); cn.width=cn.height=size;
+      const c=cn.getContext('2d');
+      c.save(); c.translate(size/2,size/2); c.rotate(-Math.PI/2.2);
+
       // корпус
-      const r=w*0.22;ctx.fillStyle='#3a86ff';ctx.beginPath();
-      if (typeof ctx.roundRect==='function'){ ctx.roundRect(-w/2,-h/2,w,h,r); }
-      else { roundRectPath(ctx,-w/2,-h/2,w,h,r); }
-      ctx.fill();
+      c.globalAlpha=alpha;
+      c.fillStyle='#3a86ff';
+      const w=size*.66,h=size*.26,r=h/2,x=-w/2,y=-h/2;
+      c.beginPath();
+      c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+      c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); c.fill();
+
       // этикетка
-      ctx.fillStyle='#1e56c5';ctx.beginPath();
-      if (typeof ctx.roundRect==='function'){ ctx.roundRect(-w*0.18,-h*0.48,w*0.36,h*0.14,r*0.5); }
-      else { roundRectPath(ctx,-w*0.18,-h*0.48,w*0.36,h*0.14,r*0.5); }
-      ctx.fill();
+      c.fillStyle='rgba(30,86,197,1)';
+      c.globalAlpha=alpha*0.9;
+      c.beginPath();
+      roundRectPath(c,-w*0.18,-h*0.48,w*0.36,h*0.14,r*0.6);
+      c.fill();
+
       // горлышко
-      ctx.fillStyle='#0e3e9b';ctx.fillRect(-w*0.18,-h*0.62,w*0.36,h*0.08);
-      ctx.fillStyle='#1655cf';ctx.fillRect(-w*0.16,-h*0.62,w*0.32,h*0.04);
-      // блик
-      ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-w*0.25,-h*0.25);ctx.quadraticCurveTo(-w*0.42,-h*0.05,-w*0.22,h*0.15);ctx.stroke();
-      ctx.restore();
+      c.globalAlpha=alpha*0.95;
+      c.fillStyle='#0e3e9b'; c.fillRect(-w*0.18,-h*0.62,w*0.36,h*0.08);
+      c.fillStyle='#1655cf'; c.fillRect(-w*0.16,-h*0.62,w*0.32,h*0.04);
+
+      // лёгкий блик
+      c.globalAlpha=alpha*0.7;
+      c.fillStyle='#ffffff';
+      c.fillRect(x+8,y+6, w*.18, h*.35);
+
+      c.restore();
+      return cn;
+
+      function roundRectPath(ctx,x,y,w,h,r){
+        r=Math.max(0,Math.min(r, Math.min(w,h)/2));
+        ctx.moveTo(x+r,y);
+        ctx.arcTo(x+w,y,  x+w,y+h, r);
+        ctx.arcTo(x+w,y+h, x,y+h, r);
+        ctx.arcTo(x,y+h,   x,y,   r);
+        ctx.arcTo(x,y,     x+w,y, r);
+        ctx.closePath();
+      }
     }
+    const SPR = makeSprite();
 
     class Bottle{
-      constructor(){const base=18+Math.random()*10;this.w=base;this.h=base*2.25;this.x=Math.random()*W;this.y=-this.h-20;this.vy=0.9+Math.random()*1.1;this.vx=0;this.ang=Math.random()*Math.PI;this.va=(Math.random()*0.6-0.3)*0.02;this.alpha=0;this.settled=false;}
-      update(){
-        this.vx += tiltX*0.12; this.vx *= 0.985; this.x += this.vx;
-        if(!this.settled){this.y += this.vy; this.ang += this.va; this.alpha = Math.min(1,this.alpha+0.05);}
-        if(this.y>=H-this.h*0.5){this.y=H-this.h*0.5; this.vy=0; this.va*=0.2; this.settled=true;}
-        if(this.x < this.w*0.55){this.x=this.w*0.55; this.vx*=-0.3}
-        if(this.x > W-this.w*0.55){this.x=W-this.w*0.55; this.vx*=-0.3}
+      constructor(resetTop=true){ this.reset(resetTop); }
+      reset(fromTop){
+        this.s = 0.7 + Math.random()*0.9;
+        this.x = Math.random()*W;
+        this.y = fromTop ? -Math.random()*H*0.8 - SPR.height*this.s : -SPR.height*this.s;
+        this.vy = 0.9 + Math.random()*1.3;             // скорость падения
+        this.vx = (Math.random()-.5)*0.2;              // лёгкий дрейф
+        this.r  = Math.random()*6.28;
+        this.vr = (Math.random()-.5)*0.01;
       }
-      draw(){drawBottle(this.x,this.y,this.w,this.h,this.ang,this.alpha)}
+      step(){
+        this.x += this.vx;
+        this.y += this.vy;
+        this.r += this.vr;
+        // обёртка по X, чтобы не упирались
+        if(this.x < -60) this.x = W+60;
+        if(this.x > W+60) this.x = -60;
+        // когда вышла за низ — перезапуск сверху
+        if(this.y > H + 70) this.reset(true);
+      }
+      draw(){
+        const w=SPR.width*this.s, h=SPR.height*this.s;
+        ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.r);
+        ctx.drawImage(SPR, -w/2, -h/2, w, h); ctx.restore();
+      }
     }
-    function isFilled(){const target=Math.max(14,Math.floor((W*H)/(90*220)));let s=0;for(const b of pool) if(b.settled) s++;return s>=target}
-    function tick(){ctx.clearRect(0,0,W,H); if(!isFilled() && pool.length<120 && Math.random()<0.5) pool.push(new Bottle()); for(const b of pool){b.update();b.draw()} requestAnimationFrame(tick)}
 
-    const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){clearAll(); if(!running){running=true; tick();}} else {running=false; clearAll();}})},{threshold:.25}); io.observe(section);
+    function seed(){
+      const count = Math.round((W*H)/12000) + 24;
+      items = Array.from({length:count}, () => new Bottle(true));
+    }
 
-    // эмуляция наклона (всегда доступна)
-    section.addEventListener('mousemove',(e)=>{const rect=section.getBoundingClientRect(); const x=(e.clientX-rect.left)/rect.width-0.5; if(!motionEnabled){ tiltX=Math.max(-1,Math.min(1,x*1.2)); }});
-    section.addEventListener('mouseleave',()=>{if(!motionEnabled) tiltX=0;});
-    section.addEventListener('touchmove',(e)=>{if(!e.touches||!e.touches[0])return; const rect=section.getBoundingClientRect(); const x=(e.touches[0].clientX-rect.left)/rect.width-0.5; if(!motionEnabled){ tiltX=Math.max(-1,Math.min(1,x*1.2)); }},{passive:true});
-    section.addEventListener('touchend',()=>{if(!motionEnabled) tiltX=0;},{passive:true});
+    function frame(){
+      ctx.clearRect(0,0,W,H);
+      for(const b of items){ b.step(); b.draw(); }
+      if(running) requestAnimationFrame(frame);
+    }
 
-    // кнопка: включить/выключить реальный наклон
-    function attachOrientation(){ if(oriHandler) return; oriHandler=(ev)=>{const g=ev.gamma||0; tiltX=Math.max(-1,Math.min(1,g/30));}; addEventListener('deviceorientation',oriHandler); }
-    function detachOrientation(){ if(!oriHandler) return; removeEventListener('deviceorientation',oriHandler); oriHandler=null; tiltX=0; }
+    const io=new IntersectionObserver((entries)=>{
+      if(entries[0].isIntersecting){ running=true; resize(); frame(); }
+      else { running=false; }
+    },{threshold:.2});
+    io.observe(section);
 
-    btn.addEventListener('click', async ()=>{
-      if(btn.dataset.state!=='on'){
-        try{
-          if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
-            const p=await DeviceOrientationEvent.requestPermission(); if(p!=='granted') return;
-          }
-          attachOrientation(); btn.dataset.state='on'; btn.textContent='🔒 Отключить движение'; motionEnabled=true;
-        }catch(e){ /* остаёмся на эмуляции */ }
-      }else{
-        detachOrientation(); btn.dataset.state='off'; btn.textContent='📱 Включить движение от наклона'; motionEnabled=false;
-      }
-    });
+    addEventListener('resize', ()=> running && resize(), {passive:true});
   }catch(err){
-    /* если вдруг что — не ломаем страницу */
     console.error('Bottle canvas disabled:', err);
   }
 })();
