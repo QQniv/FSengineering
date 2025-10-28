@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ru" class="no-js">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>FS • Контакты</title>
+<style>
+:root{
+  --ink:#0a1f33; --text:#32475c; --blue:#2b8cff; --blue-dark:#1047a8; --panel:#ffffff;
+  --page-x:8vw;
+  --parallax-strength: 0.18;
+}
+@media (max-width:900px){ :root{ --parallax-strength: 0.12; } }
+@media (prefers-reduced-motion:reduce){ :root{ --parallax-strength: 0; } }
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff;overflow-x:hidden}
+.no-js .reveal{opacity:1 !important; transform:none !important}
+
+/* header (glass) */
+.topbar{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+  padding:16px var(--page-x);background:rgba(255,255,255,.7);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(16,71,168,.10)
+}
+.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:40px;line-height:1}
+nav a{text-decoration:none;color:var(--ink);margin-left:28px;font-weight:600;transition:opacity .2s}
+nav a:hover{opacity:.78}
+
+/* reveal + parallax */
+.reveal{opacity:0;--rvY:22px;--pY:0px;transform:translateY(calc(var(--rvY) + var(--pY)));transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;--rvY:0px}
+[data-parallax]{will-change:transform}
+
+/* sections */
+section{scroll-margin-top:84px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 var(--page-x)}
+.hero{background:#f4f8ff;padding:92px 0 64px;text-align:center}
+.hero .kicker{letter-spacing:.12em;text-transform:uppercase;color:#1d4ed8;font-weight:800;margin-bottom:10px}
+.hero h1{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,6vw,88px);line-height:1.02;margin-bottom:14px}
+.hero p{max-width:900px;margin:0 auto;color:var(--text);font-size:clamp(18px,2.2vw,22px);line-height:1.6}
+
+/* grid */
+.grid{display:grid;gap:24px}
+@media (min-width:980px){ .grid.cols-2{grid-template-columns:1.1fr 1fr} }
+
+/* card */
+.card{background:linear-gradient(180deg,#ffffff 0%,#f7fbff 100%);border-radius:22px;padding:24px;border:1px solid rgba(0,0,0,.06);box-shadow:0 10px 30px rgba(0,0,0,.04)}
+
+/* form */
+.form h3{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:26px;margin-bottom:8px}
+.form p.help{color:var(--text);margin-bottom:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:720px){ .row{grid-template-columns:1fr} }
+.field{display:flex;flex-direction:column;margin-bottom:14px}
+.label{font-weight:800;font-size:13px;margin-bottom:6px;color:#0f56cf}
+.input,.select,.textarea{
+  border:1px solid rgba(0,0,0,.12); border-radius:12px; padding:12px 14px; font-size:16px; background:#fff; color:var(--ink);
+}
+.textarea{min-height:120px;resize:vertical}
+.small{font-size:12px;color:var(--text)}
+.radio-row{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 2px}
+.radio{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid rgba(0,0,0,.12);padding:8px 10px;border-radius:999px;font-size:14px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 18px;border-radius:12px;border:1px solid transparent;font-weight:700;text-decoration:none;cursor:pointer}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.ghost{background:transparent;border-color:rgba(10,31,51,.18);color:var(--ink)}
+.btn + .btn{margin-left:10px}
+
+/* contacts card */
+.contacts h3{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:26px;margin-bottom:8px}
+.list{list-style:none}
+.list li{display:flex;align-items:flex-start;gap:10px;margin:10px 0;color:var(--text)}
+.badge{display:inline-block;background:#e6efff;border:1px solid #c8dafc;color:#0f56cf;font-weight:800;font-size:12px;padding:6px 10px;border-radius:999px;margin-right:8px}
+
+/* map stub */
+.map{display:flex;align-items:center;justify-content:center;min-height:260px;border-radius:18px;border:1px solid rgba(0,0,0,.06);background:linear-gradient(180deg,#f8fbff 0%,#e8f1ff 100%);margin-top:14px}
+
+/* success */
+.success{display:none;margin-top:16px;padding:14px;border-radius:14px;background:#ecfdf5;border:1px solid #10b98133;color:#064e3b}
+.success b{display:block;margin-bottom:6px}
+
+/* footer */
+.footer{border-top:1px solid rgba(0,0,0,.06);padding:22px var(--page-x);display:flex;justify-content:space-between;align-items:center;color:#32475c;background:#f7f9fc}
+.footer a{color:inherit;text-decoration:none;margin-left:16px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">FS</div>
+  <nav>
+    <a href="services.html">Услуги</a>
+    <a href="about.html">О нас</a>
+  </nav>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="kicker reveal" data-parallax="0.02">FS engineering</div>
+      <h1 class="reveal" data-parallax="0.03">Свяжитесь с нами</h1>
+      <p class="reveal" data-parallax="0.04">
+        Заполните форму — команда свяжется с вами, подскажет по составу системы и подготовит ориентировочную смету.
+      </p>
+    </div>
+  </section>
+
+  <!-- FORM + CONTACTS -->
+  <section style="padding:64px 0 84px">
+    <div class="wrap grid cols-2">
+      <!-- ФОРМА -->
+      <div class="card form reveal" data-parallax="0.03">
+        <h3>Заявка на консультацию</h3>
+        <p class="help">Ответим в рабочее время. Поля с * обязательны.</p>
+
+        <form id="contactForm" novalidate>
+          <div class="row">
+            <div class="field">
+              <label class="label" for="name">Имя*</label>
+              <input class="input" id="name" name="name" type="text" required minlength="2" autocomplete="name" placeholder="Иван Иванов"/>
+            </div>
+            <div class="field">
+              <label class="label" for="role">Кто вы?</label>
+              <div class="radio-row" id="role">
+                <label class="radio"><input type="radio" name="role" value="Девелопер" checked/> Девелопер</label>
+                <label class="radio"><input type="radio" name="role" value="УК"/> УК</label>
+                <label class="radio"><input type="radio" name="role" value="Частный клиент"/> Частный клиент</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="label" for="email">Email*</label>
+              <input class="input" id="email" name="email" type="email" required inputmode="email" autocomplete="email" placeholder="name@example.com"/>
+            </div>
+            <div class="field">
+              <label class="label" for="phone">Телефон</label>
+              <input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__"/>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="message">Сообщение*</label>
+            <textarea class="textarea" id="message" name="message" required placeholder="Коротко опишите задачу и исходные данные (количество жителей, анализ воды, ограничения по помещению)…"></textarea>
+          </div>
+
+          <div class="field">
+            <label class="label" for="file">Файл (анализ воды / ТЗ)</label>
+            <input class="input" id="file" name="file" type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.heic,.xlsx,.xls"/>
+            <div class="small">Файл не загружается на сервер — только для отправки по почте через ваш клиент.</div>
+          </div>
+
+          <div class="field">
+            <label class="radio"><input type="checkbox" id="consent" required/> Согласен на обработку персональных данных*</label>
+            <div class="small">Мы используем контактные данные только для связи по вашему запросу.</div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+            <button class="btn primary" type="submit">Отправить</button>
+            <a id="mailtoLink" class="btn ghost" href="mailto:xxxxxxx@xxx.com?subject=FS%20—%20заявка&body=">Написать на почту</a>
+          </div>
+
+          <div id="success" class="success">
+            <b>Заявка отправлена!</b>
+            Мы получили ваши данные. Дополнительно вы можете продублировать письмо по кнопке «Написать на почту».
+          </div>
+        </form>
+      </div>
+
+      <!-- КОНТАКТЫ -->
+      <aside class="card contacts reveal" data-parallax="0.02" aria-label="Контактная информация">
+        <h3>Контакты</h3>
+        <ul class="list">
+          <li><span class="badge">Email</span> <a href="mailto:xxxxxxx@xxx.com">xxxxxxx@xxx.com</a></li>
+          <li><span class="badge">Телефон</span> <a href="tel:+70000000000">+7 000 000-00-00</a></li>
+          <li><span class="badge">Telegram</span> <a href="#" aria-disabled="true">t.me/FS_project</a></li>
+          <li><span class="badge">Адрес</span> Москва, ул. Красота, д. 1 (демо)</li>
+          <li><span class="badge">Часы</span> Пн–Пт 10:00–19:00</li>
+        </ul>
+
+        <div class="map" aria-label="Карта — заглушка">
+          <!-- простая заглушка-карта -->
+          <svg width="100%" height="220" viewBox="0 0 600 220">
+            <defs>
+              <linearGradient id="g" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#eaf1ff"/><stop offset="1" stop-color="#dbe7ff"/>
+              </linearGradient>
+            </defs>
+            <rect x="10" y="20" width="580" height="180" rx="16" fill="url(#g)" stroke="#c8dafc"/>
+            <circle cx="420" cy="110" r="8" fill="#1d4ed8"/>
+            <text x="435" y="114" font-size="12" fill="#0a1f33">Офис FS</text>
+          </svg>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div>© 2025 FS engineering</div>
+  <div>
+    <a href="about.html">О нас</a>
+    <a href="services.html">Услуги</a>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.remove('no-js');
+document.documentElement.classList.add('js');
+</script>
+<script>
+/* параллакс */
+(function(){
+  const els=[...document.querySelectorAll('[data-parallax]')];
+  const getK=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--parallax-strength'))||0;
+  const update=()=>{
+    const vh=innerHeight, k=getK();
+    for(const el of els){
+      const sp=parseFloat(el.dataset.parallax||'0');
+      if(!sp || !k){ el.style.setProperty('--pY','0px'); continue; }
+      const r=el.getBoundingClientRect();
+      const max=14;
+      const raw=(r.top - vh*0.5) * sp * k;
+      const y=Math.max(-max, Math.min(max, raw));
+      el.style.setProperty('--pY', `${y}px`);
+    }
+  };
+  let ticking=false;
+  const onScroll=()=>{ if(!ticking){ ticking=true; requestAnimationFrame(()=>{ ticking=false; update(); }); } };
+  update(); addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',onScroll,{passive:true});
+})();
+</script>
+<script>
+/* reveal */
+(function(){
+  const els=document.querySelectorAll('.reveal');
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+  },{threshold:.25});
+  els.forEach(el=>io.observe(el));
+})();
+</script>
+<script>
+/* форма — валидация + success + mailto-подстановка */
+(function(){
+  const form=document.getElementById('contactForm');
+  const success=document.getElementById('success');
+  const mailto=document.getElementById('mailtoLink');
+
+  function buildMailto(){
+    const fd=new FormData(form);
+    const role=(fd.get('role')||'').toString();
+    const name=(fd.get('name')||'').toString().trim();
+    const email=(fd.get('email')||'').toString().trim();
+    const phone=(fd.get('phone')||'').toString().trim();
+    const msg=(fd.get('message')||'').toString().trim();
+
+    const subject=encodeURIComponent('FS — заявка с сайта');
+    const body=encodeURIComponent(
+`Кто: ${role}
+Имя: ${name}
+Email: ${email}
+Телефон: ${phone}
+
+Сообщение:
+${msg}
+
+(Файл во вложение в письме вашего почтового клиента, если прикрепляли на странице)`
+    );
+    mailto.href=`mailto:xxxxxxx@xxx.com?subject=${subject}&body=${body}`;
+  }
+
+  form.addEventListener('input', buildMailto);
+
+  form.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    // простая валидация
+    const need=['name','email','message','consent'];
+    for(const n of need){
+      const el = n==='consent' ? document.getElementById('consent') : form.querySelector(`[name="${n}"]`);
+      if(!el) continue;
+      if((el.type==='checkbox' && !el.checked) || (el.type!=='checkbox' && !el.value.trim())){
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        el.focus();
+        el.style.outline='2px solid #ef4444';
+        setTimeout(()=>el.style.outline='',1200);
+        return;
+      }
+    }
+    buildMailto();
+    success.style.display='block';
+  });
+})();
+</script>
+</body>
+</html>
