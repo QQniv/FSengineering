@@ -8,7 +8,7 @@
 :root{
   --ink:#0a1f33; --text:#32475c; --blue:#2b8cff; --blue-dark:#1047a8; --panel:#ffffff;
   --shadow-big:0 25px 80px rgba(0,0,0,.12); --page-x:8vw;
-  /* нежный параллакс */
+  --glass:rgba(255,255,255,.72);
   --parallax-strength: 0.18;
 }
 @media (max-width:900px){ :root{ --parallax-strength: 0.12; } }
@@ -18,17 +18,32 @@
 html,body{height:100%}
 body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff;overflow-x:hidden}
 
-/* no-js fallback: блоки видимы, без «reveal» */
+/* no-js fallback */
 .no-js .reveal{opacity:1 !important; transform:none !important}
 
-/* header */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:18px var(--page-x);background:#fff;border-bottom:1px solid rgba(0,0,0,.06)}
-.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:44px}
+/* header (glass) */
+.topbar{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+  padding:16px var(--page-x);background:rgba(255,255,255,.7);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(16,71,168,.10)
+}
+.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:40px;line-height:1}
 nav a{text-decoration:none;color:var(--ink);margin-left:28px;font-weight:600;transition:opacity .2s}
-nav a:hover{opacity:.75}
+nav a:hover{opacity:.78}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 18px;border-radius:12px;border:1px solid transparent;font-weight:700;text-decoration:none}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.ghost{background:transparent;border-color:rgba(10,31,51,.18);color:var(--ink)}
+.btn:hover{transform:translateY(-1px)}
+.actions{display:flex;gap:12px;justify-content:center}
 
 /* hero (counter) */
-.hero{background:var(--blue);color:#fff;min-height:72vh;display:grid;place-items:center;gap:28px;padding:72px 0 140px}
+.hero{background:var(--blue);color:#fff;min-height:72vh;display:grid;place-items:center;gap:22px;padding:72px 0 140px;position:relative}
+.hero::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:180px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0%, rgba(0,0,0,.08) 45%, rgba(0,0,0,.16) 100%);
+}
 .capsule{position:relative;background:var(--panel);border-radius:999px;width:min(1000px,85vw);height:min(460px,58vh);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-big)}
 .capsule::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.22) 50%,rgba(255,255,255,0) 100%);transform:translateX(-100%);animation:shine 7s linear infinite}
 @keyframes shine{to{transform:translateX(100%)}}
@@ -58,16 +73,14 @@ section{scroll-margin-top:84px}
 /* why (falling bottles) */
 .why{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#fff;text-align:center}
 .why h2{position:relative;z-index:2;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:14px}
-.why p{position:relative;z-index:2;color:var(--text);max-width:980px;margin:0 auto;line-height:1.65;font-size:clamp(18px,2vw,22px)}
+.why p{position:relative;z-index:2;color:var(--text);max-width:980px;margin:0 auto 18px;line-height:1.65;font-size:clamp(18px,2vw,22px)}
+.why .line{position:relative;z-index:2;color:#0f56cf;font-weight:700}
 #bottleCanvas{position:absolute;inset:0;z-index:0;pointer-events:none}
-/* .motion-btn удалена */
 
 /* products */
 .products{padding:120px var(--page-x);text-align:center;background:#fff}
 .products h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(36px,5vw,72px)}
 .subtitle-small{color:var(--text);font-size:clamp(18px,2vw,22px);margin:8px 0 60px}
-
-/* ссылки-карточки ведут на services.html#... */
 .cards-wrapper{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:40px;max-width:1000px;margin:0 auto}
 .card{display:block;text-decoration:none;color:inherit;background:linear-gradient(180deg,#f8fbff 0%,#e8f1ff 100%);border-radius:28px;padding:40px 32px;box-shadow:0 10px 30px rgba(0,0,0,.05);transition:transform .3s ease, box-shadow .3s ease;text-align:left}
 .card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(43,140,255,.18)}
@@ -86,7 +99,7 @@ section{scroll-margin-top:84px}
 }
 
 /* tech (pipe) */
-.tech{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#fff}
+.tech{position:relative;overflow:hidden;padding:120px var(--page-x) 140px;background:#f4f8ff}
 .tech h2{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(40px,5.2vw,76px);margin-bottom:12px}
 .lead{color:var(--text);max-width:900px;line-height:1.65;font-size:clamp(18px,2vw,22px);margin:0 auto 24px;text-align:center}
 .pipe-wrap{position:relative}
@@ -99,15 +112,18 @@ section{scroll-margin-top:84px}
 .stage-info{position:absolute;left:50%;top:50%;transform:translate(-50%,-130%);min-width:240px;max-width:320px;padding:12px 14px;background:rgba(11,31,51,.95);color:#fff;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.25);z-index:4}
 .stage-info h3{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:18px;margin-bottom:6px}
 .stage-info p{font-size:13px;line-height:1.5;color:#e7eef8}
+
+/* footer */
+.footer{border-top:1px solid rgba(0,0,0,.06);padding:22px var(--page-x);display:flex;justify-content:space-between;align-items:center;color:var(--text);background:#f7f9fc}
+.footer a{color:inherit;text-decoration:none;margin-left:16px}
 </style>
 </head>
 <body>
 <header class="topbar">
   <div class="logo">FS</div>
   <nav>
-    <a href="#about">Почему это важно</a>
-    <a href="#tech">Как очищаем воду</a>
     <a href="services.html">Услуги</a>
+    <a href="about.html">О нас</a>
   </nav>
 </header>
 
@@ -120,6 +136,10 @@ section{scroll-margin-top:84px}
     <h1 class="subtitle reveal" data-parallax="0.04">
       Именно столько тысяч пластиковых бутылок выбрасывается в России, пока вы здесь
     </h1>
+    <div class="actions reveal" data-parallax="0.05">
+      <a href="#products" class="btn primary">Что делает FS</a>
+      <a href="services.html" class="btn ghost">Смотреть услуги</a>
+    </div>
   </section>
 
   <!-- WHY -->
@@ -128,9 +148,9 @@ section{scroll-margin-top:84px}
     <h2 id="why-title" class="reveal" data-parallax="0.03">Почему это важно</h2>
     <p class="reveal" data-parallax="0.04">
       Каждую секунду — тысячи пластиковых бутылок, которые никогда не исчезнут.
-      FS создаёт системы, которые очищают воду и уменьшают количество отходов, возвращая природе то, что ей принадлежит.
+      FS создаёт системы, которые очищают воду и уменьшают количество отходов.
     </p>
-    <!-- Кнопка наклона удалена -->
+    <div class="line reveal" data-parallax="0.05">Мы уменьшаем пластиковый след.</div>
   </section>
 
   <!-- PRODUCTS -->
@@ -200,6 +220,14 @@ section{scroll-margin-top:84px}
   </section>
 </main>
 
+<footer class="footer">
+  <div>© 2025 FS engineering</div>
+  <div>
+    <a href="about.html">О нас</a>
+    <a href="services.html">Услуги</a>
+  </div>
+</footer>
+
 <script>
 /* снять no-js как можно раньше */
 document.documentElement.classList.remove('no-js');
@@ -249,7 +277,7 @@ document.documentElement.classList.add('js');
   update(); addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',onScroll,{passive:true});
 })();
 
-/* reveal — запускаем ДО «бутылок», чтобы сайт не "исчезал" даже при ошибках ниже */
+/* reveal */
 (function(){
   const els=document.querySelectorAll('.reveal');
   const io=new IntersectionObserver(es=>{
@@ -260,10 +288,11 @@ document.documentElement.classList.add('js');
 </script>
 
 <script>
-/* БУТЫЛКИ: постоянное падение, без накопления, более прозрачные
-   СИЛУЭТ — классический: изящные «плечи», узкое горлышко и крышка. */
+/* БУТЫЛКИ: постоянное падение, без накопления, более прозрачные; отключаем на мобилке */
 (function(){
   try{
+    if (matchMedia('(max-width: 768px)').matches) return; // мобильный — тише едешь, дальше будешь
+
     const section=document.getElementById('about'); if(!section) return;
     const canvas=document.getElementById('bottleCanvas'); const ctx=canvas.getContext('2d');
 
@@ -281,94 +310,13 @@ document.documentElement.classList.add('js');
       seed();
     }
 
-    // КЛАССИЧЕСКИЙ спрайт бутылки: корпус + плечи + горлышко + крышка + блик
-    function bottleSpriteClassic(size=124, alpha=0.085){
+    // == СПРАЙТ БУТЫЛКИ (под твой стиль) ==
+    function bottleSpriteFS(size=124, alpha=0.055){
       const cn=document.createElement('canvas'); cn.width=cn.height=size;
       const c=cn.getContext('2d');
-      c.save();
-      c.translate(size/2,size/2);
-      c.rotate(-Math.PI/2.18);   // лёгкий наклон
 
-      // параметры формы
-      const bodyW = size*0.62;   // ширина корпуса
-      const bodyH = size*0.66;   // высота корпуса (не вся бутылка)
-      const neckW = bodyW*0.28;  // ширина горлышка
-      const neckH = bodyH*0.24;  // высота горлышка
-      const capH  = bodyH*0.10;  // высота крышки
-      const rBody = bodyH*0.26;  // скругления корпуса
-
-      const x = -bodyW/2, y = -bodyH/2;
-
-      // ТЕНЬ
-      c.globalAlpha = Math.min(alpha*1.2, 0.12);
-      c.fillStyle='rgba(0,0,0,0.06)';
-      c.beginPath();
-      c.ellipse(0, bodyH*0.50, bodyW*0.46, bodyH*0.18, 0, 0, Math.PI*2);
-      c.fill();
-
-      // КОРПУС (скруглённый прямоугольник)
-      c.globalAlpha = alpha;
-      c.fillStyle = '#3a86ff';
-      c.beginPath();
-      roundRectPath(c, x, y, bodyW, bodyH, rBody);
-      c.fill();
-
-      // ПЛЕЧИ → ГОРЛЫШКО (плавная «сужающаяся» форма)
-      c.beginPath();
-      const shoulderY = y;                    // верх корпуса
-      const neckTopY  = shoulderY - neckH;    // верх горлышка (низ крышки)
-      // правая половина плеча
-      c.moveTo( bodyW/2, shoulderY );
-      c.bezierCurveTo(
-        bodyW/2, shoulderY - bodyH*0.14,     // контрольная вниз-вверх
-        neckW/2 + bodyW*0.06, shoulderY - bodyH*0.22,
-        neckW/2, neckTopY
-      );
-      // крышка верхом вправо
-      c.lineTo( neckW/2, neckTopY - capH );
-      // верх крышки по прямой влево
-      c.lineTo( -neckW/2, neckTopY - capH );
-      // левая половина плеча симметрично
-      c.lineTo( -neckW/2, neckTopY );
-      c.bezierCurveTo(
-        -neckW/2 - bodyW*0.06, shoulderY - bodyH*0.22,
-        -bodyW/2, shoulderY - bodyH*0.14,
-        -bodyW/2, shoulderY
-      );
-      c.closePath();
-      c.fillStyle = '#3a86ff';
-      c.fill();
-
-      // Оттенок-кольцо на крышке
-      c.globalAlpha = alpha*0.95;
-      c.fillStyle = '#0e3e9b';
-      c.fillRect(-neckW*0.5, neckTopY - capH, neckW, capH*0.42);
-      // Крышка (чуть светлее грань)
-      c.fillStyle = '#1655cf';
-      c.fillRect(-neckW*0.45, neckTopY - capH, neckW*0.9, capH*0.28);
-
-      // ЭТИКЕТКА
-      c.globalAlpha = alpha*0.75;
-      c.fillStyle   = '#1e56c5';
-      const labelW = bodyW*0.38, labelH = bodyH*0.16;
-      roundRectPath(c, -labelW/2, y + bodyH*0.06, labelW, labelH, labelH*0.35);
-      c.fill();
-
-      // БЛИК
-      c.globalAlpha = alpha*0.7;
-      c.fillStyle = '#ffffff';
-      c.beginPath();
-      c.roundRect
-        ? c.roundRect(x + bodyW*0.08, y + bodyH*0.10, bodyW*0.14, bodyH*0.36, bodyH*0.08)
-        : roundRectPath(c, x + bodyW*0.08, y + bodyH*0.10, bodyW*0.14, bodyH*0.36, bodyH*0.08);
-      c.fill();
-
-      c.restore();
-      return cn;
-
-      // helper
-      function roundRectPath(ctx,x,y,w,h,r){
-        r=Math.max(0,Math.min(r, Math.min(w,h)/2));
+      function rrPath(ctx,x,y,w,h,r){
+        r=Math.max(0,Math.min(r,Math.min(w,h)/2));
         ctx.moveTo(x+r,y);
         ctx.arcTo(x+w,y,  x+w,y+h, r);
         ctx.arcTo(x+w,y+h, x,y+h, r);
@@ -376,114 +324,64 @@ document.documentElement.classList.add('js');
         ctx.arcTo(x,y,     x+w,y, r);
         ctx.closePath();
       }
+      function rr(ctx,x,y,w,h,r){ if(ctx.roundRect) ctx.roundRect(x,y,w,h,r); else rrPath(ctx,x,y,w,h,r); }
+
+      c.save();
+      c.translate(size/2,size/2);
+      c.rotate(-0.45);
+
+      const bodyW=size*0.62, bodyH=size*0.66;
+      const neckW=bodyW*0.44, neckH=bodyH*0.18, capH=bodyH*0.12, rBody=bodyW*0.22;
+      const x=-bodyW/2, y=-bodyH/2;
+
+      c.globalAlpha=Math.min(alpha*1.2,0.12);
+      c.fillStyle='rgba(0,0,0,0.06)';
+      c.beginPath(); c.ellipse(0, bodyH*0.52, bodyW*0.46, bodyH*0.18, 0, 0, Math.PI*2); c.fill();
+
+      c.globalAlpha=alpha; c.fillStyle='#3a86ff';
+      c.beginPath(); rr(c, x, y, bodyW, bodyH, rBody); c.fill();
+
+      c.beginPath();
+      const neckTopY = y - neckH;
+      c.moveTo( bodyW/2, y + bodyH*0.02);
+      c.lineTo( neckW/2, y );
+      c.lineTo( neckW/2*0.95, neckTopY );
+      c.lineTo( -neckW/2*0.95, neckTopY );
+      c.lineTo( -neckW/2, y );
+      c.lineTo( -bodyW/2, y + bodyH*0.02);
+      c.closePath();
+      c.fillStyle='#3a86ff'; c.fill();
+
+      c.globalAlpha=alpha*0.95; c.fillStyle='#0e3e9b';
+      c.beginPath(); rr(c, -neckW*0.46, neckTopY-capH, neckW*0.92, capH*0.65, capH*0.2); c.fill();
+      c.fillStyle='#1655cf';
+      c.beginPath(); rr(c, -neckW*0.42, neckTopY-capH*0.92, neckW*0.84, capH*0.28, capH*0.14); c.fill();
+
+      c.globalAlpha=alpha*0.75; c.save(); c.rotate(-0.06); c.fillStyle='#ffffff';
+      const sW=bodyW*0.14, sH=bodyH*0.42, rad=sW*0.4;
+      c.beginPath(); rr(c, x+bodyW*0.10, y+bodyH*0.10, sW, sH, rad); c.fill();
+      c.globalAlpha=alpha*0.55;
+      c.beginPath(); rr(c, x+bodyW*0.28, y+bodyH*0.04, sW*0.85, sH*0.35, rad*0.8); c.fill();
+      c.restore();
+
+      c.restore();
+      return cn;
     }
+    const SPR=bottleSpriteFS(124, 0.055);
 
-    <script>
-/* === СПРАЙТ БУТЫЛКИ под твой референс === */
-function bottleSpriteFS(size=124, alpha=0.085){
-  const cn=document.createElement('canvas'); cn.width=cn.height=size;
-  const c=cn.getContext('2d');
-
-  // helper: roundRect fallback
-  function rrPath(ctx,x,y,w,h,r){
-    r=Math.max(0,Math.min(r,Math.min(w,h)/2));
-    ctx.moveTo(x+r,y);
-    ctx.arcTo(x+w,y,  x+w,y+h, r);
-    ctx.arcTo(x+w,y+h, x,y+h, r);
-    ctx.arcTo(x,y+h,   x,y,   r);
-    ctx.arcTo(x,y,     x+w,y, r);
-    ctx.closePath();
-  }
-  function rr(ctx,x,y,w,h,r){
-    if(ctx.roundRect) ctx.roundRect(x,y,w,h,r);
-    else rrPath(ctx,x,y,w,h,r);
-  }
-
-  c.save();
-  c.translate(size/2,size/2);
-  c.rotate(-0.45); // лёгкий диагональный наклон как на скрине
-
-  const bodyW=size*0.62;
-  const bodyH=size*0.66;
-  const neckW=bodyW*0.44;       // короткое и широкое горлышко
-  const neckH=bodyH*0.18;
-  const capH =bodyH*0.12;
-  const rBody=bodyW*0.22;
-
-  const x=-bodyW/2, y=-bodyH/2;
-
-  // тень
-  c.globalAlpha=Math.min(alpha*1.3,0.12);
-  c.fillStyle='rgba(0,0,0,0.06)';
-  c.beginPath();
-  c.ellipse(0, bodyH*0.52, bodyW*0.46, bodyH*0.18, 0, 0, Math.PI*2);
-  c.fill();
-
-  // корпус (прямоугольник с большими скруглениями — «плоские плечи»)
-  c.globalAlpha=alpha;
-  c.fillStyle='#3a86ff';
-  c.beginPath(); rr(c, x, y, bodyW, bodyH, rBody); c.fill();
-
-  // плечи + горлышко (лёгкое сужение)
-  c.beginPath();
-  const neckTopY = y - neckH;
-  c.moveTo( bodyW/2, y + bodyH*0.02);
-  c.lineTo( neckW/2, y );
-  c.lineTo( neckW/2*0.95, neckTopY );
-  c.lineTo( -neckW/2*0.95, neckTopY );
-  c.lineTo( -neckW/2, y );
-  c.lineTo( -bodyW/2, y + bodyH*0.02);
-  c.closePath();
-  c.fillStyle='#3a86ff';
-  c.fill();
-
-  // крышка (два тона)
-  c.globalAlpha=alpha*0.95;
-  c.fillStyle='#0e3e9b';
-  c.beginPath(); rr(c, -neckW*0.46, neckTopY-capH, neckW*0.92, capH*0.65, capH*0.2); c.fill();
-  c.fillStyle='#1655cf';
-  c.beginPath(); rr(c, -neckW*0.42, neckTopY-capH*0.92, neckW*0.84, capH*0.28, capH*0.14); c.fill();
-
-  // маленькие тёмные «метки» по бокам горлышка (как на рефе)
-  c.globalAlpha=alpha*0.95;
-  c.fillStyle='#0e3e9b';
-  const mW=neckW*0.12, mH=neckH*0.28;
-  c.beginPath(); rr(c,  neckW*0.6-mW, neckTopY+mH*0.1, mW, mH, mW*0.25); c.fill();
-  c.beginPath(); rr(c, -neckW*0.6,    neckTopY+mH*0.1, mW, mH, mW*0.25); c.fill();
-
-  // диагональные белые полосы-блики (как на скрине)
-  c.globalAlpha=alpha*0.75;
-  c.save();
-  c.rotate(-0.06);
-  c.fillStyle='#ffffff';
-  const sW=bodyW*0.14, sH=bodyH*0.42, rad=sW*0.4;
-  c.beginPath(); rr(c, x+bodyW*0.10, y+bodyH*0.10, sW, sH, rad); c.fill();
-  c.globalAlpha=alpha*0.55;
-  c.beginPath(); rr(c, x+bodyW*0.28, y+bodyH*0.04, sW*0.85, sH*0.35, rad*0.8); c.fill();
-  c.restore();
-
-  c.restore();
-  return cn;
-}
-
-/* используй новый спрайт */
-const SPR = bottleSpriteFS(124, 0.085);
-</script>
     class Bottle{
       constructor(resetTop=true){ this.reset(resetTop); }
       reset(fromTop){
         this.s = 0.7 + Math.random()*0.9;
         this.x = Math.random()*W;
         this.y = fromTop ? -Math.random()*H*0.8 - SPR.height*this.s : -SPR.height*this.s;
-        this.vy = 0.85 + Math.random()*1.35;  // скорость падения
-        this.vx = (Math.random()-.5)*0.22;    // лёгкий дрейф
+        this.vy = 0.85 + Math.random()*1.35;
+        this.vx = (Math.random()-.5)*0.22;
         this.r  = Math.random()*6.28;
         this.vr = (Math.random()-.5)*0.012;
       }
       step(){
-        this.x += this.vx;
-        this.y += this.vy;
-        this.r += this.vr;
+        this.x += this.vx; this.y += this.vy; this.r += this.vr;
         if(this.x < -60) this.x = W+60;
         if(this.x > W+60) this.x = -60;
         if(this.y > H + 70) this.reset(true); // без накопления
@@ -491,13 +389,12 @@ const SPR = bottleSpriteFS(124, 0.085);
       draw(){
         const w=SPR.width*this.s, h=SPR.height*this.s;
         ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.r);
-        ctx.drawImage(SPR, -w/2, -h/2, w, h);
-        ctx.restore();
+        ctx.drawImage(SPR, -w/2, -h/2, w, h); ctx.restore();
       }
     }
 
     function seed(){
-      const count = Math.round((W*H)/12000) + 24; // плотность
+      const count = Math.round((W*H)/14000) + 18; // чуть реже, чище фон
       items = Array.from({length:count}, () => new Bottle(true));
     }
 
@@ -525,7 +422,17 @@ const SPR = bottleSpriteFS(124, 0.085);
 (function(){
   const wrap=document.querySelector('.pipe-wrap'); if(!wrap)return;
   const info=document.getElementById('stageInfo'); const title=document.getElementById('stageTitle'); const text=document.getElementById('stageText');
-  wrap.addEventListener('click',(e)=>{const dot=e.target.closest('.stage-dot'); if(!dot){info.hidden=true;return;} title.textContent=dot.dataset.title||''; text.textContent=dot.dataset.text||''; info.hidden=false; const x=dot.style.getPropertyValue('--x'); const y=dot.style.getPropertyValue('--y'); info.style.left=x; info.style.top=y; wrap.querySelectorAll('.stage-dot').forEach(d=>d.classList.remove('active')); dot.classList.add('active');});
+  wrap.addEventListener('click',(e)=>{
+    const dot=e.target.closest('.stage-dot');
+    if(!dot){info.hidden=true;return;}
+    title.textContent=dot.dataset.title||'';
+    text.textContent=dot.dataset.text||'';
+    info.hidden=false;
+    const x=dot.style.getPropertyValue('--x'); const y=dot.style.getPropertyValue('--y');
+    info.style.left=x; info.style.top=y;
+    wrap.querySelectorAll('.stage-dot').forEach(d=>d.classList.remove('active'));
+    dot.classList.add('active');
+  });
 })();
 </script>
 </body>
