@@ -300,69 +300,108 @@ document.documentElement.classList.add('js');
     let W=0,H=0,dpr=1,running=false,items=[];
     const MAX_DPR=2;
 
-    function resize(){
-      const r=section.getBoundingClientRect();
-      dpr=Math.min(window.devicePixelRatio||1, MAX_DPR);
-      W=Math.max(320, Math.floor(r.width));
-      H=Math.max(280, Math.floor(r.height));
-      canvas.width=W*dpr; canvas.height=H*dpr;
-      canvas.style.width=W+'px'; canvas.style.height=H+'px';
-      ctx.setTransform(dpr,0,0,dpr,0,0);
-      seed();
-    }
+   <script>
+// === СПРАЙТ 0.5 л — реалистичные плечи и горлышко ===
+function bottleSpriteRealistic(size=132, alpha=0.065){
+  const cn = document.createElement('canvas'); cn.width = cn.height = size;
+  const c  = cn.getContext('2d');
 
-    // === спрайт обычной 0.5 л бутылки ===
-    function bottleSpriteSimple(size=120, alpha=0.06){
-      const cn=document.createElement('canvas'); cn.width=cn.height=size;
-      const c=cn.getContext('2d');
+  // геометрия
+  const bodyW = size * 0.50;      // ширина корпуса
+  const bodyH = size * 0.88;      // высота корпуса
+  const neckW = bodyW * 0.36;     // ширина горлышка (у 0.5 оно заметно уже корпуса)
+  const neckH = bodyH * 0.17;     // высота горлышка
+  const capH  = bodyH * 0.10;     // высота крышки
+  const rBody = bodyW * 0.22;     // радиус скругления корпуса
 
-      // геометрия
-      const bodyW=size*0.48, bodyH=size*0.88;      // цилиндрический корпус
-      const neckW=bodyW*0.42, neckH=bodyH*0.16;    // короткое горлышко
-      const capH =bodyH*0.09;                      // крышка
-      const x=-bodyW/2, y=-bodyH/2;
+  const x = -bodyW/2, y = -bodyH/2;
 
-      c.save();
-      c.translate(size/2,size/2);
-      c.rotate(-0.26); // лёгкий наклон
+  c.save();
+  c.translate(size/2, size/2);
+  c.rotate(-0.22); // мягкий наклон
 
-      // тень
-      c.globalAlpha=Math.min(alpha*1.2,0.1);
-      c.fillStyle='rgba(0,0,0,0.06)';
-      c.beginPath(); c.ellipse(0, bodyH*0.46, bodyW*0.36, bodyH*0.12, 0, 0, Math.PI*2); c.fill();
+  // тень
+  c.globalAlpha = Math.min(alpha*1.15, 0.10);
+  c.fillStyle = 'rgba(0,0,0,0.06)';
+  c.beginPath();
+  c.ellipse(0, bodyH*0.46, bodyW*0.36, bodyH*0.12, 0, 0, Math.PI*2);
+  c.fill();
 
-      // корпус (скруглённый прямоугольник)
-      c.globalAlpha=alpha;
-      c.fillStyle='#3a86ff';
-      if (c.roundRect){ c.beginPath(); c.roundRect(x, y, bodyW, bodyH, bodyW*0.22); c.fill(); }
-      else {
-        c.beginPath();
-        const r=bodyW*0.22;
-        c.moveTo(x+r, y);
-        c.arcTo(x+bodyW, y, x+bodyW, y+bodyH, r);
-        c.arcTo(x+bodyW, y+bodyH, x, y+bodyH, r);
-        c.arcTo(x, y+bodyH, x, y, r);
-        c.arcTo(x, y, x+bodyW, y, r);
-        c.closePath(); c.fill();
-      }
+  // корпус (скруглённый прямоугольник)
+  c.globalAlpha = alpha;
+  const grad = c.createLinearGradient(0, y, 0, y+bodyH);
+  grad.addColorStop(0,  '#4da2ff');
+  grad.addColorStop(1,  '#2b8cff');
+  c.fillStyle = grad;
 
-      // горлышко и крышка
-      const ny = y - neckH;
-      c.fillStyle='#3a86ff';
-      c.fillRect(-neckW/2, y, neckW, neckH);       // горлышко
-      c.fillStyle='#0e3e9b';
-      c.fillRect(-neckW/2, ny - capH, neckW, capH*0.75);  // тёмная часть крышки
-      c.fillStyle='#1655cf';
-      c.fillRect(-neckW/2, ny - capH*1.05, neckW, capH*0.28); // светлая фаска
+  c.beginPath();
+  if (c.roundRect) c.roundRect(x, y, bodyW, bodyH, rBody);
+  else {
+    const r = rBody;
+    c.moveTo(x+r, y);
+    c.arcTo(x+bodyW, y, x+bodyW, y+bodyH, r);
+    c.arcTo(x+bodyW, y+bodyH, x, y+bodyH, r);
+    c.arcTo(x, y+bodyH, x, y, r);
+    c.arcTo(x, y, x+bodyW, y, r);
+    c.closePath();
+  }
+  c.fill();
 
-      // вертикальный блик
-      c.globalAlpha=alpha*0.65; c.fillStyle='#ffffff';
-      c.fillRect(x + bodyW*0.1, y + bodyH*0.1, bodyW*0.1, bodyH*0.5);
+  // ПЛЕЧИ → ГОРЛЫШКО (плавная S-кривая внутрь, без "вдавливания")
+  const shoulderY = y + bodyH*0.02;      // чуть ниже верхней кромки корпуса
+  const neckTopY  = shoulderY - neckH;   // верх горлышка (низ крышки)
 
-      c.restore();
-      return cn;
-    }
-    const SPR = bottleSpriteSimple(120, 0.06);
+  c.beginPath();
+  // правая сторона
+  c.moveTo( bodyW/2, shoulderY );
+  c.bezierCurveTo(
+    bodyW/2,                 shoulderY - bodyH*0.12,   // контрольная внутрь
+    neckW/2 + bodyW*0.05,    shoulderY - bodyH*0.22,   // сглаживаем «плечо»
+    neckW/2,                 neckTopY
+  );
+  // левая сторона
+  c.lineTo( -neckW/2, neckTopY );
+  c.bezierCurveTo(
+    -neckW/2 - bodyW*0.05,   shoulderY - bodyH*0.22,
+    -bodyW/2,                shoulderY - bodyH*0.12,
+    -bodyW/2,                shoulderY
+  );
+  c.closePath();
+  c.fillStyle = grad;
+  c.fill();
+
+  // кольцо-ободок под крышкой (узкий цилиндр горла)
+  c.globalAlpha = alpha*0.9;
+  c.fillStyle = '#0e3e9b';
+  c.fillRect(-neckW/2, neckTopY - capH*0.40, neckW, capH*0.40);
+
+  // крышка (2 тона)
+  c.fillStyle = '#1655cf';
+  const capW = neckW * 0.98;
+  c.beginPath();
+  if (c.roundRect) c.roundRect(-capW/2, neckTopY - capH, capW, capH*0.85, capH*0.22);
+  else { c.rect(-capW/2, neckTopY - capH, capW, capH*0.85); }
+  c.fill();
+
+  c.fillStyle = '#1e56c5';
+  c.fillRect(-capW/2, neckTopY - capH*0.92, capW, capH*0.28);
+
+  // вертикальный блик на корпусе
+  c.globalAlpha = alpha*0.6;
+  c.fillStyle = '#ffffff';
+  c.beginPath();
+  const hlW = bodyW*0.11, hlH = bodyH*0.52, hlR = hlW*0.45;
+  if (c.roundRect) c.roundRect(x + bodyW*0.10, y + bodyH*0.12, hlW, hlH, hlR);
+  else { c.rect(x + bodyW*0.10, y + bodyH*0.12, hlW, hlH); }
+  c.fill();
+
+  c.restore();
+  return cn;
+}
+
+// подключаем новый спрайт
+const SPR = bottleSpriteRealistic(132, 0.065);
+</script>
 
     // частица
     class Bottle{
