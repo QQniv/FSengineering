@@ -24,7 +24,7 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   padding:16px var(--page-x);background:rgba(255,255,255,.7);backdrop-filter:blur(10px);
   border-bottom:1px solid rgba(16,71,168,.10)
 }
-.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:40px;line-height:1}
+.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:40px;line-height:1;text-decoration:none;color:var(--ink)}
 nav a{text-decoration:none;color:var(--ink);margin-left:28px;font-weight:600;transition:opacity .2s}
 nav a:hover{opacity:.78}
 
@@ -67,7 +67,39 @@ section{scroll-margin-top:120px}
 .spec div{background:#fff;border:1px dashed rgba(29,78,216,.2);padding:12px;border-radius:14px;font-size:14px;color:#0f56cf;font-weight:800}
 @media (max-width:680px){ .spec{grid-template-columns:1fr} }
 
-.media{display:flex;align-items:center;justify-content:center;min-height:240px;border-radius:18px;border:1px solid rgba(0,0,0,.06);background:linear-gradient(180deg,#f8fbff 0%,#e8f1ff 100%)}
+/* === REAL PHOTO GRIDS === */
+.media-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+  padding:18px;
+  background:linear-gradient(180deg,#f7fbff 0%,#eef5ff 100%);
+  border:1px solid rgba(16,71,168,.12);
+  border-radius:24px;
+  box-shadow:0 10px 26px rgba(16,71,168,.06);
+}
+.media-grid figure{
+  position:relative; overflow:hidden; border-radius:18px; aspect-ratio:16/9; background:#e9f1ff;
+}
+.media-grid img{
+  width:100%; height:100%; object-fit:cover; display:block;
+  transform:scale(1.02);
+  transition:transform .45s ease, filter .45s ease;
+  filter:saturate(1.06) contrast(1.04);
+}
+.media-grid figure:hover img{ transform:scale(1.06); filter:saturate(1.12) contrast(1.08) }
+
+.media-grid.houses{
+  gap:18px; padding:20px;
+  background:linear-gradient(180deg,#fafdfc 0%,#eef7ff 100%);
+  box-shadow:0 10px 26px rgba(43,140,255,.06);
+}
+.media-grid.houses figure{ border-radius:20px; aspect-ratio:16/10 }
+.media-grid.apartments{
+  background:linear-gradient(180deg,#f9fbff 0%,#eef2ff 100%);
+  box-shadow:0 10px 26px rgba(16,71,168,.05);
+}
+@media(max-width:960px){ .grid.cols-2{grid-template-columns:1fr} .media-grid{grid-template-columns:1fr} }
 
 /* pricing teaser */
 .pricing{padding:64px 0 90px;background:#f7faff;border-top:1px solid rgba(0,0,0,.06)}
@@ -90,7 +122,7 @@ section{scroll-margin-top:120px}
 </head>
 <body>
 <header class="topbar">
-  <div class="logo">FS</div>
+  <a class="logo" href="index.html" aria-label="На главную">FS</a>
   <nav>
     <a href="services.html" aria-current="page">Услуги</a>
     <a href="about.html">О нас</a>
@@ -147,17 +179,12 @@ section{scroll-margin-top:120px}
           </div>
         </div>
 
-        <div class="media reveal" data-parallax="0.03" aria-label="Схема станции">
-          <!-- заглушка-схема -->
-          <svg width="100%" height="220" viewBox="0 0 600 220">
-            <defs><linearGradient id="g1" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#eaf1ff"/><stop offset="1" stop-color="#dbe7ff"/></linearGradient></defs>
-            <rect x="20" y="30" width="560" height="160" rx="18" fill="url(#g1)" stroke="#c8dafc"/>
-            <rect x="60" y="60" width="90" height="100" rx="10" fill="#2b8cff" opacity=".18"/>
-            <rect x="170" y="60" width="90" height="100" rx="10" fill="#2b8cff" opacity=".22"/>
-            <rect x="280" y="60" width="90" height="100" rx="10" fill="#2b8cff" opacity=".26"/>
-            <rect x="390" y="60" width="90" height="100" rx="10" fill="#2b8cff" opacity=".30"/>
-            <rect x="500" y="60" width="60" height="100" rx="10" fill="#0f56cf" opacity=".35"/>
-          </svg>
+        <!-- ФОТО: Девелоперам -->
+        <div class="media-grid reveal" data-parallax="0.03" aria-label="Галерея объектов девелоперов">
+          <figure><img src="assets/dev/developers-1.jpg" alt="ЖК на закате, фасады и крыши" loading="lazy"></figure>
+          <figure><img src="assets/dev/developers-2.jpg" alt="Строящаяся очередь, стеклянные фасады" loading="lazy"></figure>
+          <figure><img src="assets/dev/developers-3.jpg" alt="Современные башни, ритм окон" loading="lazy"></figure>
+          <figure><img src="assets/dev/developers-4.jpg" alt="Квартальная застройка, бульвар и деревья" loading="lazy"></figure>
         </div>
       </div>
     </div>
@@ -172,13 +199,12 @@ section{scroll-margin-top:120px}
       </div>
 
       <div class="grid cols-2">
-        <div class="media reveal" data-parallax="0.03" aria-label="Домашняя станция">
-          <svg width="100%" height="220" viewBox="0 0 600 220">
-            <defs><linearGradient id="g2" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#eaf1ff"/><stop offset="1" stop-color="#dbe7ff"/></linearGradient></defs>
-            <rect x="20" y="40" width="560" height="140" rx="18" fill="url(#g2)" stroke="#c8dafc"/>
-            <circle cx="140" cy="110" r="44" fill="#2b8cff" opacity=".20"/>
-            <rect x="200" y="80" width="280" height="60" rx="12" fill="#0f56cf" opacity=".18"/>
-          </svg>
+        <!-- ФОТО: Дома -->
+        <div class="media-grid houses reveal" data-parallax="0.03" aria-label="Частные дома">
+          <figure><img src="assets/houses/house-1.jpg" alt="Современный одноэтажный дом из кирпича" loading="lazy"></figure>
+          <figure><img src="assets/houses/house-2.jpg" alt="Дом с террасой и панорамным остеклением" loading="lazy"></figure>
+          <figure><img src="assets/houses/house-3.jpg" alt="Минималистичный коттедж в лесу" loading="lazy"></figure>
+          <figure><img src="assets/houses/house-4.jpg" alt="Дом в стиле хай-тек с горизонтальными объёмами" loading="lazy"></figure>
         </div>
 
         <div class="card reveal" data-parallax="0.02">
@@ -223,14 +249,12 @@ section{scroll-margin-top:120px}
           </div>
         </div>
 
-        <div class="media reveal" data-parallax="0.03" aria-label="Фильтр под мойку">
-          <svg width="100%" height="220" viewBox="0 0 600 220">
-            <defs><linearGradient id="g3" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#eaf1ff"/><stop offset="1" stop-color="#dbe7ff"/></linearGradient></defs>
-            <rect x="30" y="40" width="540" height="140" rx="18" fill="url(#g3)" stroke="#c8dafc"/>
-            <rect x="80" y="70" width="120" height="80" rx="12" fill="#2b8cff" opacity=".2"/>
-            <rect x="230" y="70" width="120" height="80" rx="12" fill="#2b8cff" opacity=".25"/>
-            <rect x="380" y="70" width="120" height="80" rx="12" fill="#2b8cff" opacity=".3"/>
-          </svg>
+        <!-- ФОТО: Квартиры -->
+        <div class="media-grid apartments reveal" data-parallax="0.03" aria-label="Интерьеры квартир">
+          <figure><img src="assets/apartments/apartment-1.jpg" alt="Современная квартира с панорамными окнами" loading="lazy"></figure>
+          <figure><img src="assets/apartments/apartment-2.jpg" alt="Минималистичная кухня с деревянными акцентами" loading="lazy"></figure>
+          <figure><img src="assets/apartments/apartment-3.jpg" alt="Интерьер гостиной в тёплых тонах" loading="lazy"></figure>
+          <figure><img src="assets/apartments/apartment-4.jpg" alt="Просторная спальня-студия с современным освещением" loading="lazy"></figure>
         </div>
       </div>
     </div>
@@ -303,8 +327,8 @@ section{scroll-margin-top:120px}
         Подготовим подбор оборудования и смету за 2–3 дня после получения анализа воды и исходных данных.
       </p>
       <div class="reveal" data-parallax="0.04">
+        <a href="contacts.html" class="btn primary">Связаться</a>
         <a href="about.html" class="btn ghost">О компании</a>
-        <a href="index.html#products" class="btn primary">Что делает FS</a>
       </div>
     </div>
   </section>
