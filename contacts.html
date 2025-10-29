@@ -24,7 +24,7 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   padding:16px var(--page-x);background:rgba(255,255,255,.7);backdrop-filter:blur(10px);
   border-bottom:1px solid rgba(16,71,168,.10)
 }
-.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:40px;line-height:1}
+.logo{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:40px;line-height:1;text-decoration:none;color:var(--ink)}
 nav a{text-decoration:none;color:var(--ink);margin-left:28px;font-weight:600;transition:opacity .2s}
 nav a:hover{opacity:.78}
 
@@ -88,7 +88,7 @@ section{scroll-margin-top:84px}
 </head>
 <body>
 <header class="topbar">
-  <div class="logo">FS</div>
+  <a class="logo" href="index.html" aria-label="На главную">FS</a>
   <nav>
     <a href="services.html">Услуги</a>
     <a href="about.html">О нас</a>
@@ -176,7 +176,7 @@ section{scroll-margin-top:84px}
         <ul class="list">
           <li><span class="badge">Email</span> <a href="mailto:xxxxxxx@xxx.com">xxxxxxx@xxx.com</a></li>
           <li><span class="badge">Телефон</span> <a href="tel:+70000000000">+7 000 000-00-00</a></li>
-          <li><span class="badge">Telegram</span> <a href="#" aria-disabled="true">t.me/FS_project</a></li>
+          <li><span class="badge">Telegram</span> <a href="https://t.me/xt1nkt" target="_blank" rel="noopener">@xt1nkt</a> или <a href="https://t.me/StevenHyuga" target="_blank" rel="noopener">@StevenHyuga</a></li>
           <li><span class="badge">Адрес</span> Москва, ул. Красота, д. 1 (демо)</li>
           <li><span class="badge">Часы</span> Пн–Пт 10:00–19:00</li>
         </ul>
@@ -277,7 +277,6 @@ ${msg}
 
   form.addEventListener('submit', (e)=>{
     e.preventDefault();
-    // простая валидация
     const need=['name','email','message','consent'];
     for(const n of need){
       const el = n==='consent' ? document.getElementById('consent') : form.querySelector(`[name="${n}"]`);
