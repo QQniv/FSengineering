@@ -1,11 +1,12 @@
-/* FS — app.js (общий) */
+/* ===============================================
+   FS — app.js (глобальный функционал сайта)
+   =============================================== */
 
-/* --------- базовые настройки --------- */
+/* --------- инициализация --------- */
 (function boot(){
   const root = document.documentElement;
   root.classList.remove('no-js'); root.classList.add('js');
 
-  // аккуратный возврат к началу только при первой загрузке
   try{
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     if (!location.hash) addEventListener('pageshow', () => scrollTo({top:0, left:0}));
@@ -15,8 +16,9 @@
 /* --------- хелперы --------- */
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 const prefersReduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isMobile = () => matchMedia('(max-width: 768px)').matches;
 
-/* --------- header: тень/сжатие при скролле --------- */
+/* --------- header: тень/сжатие --------- */
 (function headerFX(){
   const header = document.querySelector('.topbar');
   if (!header) return;
@@ -27,6 +29,20 @@ const prefersReduce = () => matchMedia('(prefers-reduced-motion: reduce)').match
   addEventListener('scroll', update, {passive:true});
   addEventListener('load', update);
   update();
+})();
+
+/* --------- логотип-клик (возврат на главную) --------- */
+(function logoLink(){
+  const logo = document.querySelector('.logo');
+  if (!logo) return;
+  logo.addEventListener('click', (e)=>{
+    if (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '') {
+      e.preventDefault();
+      scrollTo({top:0, behavior:'smooth'});
+    } else {
+      location.href = 'index.html';
+    }
+  });
 })();
 
 /* --------- плавный скролл по якорям --------- */
@@ -40,7 +56,6 @@ const prefersReduce = () => matchMedia('(prefers-reduced-motion: reduce)').match
     if (!el) return;
     e.preventDefault();
     const y = el.getBoundingClientRect().top + scrollY;
-    // учтём фиксированную шапку
     const header = document.querySelector('.topbar');
     const offset = header ? header.offsetHeight + 8 : 0;
     scrollTo({ top: Math.max(0, y - offset), behavior: 'smooth' });
@@ -65,7 +80,7 @@ const prefersReduce = () => matchMedia('(prefers-reduced-motion: reduce)').match
 
 /* --------- параллакс через CSS-переменную --pY --------- */
 (function parallax(){
-  if (prefersReduce()) return;
+  if (prefersReduce() || isMobile()) return;
   const els = [...document.querySelectorAll('[data-parallax]')];
   if (!els.length) return;
 
@@ -151,7 +166,6 @@ ${msg}
 
   form.addEventListener('submit', (e)=>{
     e.preventDefault();
-    // мини-валидация
     const need = ['name','email','message','consent'];
     for (const n of need){
       const el = n === 'consent' ? document.getElementById('consent') : form.querySelector(`[name="${n}"]`);
@@ -167,3 +181,8 @@ ${msg}
     success.style.display = 'block';
   });
 })();
+
+/* --------- экспорт (на случай модульного подключения) --------- */
+window.FS = {
+  clamp, prefersReduce, isMobile
+};
